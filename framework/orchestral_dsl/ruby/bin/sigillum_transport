@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "json"
+require "optparse"
+require_relative "../lib/sigillum/framework"
+
+options = { stem: nil }
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: sigillum_transport SOURCE.rb OUT_DIR [--stem STEM]"
+  opts.on("--stem STEM", "Output stem; defaults to the source filename") { |value| options[:stem] = value }
+end
+parser.parse!
+
+source = ARGV.shift
+out_dir = ARGV.shift
+if source.nil? || out_dir.nil?
+  warn parser
+  exit 2
+end
+
+stem = options[:stem] || File.basename(source, File.extname(source))
+begin
+  path = Sigillum::Framework::Transport.write(source, out_dir, stem: stem)
+  puts JSON.pretty_generate(transport: path.to_s)
+rescue Sigillum::OrchestralDSL::Production::CompileError => e
+  warn JSON.pretty_generate(e.response)
+  exit 1
+end

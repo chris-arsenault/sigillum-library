@@ -1,0 +1,16 @@
+# Generated artifacts.
+outputs/**
+stems/
+build/
+exports/
+tmp/
+*.mid
+*.musicxml
+*.zip
+
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "optparse"
+require_relative "../lib/sigillum/orchestral_dsl"
+
+options = {}
+
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: dsl_view SOURCE.rb PROJECTION [--bars 1-8] [--part cello]"
+  opts.on("--bars RANGE", "Bar range, e.g. 1-8") do |value|
+    first, last = value.split("-", 2).map(&:to_i)
+    options[:bars] = first..last
+  end
+  opts.on("--part PART", "Part id for line projection") do |value|
+    options[:part] = value.to_sym
+  end
+end
+
+parser.parse!
+source = ARGV.shift
+projection = (ARGV.shift || "summary").to_sym
+
+if source.nil?
+  warn parser
+  exit 2
+end
+
+piece = Sigillum::OrchestralDSL.load_file(source)
+puts Sigillum::OrchestralDSL.projection(piece, projection, **options)

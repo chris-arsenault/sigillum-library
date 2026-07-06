@@ -1,0 +1,133 @@
+# Standard Container
+
+The DSL standardizes the surrounding architecture, not one note representation.
+
+## Canonical Shape
+
+```ruby
+production_piece "Title" do
+  meter "7/8", beat_pattern: [3, 2, 2]
+  key "F"
+
+  meter do
+    change "4/4", at: "bar 9"
+  end
+
+  tempo do
+    mark "quarter = 72", at: "bar 1 beat 1"
+    change "quarter = 88", at: "bar 9 beat 1"
+  end
+
+  roster do
+    part :clarinet, "Clarinet", music21: "Clarinet", family: :woodwind
+    part :cello, "Violoncello", music21: "Violoncello", family: :string
+  end
+
+  section :s1, "Plain statement", bars: 1..8, type: :plain_statement do
+    journey "opening call becomes displaced answer"
+    destination "answer is audible as displaced, not merely described"
+
+    span bars: 1..8, texture: :melody_over_bass do
+      phrase :call, pitch: :degrees do
+        key_context "F4"
+        degrees "5 4 3{ten} #1 1"
+        rhythm  "1.5 .25 .25 .5 1"
+      end
+
+      placement :call, part: :clarinet, at: "bar 1 beat 1" do
+        role :foreground
+        realization "C5 Bb4 A4 F#4 F4"
+      end
+
+      staff_bar 1 do
+        foreground "clarinet: C5 _ Bb4/A4 F#4 _ F4"
+        bass "cello: F2 _ C3 _ F2"
+      end
+
+      gesture :not_prose_only do
+        idea "answer does not meet the call"
+        mechanism "answer enters late against active bass"
+        line_relation :clarinet, :cello, "foreground is heard against bass timing"
+      end
+    end
+  end
+
+  control do
+    dynamic :mf, at: "bar 1 beat 1", for: :clarinet
+    crescendo from: "bar 1 beat 1", to: "bar 4 beat 1", for: :string
+  end
+end
+```
+
+## Required Concepts
+
+- `piece`: movement/passage-level context.
+- `section`: form-level unit with bars and structural type.
+- `span`: local texture/composing unit.
+- `phrase`: melodic, rhythmic, bass, or figural material.
+- `placement`: where a phrase enters.
+- `staff_bar`: local vertical checkpoint.
+- `gesture`: optional prose claim tied to audible mechanism.
+- `meter`: opening meter plus bar-boundary meter changes.
+- `tempo`: score tempo timeline.
+- `control`: scoped dynamics, hairpins, pedal, and text timeline.
+- `projection`: an LLM reading view.
+
+## Roster Notation Metadata
+
+Logical composition lanes may be exported as a single notated instrument when they share a
+`notation_group`.
+
+```ruby
+roster do
+  part :piano_upper, "Piano Upper", music21: "Piano", family: :keyboard,
+    notation_group: :piano, notation_staff: 1
+  part :piano_middle, "Piano Middle", music21: "Piano", family: :keyboard,
+    notation_group: :piano, notation_staff: :auto
+  part :piano_lower, "Piano Lower", music21: "Piano", family: :keyboard,
+    notation_group: :piano, notation_staff: 2
+end
+```
+
+For piano groups, `notation_staff: 1` exports to the upper staff, `notation_staff: 2` exports to the
+lower staff, and `notation_staff: :auto` splits the lane at middle C for grand-staff notation.
+
+## Roster Instrument Contract
+
+Every part declares both its score display name and its exact `music21.instrument` class name:
+
+```ruby
+part :english_horn, "English Horn", music21: "EnglishHorn", family: :woodwind
+part :snare_drum, "Snare Drum", music21: "SnareDrum", family: :percussion
+```
+
+The Python backend does not infer instruments from part names. Missing or unknown `music21:` values
+are errors because the transport must preserve orchestration intent.
+
+A multi-sound percussion staff declares its staff-position convention in the part description as
+`<pitch> <sound>` pairs:
+
+```ruby
+part :percussion, "Percussion", music21: "Percussion", family: :percussion,
+     description: "single staff: C3 snare, F2 bass drum, G3 cymbal"
+```
+
+The exporter converts such a part to real unpitched percussion: a percussion clef, one named
+score-instrument per sound with its General MIDI drum mapping (per-note instrument tags in
+MusicXML), and MIDI on channel 10. Recognized sound words: snare, bass drum, cymbal, hi-hat,
+ride, tom, triangle, tambourine, woodblock. Percussion-family parts whose description declares
+no pitch positions (timpani, glockenspiel, a single-sound snare part) are exported unchanged as
+written.
+
+## Container Rule
+
+Do not invent unrelated top-level structures for a passage. Add local notation surfaces inside this
+container instead.
+
+Meter changes must land on bar boundaries, e.g. `change "3/4", at: "bar 5"`. Bar/beat placement,
+section offsets, and transport offsets are resolved against the meter timeline.
+
+## Implemented API
+
+New source uses `production_piece`. The production loader also accepts `piece` and `hybrid_piece`
+inside files for compatibility, but documentation should prefer `production_piece`.

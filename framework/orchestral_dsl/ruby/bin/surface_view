@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "optparse"
+require_relative "../lib/sigillum/orchestral_dsl"
+
+view = :structure
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: surface_view SOURCE.rb [summary|structure|bars|placements]"
+end
+
+parser.parse!
+source = ARGV.shift
+view = (ARGV.shift || view).to_sym
+
+if source.nil?
+  warn parser
+  exit 2
+end
+
+study = Sigillum::OrchestralDSL::SurfaceLab.load_file(source)
+puts Sigillum::OrchestralDSL::SurfaceLab.readout(study, view)

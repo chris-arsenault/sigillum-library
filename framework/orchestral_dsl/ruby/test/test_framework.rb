@@ -1,0 +1,118 @@
+# frozen_string_literal: true
+
+require "fileutils"
+require "json"
+require "minitest/autorun"
+require "tmpdir"
+
+$LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
+require "sigillum/framework"
+
+class FrameworkTest < Minitest::Test
+  def test_transport_writer_stops_at_json_transport
+    Dir.mktmpdir do |dir|
+      source = File.join(dir, "writer_source.rb")
+      out_dir = File.join(dir, "out")
+      File.write(source, simple_source("Transport Writer"))
+
+      path = Sigillum::Framework::Transport.write(source, out_dir, stem: "writer")
+      parsed = JSON.parse(File.read(path))
+
+      assert_equal "sigillum.orchestral_dsl.transport", parsed.fetch("schema")
+      assert File.exist?(File.join(out_dir, "writer.sigillum_transport.json"))
+      refute File.exist?(File.join(out_dir, "writer.musicxml"))
+      refute File.exist?(File.join(out_dir, "writer.mid"))
+    end
+  end
+
+  def test_registry_builds_selected_movement_transport
+    movement_output_dir = Sigillum::Framework::Paths::MOVEMENT_OUTPUTS.join("mvt1_registry")
+    FileUtils.rm_rf(movement_output_dir)
+
+    Dir.mktmpdir do |dir|
+      source = File.join(dir, "movement.rb")
+      registry = File.join(dir, "registry.rb")
+      File.write(source, simple_source("Registry Movement"))
+      File.write(registry, <<~RUBY)
+        movement :mvt1,
+          title: "Registry Movement",
+          source: "movement.rb",
+          output_stem: "mvt1_registry",
+          bars: 1..1,
+          roman: "I",
+          status: :draft
+      RUBY
+
+      paths = Sigillum::Framework::Registry.load_file(registry).write_transport(:mvt1)
+
+      assert_equal [movement_output_dir.join("mvt1_registry.sigillum_transport.json")], paths
+      assert File.exist?(paths.first)
+      assert_equal "Registry Movement", JSON.parse(File.read(paths.first)).fetch("title")
+    end
+  ensure
+    FileUtils.rm_rf(movement_output_dir)
+  end
+
+  def test_dynamic_tempo_audit_reads_transport_facts
+    piece = Sigillum::OrchestralDSL::Production.piece("Audit") do
+      meter "4/4"
+      key "C"
+
+      roster do
+        part :cello, "Cello", music21: "Violoncello", family: :string
+        part :flute, "Flute", music21: "Flute", family: :woodwind
+      end
+
+      tempo do
+        ritardando from: "bar 1 beat 3", to: "bar 2 beat 1"
+        a_tempo at: "bar 2 beat 2"
+      end
+
+      control do
+        dynamic :mp, at: "bar 1 beat 1", for: :string
+      end
+
+      section :s1, "Opening", bars: 1..2 do
+        span bars: 1..2 do
+          phrase(:cello_line, surface: :absolute) { events "C3:1 r:1 D3:2" }
+          phrase(:flute_line, surface: :absolute) { events "G4:4" }
+          placement :cello_line, part: :cello, at: "bar 1 beat 1", role: :bass
+          placement :flute_line, part: :flute, at: "bar 1 beat 1", role: :foreground
+        end
+      end
+    end
+
+    findings = Sigillum::Framework::Audit.dynamic_tempo(piece)
+    formatted = Sigillum::Framework::Audit.format_dynamic_tempo(findings)
+
+    assert_equal 1, findings.fetch("hist").fetch("mp")
+    assert_equal 1, findings.fetch("decels").length
+    assert_equal 1, findings.fetch("atempos").length
+    assert_empty findings.fetch("unresolved_tempo")
+    refute findings.fetch("missing_entrances").any? { |entry| entry.fetch("part") == "cello" }
+    assert findings.fetch("missing_entrances").any? { |entry| entry.fetch("part") == "flute" }
+    assert_includes formatted, "## Dynamics + tempo audit (Ruby transport-measured)"
+  end
+
+  private
+
+  def simple_source(title)
+    <<~RUBY
+      production_piece #{title.inspect} do
+        meter "4/4"
+        key "C"
+
+        roster do
+          part :clarinet, "Clarinet", music21: "Clarinet", family: :woodwind
+        end
+
+        section :s1, "Opening", bars: 1..1 do
+          span bars: 1..1 do
+            phrase(:line, surface: :absolute) { events "C5:4{mf}" }
+            placement :line, part: :clarinet, at: "bar 1 beat 1", role: :foreground
+          end
+        end
+      end
+    RUBY
+  end
+end
