@@ -5,6 +5,7 @@ require_relative "models/compile_response"
 require_relative "models/timing"
 require_relative "models/validation"
 require_relative "models/checkpoint_validation"
+require_relative "models/tie_validation"
 
 module Partitura
   module Production
@@ -13,6 +14,7 @@ module Partitura
       include Timing
       include Validation
       include CheckpointValidation
+      include TieValidation
 
       attr_reader :title, :meter_value, :beat_pattern, :bar_length, :key_value, :tempo_marks,
                   :meter_changes, :tempo_events, :anchors, :controls, :key_changes, :parts, :sections
@@ -204,6 +206,7 @@ module Partitura
         validate_degree_key_assumptions!(phrase_map)
         events = timed_events(include_rests: true)
         validate_part_ranges!(events)
+        validate_authored_ties!(events)
         validate_staff_bars!(events)
         validate_tempo_events!
         validate_controls!(events)

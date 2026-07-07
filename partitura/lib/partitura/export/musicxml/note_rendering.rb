@@ -6,7 +6,8 @@ module Partitura
       module NoteRendering
         EMPTY_NOTATION_KEYS = %i[tie_types articulations technicals arpeggios ornaments spanners].freeze
         TEXT_MARK_EXCLUSIONS = %w[
-          lv harm trem trill trill( trill) slur( slur) gliss( gliss) cresc( cresc) dim( dim) pizz arco rimshot xstick
+          lv harm trem trill trill( trill) slur( slur) tie( tie) gliss( gliss) cresc( cresc) dim( dim)
+          pizz arco rimshot xstick
         ].freeze
 
         private

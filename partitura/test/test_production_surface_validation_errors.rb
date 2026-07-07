@@ -114,6 +114,27 @@ class ProductionSurfaceValidationErrorsTest < Minitest::Test
     assert_includes response.fetch(:docs), "docs/architecture/partitura/surfaces/absolute.md"
   end
 
+  def test_authored_tie_requires_adjacent_same_pitch_continuation
+    piece = Partitura::Production.piece("Bad tie") do
+      roster { part :trombone, "Trombone", music21: "Trombone" }
+
+      section :s1, "One", bars: 1..2 do
+        span bars: 1..2 do
+          phrase :line, surface: :absolute do
+            events "G3:4{tie(} | A3:1{tie)}"
+          end
+          placement :line, part: :trombone, at: "bar 1 beat 1", role: :foreground
+        end
+      end
+    end
+
+    response = piece.compile_response
+    assert_equal "error", response.fetch(:status)
+    assert_equal "bad_authored_tie", response.fetch(:code)
+    assert_includes response.fetch(:repair_instruction), "tie("
+    assert_includes response.fetch(:docs), "docs/architecture/partitura/surfaces/absolute.md"
+  end
+
   def test_compile_response_checks_control_and_tempo_anchor_references
     piece = Partitura::Production.piece("Missing anchor") do
       roster { part :clarinet, "Clarinet", music21: "Clarinet" }

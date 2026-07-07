@@ -9,7 +9,7 @@ module Partitura
     ARTICULATIONS = %w[stacc accent ten marc spicc. detache choke].freeze
     TECHNIQUES = %w[harm lv trem pizz arco rimshot xstick].freeze
     ORNAMENTS = %w[trill].freeze
-    SPANNERS = %w[slur( slur) cresc( cresc) dim( dim) gliss( gliss) trill( trill)].freeze
+    SPANNERS = %w[slur( slur) tie( tie) cresc( cresc) dim( dim) gliss( gliss) trill( trill)].freeze
     ARPEGGIOS = %w[arp arp:up arp:down arp:non].freeze
 
     ALL = (DYNAMICS + ARTICULATIONS + TECHNIQUES + ORNAMENTS + SPANNERS + ARPEGGIOS).freeze

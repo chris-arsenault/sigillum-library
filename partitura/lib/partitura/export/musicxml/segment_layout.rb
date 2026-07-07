@@ -56,11 +56,33 @@ module Partitura
         end
 
         def segment_tie_types(context, structural_tie)
+          tie_types = automatic_tie_types(context, structural_tie)
+          tie_types.concat(authored_tie_types(context))
+          tie_types.uniq
+        end
+
+        def automatic_tie_types(context, structural_tie)
           return [] unless structural_tie || tied_decomposition?(context)
 
           tie_types = []
           tie_types << "stop" if context.fetch(:index).positive?
           tie_types << "start" if segment_start_tie?(context, structural_tie)
+          tie_types
+        end
+
+        def authored_tie_types(context)
+          marks = context.fetch(:marks)
+          index = context.fetch(:index)
+          count = context.fetch(:segment_count)
+          tie_types = []
+          if marks.include?("tie)")
+            tie_types << "stop"
+            tie_types << "start" if index < count - 1
+          end
+          if marks.include?("tie(")
+            tie_types << "stop" if index.positive?
+            tie_types << "start"
+          end
           tie_types
         end
 

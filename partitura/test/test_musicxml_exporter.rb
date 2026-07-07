@@ -64,6 +64,32 @@ class MusicXMLExporterTest < Minitest::Test
     assert_equal "minor", text_at(document, "//key/mode")
   end
 
+  def test_authored_ties_connect_notes_split_by_bar_marker
+    piece = Partitura::Production.piece("Ruby Authored Tie") do
+      meter "2/4"
+      key "g"
+
+      roster do
+        part :trombone, "Trombone", music21: "Trombone", family: :brass
+      end
+
+      section :s1, "Opening", bars: 1..2 do
+        span bars: 1..2 do
+          phrase(:line, surface: :absolute) do
+            events "Eb4:.5 Bb3:.5 G3:1{tie(} | G3:.5{tie)} Bb3:.5 C4:1"
+          end
+          placement :line, part: :trombone, at: "bar 1 beat 1", role: :foreground
+        end
+      end
+    end
+
+    document = render_document(piece)
+
+    assert_equal(%w[start stop], REXML::XPath.match(document, "//tie").map { |element| element.attributes["type"] })
+    assert_equal(%w[start stop], REXML::XPath.match(document, "//tied").map { |element| element.attributes["type"] })
+    assert_empty REXML::XPath.match(document, "//words[text()='tie(' or text()='tie)']")
+  end
+
   def test_rejects_unsupported_transport_schema
     error = assert_raises(Partitura::Export::Error) do
       Partitura::Export::MusicXML.render(

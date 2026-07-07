@@ -34,6 +34,9 @@ end
   - `{gliss(}` ... `{gliss)}` — glissando spanner (wavy line + "gliss." label) between the two events;
     chain on one event with `{gliss),gliss(}`; pairs may cross barlines.
   - `{lv}` — laissez vibrer (`<tied type="let-ring">`; renders as "l.v." text when the note already carries a tie).
+  - `{tie(}` ... `{tie)}` — authored tie between adjacent same-pitch/chord events, used
+    when a bar marker must sit between tied noteheads, e.g.
+    `G3:1{tie(} | G3:.5{tie)}`.
   - `{trill}` (one note) or `{trill(}` ... `{trill)}` — trill mark + wavy extension.
   - `{pizz}` / `{arco}` — bowing state (real `pizzicato="yes"` on every note until cancelled).
   - `{slur(}` ... `{slur)}`, `{cresc(}` ... `{cresc)}`, `{dim(}` ... `{dim)}` — slur/wedge spanner pairs.

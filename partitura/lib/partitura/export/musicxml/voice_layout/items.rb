@@ -22,8 +22,8 @@ module Partitura
           end
         end
 
-        def needs_harmony_shadow_voice?(part)
-          rendered_part_index(part).zero? &&
+        def needs_harmony_shadow_voice?(_part)
+          @current_rendered_index.to_i.zero? &&
             Array(@data["controls"]).any? { |control| control["kind"] == "chord_symbol" }
         end
 
