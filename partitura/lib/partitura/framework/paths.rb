@@ -3,12 +3,12 @@
 require "fileutils"
 require "pathname"
 
-module Sigillum
+module Partitura
   module Framework
     module Paths
       module_function
 
-      ROOT = Pathname.new(ENV.fetch("SIGILLUM_PROJECT_ROOT", Dir.pwd)).expand_path
+      ROOT = Pathname.new(ENV.fetch("PARTITURA_PROJECT_ROOT", Dir.pwd)).expand_path
       OUTPUTS = ROOT.join("outputs")
       MOVEMENT_OUTPUTS = OUTPUTS.join("movements")
       DSL_CARD_OUTPUTS = OUTPUTS.join("dsl_cards")

@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 require "optparse"
-require_relative "../lib/partitura/orchestral_dsl"
+require_relative "../lib/partitura"
 
 view = :structure
 parser = OptionParser.new do |opts|
@@ -18,5 +18,5 @@ if source.nil?
   exit 2
 end
 
-study = Sigillum::OrchestralDSL::SurfaceLab.load_file(source)
-puts Sigillum::OrchestralDSL::SurfaceLab.readout(study, view)
+study = Partitura::SurfaceLab.load_file(source)
+puts Partitura::SurfaceLab.readout(study, view)

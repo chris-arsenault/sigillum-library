@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Sigillum
+module Partitura
   module Framework
     module Audit
       module_function

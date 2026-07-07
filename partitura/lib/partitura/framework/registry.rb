@@ -2,7 +2,7 @@
 
 require "pathname"
 
-module Sigillum
+module Partitura
   module Framework
     MovementSpec = Struct.new(
       :id, :title, :source, :output_stem, :bars, :roman, :status,

@@ -3,7 +3,7 @@
 
 require "json"
 require "optparse"
-require_relative "../lib/partitura/orchestral_dsl"
+require_relative "../lib/partitura"
 
 options = {}
 parser = OptionParser.new do |opts|
@@ -22,9 +22,9 @@ if source.nil?
 end
 
 begin
-  piece = Sigillum::OrchestralDSL.load_production_file(source)
-  puts Sigillum::OrchestralDSL.production_readout(piece, view, **options)
-rescue Sigillum::OrchestralDSL::Production::CompileError => e
+  piece = Partitura.load_production_file(source)
+  puts Partitura.production_readout(piece, view, **options)
+rescue Partitura::Production::CompileError => e
   if view == :compile
     puts JSON.pretty_generate(e.response)
     exit 0

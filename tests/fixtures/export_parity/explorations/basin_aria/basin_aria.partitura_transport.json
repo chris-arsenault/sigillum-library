@@ -1,5 +1,5 @@
 {
-  "schema": "sigillum.orchestral_dsl.transport",
+  "schema": "partitura.transport",
   "schema_version": 3,
   "source_model": "production_hybrid",
   "title": "Basin Aria",

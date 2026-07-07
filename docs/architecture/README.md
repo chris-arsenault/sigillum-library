@@ -5,5 +5,5 @@ Durable architecture records for the engine's subsystems (technical, not the mus
 
 - `theme_generator.md` — the kernel-constrained theme generator (`generation/theme_gen/`).
 - `feature_extraction.md` — the musical feature-extraction subsystem (`Production::MelodyAnalysis`).
-- `orchestral_dsl.md` — LLM-first orchestral DSL design summary.
-- `orchestral_dsl/INDEX.md` — modular DSL docs; start here for focused retrieval.
+- `partitura.md` - LLM-first Partitura design summary.
+- `partitura/INDEX.md` - modular Partitura docs; start here for focused retrieval.

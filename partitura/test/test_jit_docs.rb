@@ -4,11 +4,11 @@ require "json"
 require "minitest/autorun"
 
 $LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
-require "partitura/orchestral_dsl"
+require "partitura"
 
 class JITDocsTest < Minitest::Test
   def test_index_response_has_required_contract_fields
-    data = Sigillum::OrchestralDSL.help_data(:index)
+    data = Partitura.help_data(:index)
 
     assert_equal :index, data[:topic]
     assert_includes data.keys, :use_when
@@ -19,7 +19,7 @@ class JITDocsTest < Minitest::Test
   end
 
   def test_decision_response_names_hybrid_default_and_surface_choices
-    text = Sigillum::OrchestralDSL.help(:decision)
+    text = Partitura.help(:decision)
 
     assert_includes text, "Default long-line surface is degrees plus rhythm"
     assert_includes text, "Use hybrid for most orchestral passages"
@@ -29,7 +29,7 @@ class JITDocsTest < Minitest::Test
   end
 
   def test_production_response_names_executable_surface
-    data = Sigillum::OrchestralDSL.help_data(:production)
+    data = Partitura.help_data(:production)
 
     assert_equal :production, data[:topic]
     assert_includes data[:rules], "Use `production_piece` in source files loaded by `load_production_file`."
@@ -42,39 +42,39 @@ class JITDocsTest < Minitest::Test
   end
 
   def test_hybrid_response_is_llm_actionable
-    data = Sigillum::OrchestralDSL.help_data(:hybrid)
+    data = Partitura.help_data(:hybrid)
 
     assert_equal :hybrid, data[:topic]
     assert_includes data[:rules], "Phrase layer carries long thought."
     assert_includes data[:example], "placement :foreground"
-    assert_includes data[:docs], "docs/architecture/orchestral_dsl/surfaces/hybrid.md"
+    assert_includes data[:docs], "docs/architecture/partitura/surfaces/hybrid.md"
   end
 
   def test_json_renderer_returns_parseable_response
-    parsed = JSON.parse(Sigillum::OrchestralDSL::JITDocs.render_json(:staff_grid))
+    parsed = JSON.parse(Partitura::JITDocs.render_json(:staff_grid))
 
     assert_equal "staff_grid", parsed.fetch("topic")
     assert_includes parsed.fetch("rules").join(" "), "`_` sustains"
   end
 
   def test_unknown_topic_returns_indexable_guidance
-    data = Sigillum::OrchestralDSL.help_data(:not_a_topic)
+    data = Partitura.help_data(:not_a_topic)
 
     assert_equal :unknown, data[:topic]
     assert_includes data[:next_topics], :index
   end
 
   def test_compile_api_topic_locks_llm_error_contract
-    data = Sigillum::OrchestralDSL.help_data(:compile_api)
+    data = Partitura.help_data(:compile_api)
 
     assert_equal :compile_api, data[:topic]
     assert_includes data[:rules], "Every error includes a repair instruction and focused docs."
     assert_includes data[:example], "surface_event_count_mismatch"
-    assert_includes data[:docs], "docs/architecture/orchestral_dsl/05_compile_api.md"
+    assert_includes data[:docs], "docs/architecture/partitura/05_compile_api.md"
   end
 
   def test_transport_export_topic_locks_runtime_export_commands
-    data = Sigillum::OrchestralDSL.help_data(:transport_export)
+    data = Partitura.help_data(:transport_export)
 
     assert_equal :transport_export, data[:topic]
     assert_includes data[:rules], "Transport JSON is the canonical Ruby export handoff."
@@ -84,7 +84,7 @@ class JITDocsTest < Minitest::Test
   end
 
   def test_controls_topic_documents_timeline_marks
-    data = Sigillum::OrchestralDSL.help_data(:controls)
+    data = Partitura.help_data(:controls)
 
     assert_equal :controls, data[:topic]
     assert_includes data[:rules], "Use inline event marks only for marks tied to one event."
@@ -92,6 +92,6 @@ class JITDocsTest < Minitest::Test
     assert_includes data[:example], "tempo do"
     assert_includes data[:example], "meter do"
     assert_includes data[:example], "change \"quarter = 96\", at: \"bar 9 beat 1\""
-    assert_includes data[:docs], "docs/architecture/orchestral_dsl/surfaces/controls.md"
+    assert_includes data[:docs], "docs/architecture/partitura/surfaces/controls.md"
   end
 end

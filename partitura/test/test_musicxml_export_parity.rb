@@ -8,7 +8,7 @@ require "rexml/xpath"
 require_relative "support/midi_profile_helper"
 
 $LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
-require "partitura/orchestral_dsl"
+require "partitura"
 
 class MusicXMLExportParityTest < Minitest::Test
   include MidiProfileHelper
@@ -75,7 +75,7 @@ class MusicXMLExportParityTest < Minitest::Test
 REXML::XPath.match(document, "/score-partwise/part-list/score-part").length
 
       transport = JSON.parse(File.read(transport_path))
-      assert_equal "sigillum.orchestral_dsl.transport", transport.fetch("schema")
+      assert_equal "partitura.transport", transport.fetch("schema")
       assert_equal facts.fetch(:title), transport.fetch("title")
       assert_equal facts.fetch(:transport_parts), transport.fetch("parts").length
       assert_equal facts.fetch(:meter), transport.fetch("meter")
@@ -101,12 +101,12 @@ REXML::XPath.match(document, "/score-partwise/part-list/score-part").length
     CASES.each do |stem, facts|
       transport = JSON.parse(File.read(baseline_transport(stem)))
 
-      xml = Sigillum::OrchestralDSL::Export::MusicXML.render(transport)
+      xml = Partitura::Export::MusicXML.render(transport)
       document = REXML::Document.new(xml)
       assert_equal "score-partwise", document.root.name
       assert_equal facts.fetch(:xml_score_parts), xml.scan(/<score-part\b/).length
 
-      midi = Sigillum::OrchestralDSL::Export::MIDI.render(transport)
+      midi = Partitura::Export::MIDI.render(transport)
       assert_equal "MThd", midi.byteslice(0, 4)
       assert_equal facts.fetch(:midi_tracks), midi.byteslice(10, 2).unpack1("n")
     end
@@ -116,7 +116,7 @@ REXML::XPath.match(document, "/score-partwise/part-list/score-part").length
     CASES.each do |stem, facts|
       expected_xml = normalize_musicxml(File.read(baseline_xml(stem)))
       transport = JSON.parse(File.read(baseline_transport(stem)))
-      actual_xml = normalize_musicxml(Sigillum::OrchestralDSL::Export::MusicXML.render(transport))
+      actual_xml = normalize_musicxml(Partitura::Export::MusicXML.render(transport))
 
       expected_profile = musicxml_profile(expected_xml)
       actual_profile = musicxml_profile(actual_xml)
@@ -143,7 +143,7 @@ REXML::XPath.match(document, "/score-partwise/part-list/score-part").length
     CASES.each do |stem, facts|
       expected = File.binread(baseline_midi(stem))
       transport = JSON.parse(File.read(baseline_transport(stem)))
-      actual = Sigillum::OrchestralDSL::Export::MIDI.render(transport)
+      actual = Partitura::Export::MIDI.render(transport)
       expected_profile = midi_profile(expected)
       actual_profile = midi_profile(actual)
 

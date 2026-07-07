@@ -6,8 +6,8 @@ class ProductionSurfaceValidationErrorsTest < Minitest::Test
   include ProductionSurfaceHelpers
 
   def test_meter_changes_must_land_on_bar_boundaries
-    error = assert_raises(Sigillum::OrchestralDSL::Production::CompileError) do
-      Sigillum::OrchestralDSL::Production.piece("Bad meter change") do
+    error = assert_raises(Partitura::Production::CompileError) do
+      Partitura::Production.piece("Bad meter change") do
         meter "4/4"
         meter do
           change "3/4", at: "bar 2 beat 2"
@@ -17,8 +17,8 @@ class ProductionSurfaceValidationErrorsTest < Minitest::Test
 
     assert_equal "bad_meter_change_location", error.response.fetch(:code)
 
-    zero_error = assert_raises(Sigillum::OrchestralDSL::Production::CompileError) do
-      Sigillum::OrchestralDSL::Production.piece("Bad meter change") do
+    zero_error = assert_raises(Partitura::Production::CompileError) do
+      Partitura::Production.piece("Bad meter change") do
         meter "4/4"
         meter do
           change "3/4", at: "bar 0"
@@ -30,7 +30,7 @@ class ProductionSurfaceValidationErrorsTest < Minitest::Test
   end
 
   def test_duplicate_phrase_ids_across_spans_return_structured_repair_data
-    piece = Sigillum::OrchestralDSL::Production.piece("Duplicate phrase ids") do
+    piece = Partitura::Production.piece("Duplicate phrase ids") do
       roster { part :clarinet, "Clarinet", music21: "Clarinet" }
 
       section :s1, "One", bars: 1..2 do
@@ -53,11 +53,11 @@ class ProductionSurfaceValidationErrorsTest < Minitest::Test
     assert_equal "error", response.fetch(:status)
     assert_equal "duplicate_phrase_id", response.fetch(:code)
     assert_includes response.fetch(:repair_instruction), "unique"
-    assert_includes response.fetch(:docs), "docs/architecture/orchestral_dsl/surfaces/phrase_placement.md"
+    assert_includes response.fetch(:docs), "docs/architecture/partitura/surfaces/phrase_placement.md"
   end
 
   def test_duplicate_phrase_ids_inside_same_span_return_structured_repair_data
-    piece = Sigillum::OrchestralDSL::Production.piece("Duplicate phrase ids") do
+    piece = Partitura::Production.piece("Duplicate phrase ids") do
       roster { part :clarinet, "Clarinet", music21: "Clarinet" }
 
       section :s1, "One", bars: 1..1 do
@@ -77,22 +77,22 @@ class ProductionSurfaceValidationErrorsTest < Minitest::Test
     assert_equal "error", response.fetch(:status)
     assert_equal "duplicate_phrase_id", response.fetch(:code)
     assert_includes response.fetch(:message), "Phrase id call"
-    assert_includes response.fetch(:docs), "docs/architecture/orchestral_dsl/surfaces/phrase_placement.md"
+    assert_includes response.fetch(:docs), "docs/architecture/partitura/surfaces/phrase_placement.md"
   end
 
   def test_transport_readout_returns_json
     piece = load_piece
-    parsed = JSON.parse(Sigillum::OrchestralDSL.production_readout(piece, :transport))
+    parsed = JSON.parse(Partitura.production_readout(piece, :transport))
 
-    assert_equal "sigillum.orchestral_dsl.transport", parsed.fetch("schema")
+    assert_equal "partitura.transport", parsed.fetch("schema")
     assert_equal "production_hybrid", parsed.fetch("source_model")
     assert_equal "C5", parsed.fetch("timed_events").find { |event|
  event.fetch("offset_label") == "b1:1" && event.fetch("part") == "clarinet" }.fetch("pitch")
   end
 
   def test_mismatched_streams_return_structured_repair_data
-    error = assert_raises(Sigillum::OrchestralDSL::Production::CompileError) do
-      Sigillum::OrchestralDSL::Production.events_from_absolute("C5 D5", "1")
+    error = assert_raises(Partitura::Production::CompileError) do
+      Partitura::Production.events_from_absolute("C5 D5", "1")
     end
 
     response = error.response
@@ -100,22 +100,22 @@ class ProductionSurfaceValidationErrorsTest < Minitest::Test
     assert_equal "surface_event_count_mismatch", response.fetch(:code)
     assert_equal :split_pitch_rhythm, response.fetch(:help_topic)
     assert_includes response.fetch(:repair_instruction), "align event-by-event"
-    assert_includes response.fetch(:docs), "docs/architecture/orchestral_dsl/surfaces/split_pitch_rhythm.md"
+    assert_includes response.fetch(:docs), "docs/architecture/partitura/surfaces/split_pitch_rhythm.md"
   end
 
   def test_bad_absolute_pitch_reports_absolute_surface_docs
-    error = assert_raises(Sigillum::OrchestralDSL::Production::CompileError) do
-      Sigillum::OrchestralDSL::Production.events_from_absolute_events("H4:1")
+    error = assert_raises(Partitura::Production::CompileError) do
+      Partitura::Production.events_from_absolute_events("H4:1")
     end
 
     response = error.response
     assert_equal "bad_pitch", response.fetch(:code)
     assert_equal :absolute, response.fetch(:help_topic)
-    assert_includes response.fetch(:docs), "docs/architecture/orchestral_dsl/surfaces/absolute.md"
+    assert_includes response.fetch(:docs), "docs/architecture/partitura/surfaces/absolute.md"
   end
 
   def test_compile_response_checks_control_and_tempo_anchor_references
-    piece = Sigillum::OrchestralDSL::Production.piece("Missing anchor") do
+    piece = Partitura::Production.piece("Missing anchor") do
       roster { part :clarinet, "Clarinet", music21: "Clarinet" }
 
       tempo do
@@ -138,7 +138,7 @@ class ProductionSurfaceValidationErrorsTest < Minitest::Test
   end
 
   def test_compile_response_rejects_control_targets_that_match_nothing
-    piece = Sigillum::OrchestralDSL::Production.piece("Bad target") do
+    piece = Partitura::Production.piece("Bad target") do
       roster { part :clarinet, "Clarinet", music21: "Clarinet", family: :woodwind }
 
       control do
@@ -158,11 +158,11 @@ class ProductionSurfaceValidationErrorsTest < Minitest::Test
     response = piece.compile_response
     assert_equal "error", response.fetch(:status)
     assert_equal "unknown_control_target", response.fetch(:code)
-    assert_includes response.fetch(:docs), "docs/architecture/orchestral_dsl/surfaces/controls.md"
+    assert_includes response.fetch(:docs), "docs/architecture/partitura/surfaces/controls.md"
   end
 
   def test_compile_response_rejects_placement_outside_containing_span
-    piece = Sigillum::OrchestralDSL::Production.piece("Bad placement") do
+    piece = Partitura::Production.piece("Bad placement") do
       roster { part :clarinet, "Clarinet", music21: "Clarinet" }
 
       section :s1, "One", bars: 1..1 do

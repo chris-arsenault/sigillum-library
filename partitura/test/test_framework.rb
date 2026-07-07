@@ -15,10 +15,10 @@ class FrameworkTest < Minitest::Test
       out_dir = File.join(dir, "out")
       File.write(source, simple_source("Transport Writer"))
 
-      path = Sigillum::Framework::Transport.write(source, out_dir, stem: "writer")
+      path = Partitura::Framework::Transport.write(source, out_dir, stem: "writer")
       parsed = JSON.parse(File.read(path))
 
-      assert_equal "sigillum.orchestral_dsl.transport", parsed.fetch("schema")
+      assert_equal "partitura.transport", parsed.fetch("schema")
       assert File.exist?(File.join(out_dir, "writer.partitura_transport.json"))
       refute File.exist?(File.join(out_dir, "writer.musicxml"))
       refute File.exist?(File.join(out_dir, "writer.mid"))
@@ -26,7 +26,7 @@ class FrameworkTest < Minitest::Test
   end
 
   def test_registry_builds_selected_movement_transport
-    movement_output_dir = Sigillum::Framework::Paths::MOVEMENT_OUTPUTS.join("mvt1_registry")
+    movement_output_dir = Partitura::Framework::Paths::MOVEMENT_OUTPUTS.join("mvt1_registry")
     FileUtils.rm_rf(movement_output_dir)
 
     Dir.mktmpdir do |dir|
@@ -43,7 +43,7 @@ class FrameworkTest < Minitest::Test
           status: :draft
       RUBY
 
-      paths = Sigillum::Framework::Registry.load_file(registry).write_transport(:mvt1)
+      paths = Partitura::Framework::Registry.load_file(registry).write_transport(:mvt1)
 
       assert_equal [movement_output_dir.join("mvt1_registry.partitura_transport.json")], paths
       assert File.exist?(paths.first)
@@ -56,8 +56,8 @@ class FrameworkTest < Minitest::Test
   def test_dynamic_tempo_audit_reads_transport_facts
     piece = dynamic_tempo_audit_piece
 
-    findings = Sigillum::Framework::Audit.dynamic_tempo(piece)
-    formatted = Sigillum::Framework::Audit.format_dynamic_tempo(findings)
+    findings = Partitura::Framework::Audit.dynamic_tempo(piece)
+    formatted = Partitura::Framework::Audit.format_dynamic_tempo(findings)
 
     assert_equal 1, findings.fetch("hist").fetch("mp")
     assert_equal 1, findings.fetch("decels").length
@@ -71,7 +71,7 @@ class FrameworkTest < Minitest::Test
   private
 
   def dynamic_tempo_audit_piece
-    Sigillum::OrchestralDSL::Production.piece("Audit") do
+    Partitura::Production.piece("Audit") do
       meter "4/4"; key "C"
       roster {
  part :cello, "Cello", music21: "Violoncello", family: :string;

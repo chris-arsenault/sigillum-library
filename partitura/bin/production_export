@@ -4,7 +4,7 @@
 require "fileutils"
 require "json"
 require "optparse"
-require_relative "../lib/partitura/orchestral_dsl"
+require_relative "../lib/partitura"
 
 options = {
   stem: nil,
@@ -27,26 +27,19 @@ end
 
 stem = options[:stem] || File.basename(source, File.extname(source))
 
-# Derive output dir: outputs/<namespace>/<stem>/
-# Source must live inside a dsl/ directory; output mirrors the path above that.
+# Derive output dir: outputs/<source-dir>/<stem>/.
 repo_root = `git -C #{File.dirname(File.expand_path(source))} rev-parse --show-toplevel`.chomp
 source_abs = File.expand_path(source)
 source_rel = source_abs.delete_prefix("#{repo_root}/")
 source_dir = File.dirname(source_rel)
-
-unless File.basename(source_dir) == "dsl"
-  warn "production_export: source must live inside a dsl/ directory (got: #{source_dir})"
-  exit 2
-end
-
-namespace = File.dirname(source_dir)
+namespace = source_dir
 out_dir = File.join(repo_root, "outputs", namespace, stem)
 FileUtils.mkdir_p(out_dir)
 
 begin
-  piece = Sigillum::OrchestralDSL.load_production_file(source)
-  transport = Sigillum::OrchestralDSL.production_transport_hash(piece)
-rescue Sigillum::OrchestralDSL::Production::CompileError => e
+  piece = Partitura.load_production_file(source)
+  transport = Partitura.production_transport_hash(piece)
+rescue Partitura::Production::CompileError => e
   warn JSON.pretty_generate(e.response)
   exit 1
 end
@@ -62,8 +55,8 @@ File.write(transport_path, JSON.pretty_generate(transport))
 result = { transport: transport_path }
 
 unless options[:transport_only]
-  File.write(File.join(out_dir, "#{stem}.musicxml"), Sigillum::OrchestralDSL.production_musicxml(transport))
-  File.binwrite(File.join(out_dir, "#{stem}.mid"), Sigillum::OrchestralDSL.production_midi(transport))
+  File.write(File.join(out_dir, "#{stem}.musicxml"), Partitura.production_musicxml(transport))
+  File.binwrite(File.join(out_dir, "#{stem}.mid"), Partitura.production_midi(transport))
   result[:musicxml] = File.join(out_dir, "#{stem}.musicxml")
   result[:midi] = File.join(out_dir, "#{stem}.mid")
 end

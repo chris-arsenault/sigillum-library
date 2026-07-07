@@ -12,17 +12,17 @@ MAX_STRUCTURAL_COMPLEXITY = 8
 MAX_NESTING = 3
 
 ALLOWED_DYNAMIC_DISPATCH = {
-  "partitura/lib/partitura/orchestral_dsl.rb" => ["instance_eval"],
+  "partitura/lib/partitura.rb" => ["instance_eval"],
   "partitura/lib/partitura/framework/registry.rb" => ["instance_eval"],
-  "partitura/lib/partitura/orchestral_dsl/builders.rb" => ["instance_eval"],
-  "partitura/lib/partitura/orchestral_dsl/production.rb" => ["instance_eval"],
-  "partitura/lib/partitura/orchestral_dsl/production/builders/controls.rb" => ["instance_eval"],
-  "partitura/lib/partitura/orchestral_dsl/production/builders/gestures.rb" => ["instance_eval", "method_missing"],
-  "partitura/lib/partitura/orchestral_dsl/production/builders/phrases.rb" => ["instance_eval"],
-  "partitura/lib/partitura/orchestral_dsl/production/builders/piece.rb" => ["instance_eval"],
-  "partitura/lib/partitura/orchestral_dsl/production/builders/sections.rb" => ["instance_eval"],
-  "partitura/lib/partitura/orchestral_dsl/production/builders/tempo_meter.rb" => ["instance_eval"],
-  "partitura/lib/partitura/orchestral_dsl/surface_lab.rb" => ["instance_eval", "method_missing"]
+  "partitura/lib/partitura/builders.rb" => ["instance_eval"],
+  "partitura/lib/partitura/production.rb" => ["instance_eval"],
+  "partitura/lib/partitura/production/builders/controls.rb" => ["instance_eval"],
+  "partitura/lib/partitura/production/builders/gestures.rb" => ["instance_eval", "method_missing"],
+  "partitura/lib/partitura/production/builders/phrases.rb" => ["instance_eval"],
+  "partitura/lib/partitura/production/builders/piece.rb" => ["instance_eval"],
+  "partitura/lib/partitura/production/builders/sections.rb" => ["instance_eval"],
+  "partitura/lib/partitura/production/builders/tempo_meter.rb" => ["instance_eval"],
+  "partitura/lib/partitura/surface_lab.rb" => ["instance_eval", "method_missing"]
 }.freeze
 
 BRANCH_NODES = %i[

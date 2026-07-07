@@ -3,11 +3,11 @@
 require "minitest/autorun"
 
 $LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
-require "partitura/orchestral_dsl"
+require "partitura"
 
 class MIDIExporterTest < Minitest::Test
   def test_renders_standard_midi_file
-    midi = Sigillum::OrchestralDSL.production_midi(simple_piece)
+    midi = Partitura.production_midi(simple_piece)
 
     assert_equal "MThd", midi.byteslice(0, 4)
     assert_equal 6, midi.byteslice(4, 4).unpack1("N")
@@ -20,20 +20,20 @@ class MIDIExporterTest < Minitest::Test
   end
 
   def test_rejects_unsupported_transport_schema
-    error = assert_raises(Sigillum::OrchestralDSL::Export::Error) do
-      Sigillum::OrchestralDSL::Export::MIDI.render(
-        "schema" => "sigillum.orchestral_dsl.transport",
+    error = assert_raises(Partitura::Export::Error) do
+      Partitura::Export::MIDI.render(
+        "schema" => "partitura.transport",
         "schema_version" => 2
       )
     end
 
-    assert_includes error.message, "unsupported orchestral DSL transport"
+    assert_includes error.message, "unsupported Partitura transport"
   end
 
   private
 
   def simple_piece
-    Sigillum::OrchestralDSL::Production.piece("MIDI Export Core") do
+    Partitura::Production.piece("MIDI Export Core") do
       meter "4/4"
       key "C"
       tempo "quarter = 120"

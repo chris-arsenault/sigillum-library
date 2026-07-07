@@ -1,6 +1,6 @@
 # Musical Feature Extraction: architecture & decisions
 
-The durable record for `Sigillum::OrchestralDSL::Production::MelodyAnalysis` -- the subsystem that turns a full multi-part score
+The durable record for `Partitura::Production::MelodyAnalysis` -- the subsystem that turns a full multi-part score
 into **per-melody-note musical features**, automatically and with no hand-labeling. It is the
 front-end for the planned neural (infilling-transformer) theme model: the representation the model
 trains on is built from these streams. The Markov generator (`generation/theme_gen/`) is unaffected.
@@ -55,7 +55,7 @@ stream on the note under the extractor's name. **Adding a tier = a new module + 
 ## Module map
 
 ```
-partitura/lib/partitura/orchestral_dsl/production/melody_analysis.rb
+partitura/lib/partitura/production/melody_analysis.rb
   MelodyAnalysis     DSL-native feature model over production timed events
   melody_analysis    per-note readout replacing the old analyze_score script
   melody_report      scorecard readout replacing the old melody_report script

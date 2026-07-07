@@ -15,7 +15,7 @@ class ProductionSurfaceCoreTest < Minitest::Test
   end
 
   def test_degree_surface_spells_key_relative_notes
-    events = Sigillum::OrchestralDSL::Production.events_from_degrees(
+    events = Partitura::Production.events_from_degrees(
       "5 4 3 #1 1",
       "1 1 1 1 1",
       "F4"
@@ -28,7 +28,7 @@ class ProductionSurfaceCoreTest < Minitest::Test
     piece = load_piece
     compile = piece.compile_response
 
-    assert_instance_of Sigillum::OrchestralDSL::Production::Piece, piece
+    assert_instance_of Partitura::Production::Piece, piece
     assert_equal "ok", compile.fetch(:status)
     assert_includes compile.fetch(:surface_summary), "degrees"
     assert_includes compile.fetch(:surface_summary), "intervals"
@@ -63,17 +63,17 @@ class ProductionSurfaceCoreTest < Minitest::Test
   def test_vertical_and_line_readouts_are_composer_reading_views
     piece = load_piece
 
-    verticals = Sigillum::OrchestralDSL.production_readout(piece, :verticals)
+    verticals = Partitura.production_readout(piece, :verticals)
     assert_includes verticals, "b1:1"
     assert_includes verticals, "bass_line: cello=F2"
     assert_includes verticals, "foreground: clarinet=C5"
     assert_includes verticals, "late_answer: solo_violin=A4"
 
-    line = Sigillum::OrchestralDSL.production_readout(piece, :line, part: :clarinet, bars: 1..2)
+    line = Partitura.production_readout(piece, :line, part: :clarinet, bars: 1..2)
     assert_includes line, "phrase=plain_call"
     assert_includes line, "r:.5"
 
-    probe = Sigillum::OrchestralDSL.production_readout(piece, :bar_probe, bars: 1..1)
+    probe = Partitura.production_readout(piece, :bar_probe, bars: 1..1)
     assert_includes probe, "--- Production Hybrid Surface Study bar 1 ---"
     assert_includes probe, "clarinet       [0-1.5]C5"
     assert_includes piece.compile_response.fetch(:available_projections), "bar_probe"
@@ -82,17 +82,17 @@ class ProductionSurfaceCoreTest < Minitest::Test
   def test_sounding_audit_projections_cover_clashes_grid_and_stalls
     piece = audit_projection_piece
 
-    grid = Sigillum::OrchestralDSL.production_readout(piece, :ensemble_grid, bars: 1..1)
+    grid = Partitura.production_readout(piece, :ensemble_grid, bars: 1..1)
     assert_includes grid, "# Ensemble Grid"
     assert_includes grid, "upper"
     assert_includes grid, "lower"
 
-    clashes = Sigillum::OrchestralDSL.production_readout(piece, :exposed_clashes, bars: 1..1)
+    clashes = Partitura.production_readout(piece, :exposed_clashes, bars: 1..1)
     assert_includes clashes, "lower:C4-upper:D4"
     assert_includes clashes, "iv2"
     assert_includes clashes, "upper leaves by step@2"
 
-    stalls = Sigillum::OrchestralDSL.production_readout(piece, :composite_stalls)
+    stalls = Partitura.production_readout(piece, :composite_stalls)
     assert_includes stalls, "# Composite Stalls"
     assert_includes stalls, "b1@2 gap 4"
     assert_includes stalls, "held: lower"
@@ -107,19 +107,19 @@ class ProductionSurfaceCoreTest < Minitest::Test
     assert_equal :clarinet, bar.lanes[0].part
     assert_includes bar.lanes[0].tokens, "C5"
 
-    readout = Sigillum::OrchestralDSL.production_readout(piece, :staff_bars, bars: 1..1)
+    readout = Partitura.production_readout(piece, :staff_bars, bars: 1..1)
     assert_includes readout, "pulse: hand_drum: X . X X . X ."
   end
 
   def test_material_and_gesture_readouts_keep_relationships_visible
     piece = load_piece
 
-    material_map = Sigillum::OrchestralDSL.production_readout(piece, :material_map)
+    material_map = Partitura.production_readout(piece, :material_map)
     assert_includes material_map, "plain_call: surface=degrees"
     assert_includes material_map, "late_answer_cell -> solo_violin at bar 3 beat 1.5 role=late_answer"
     assert_includes material_map, "realization: interval cell enters late against the grid"
 
-    gesture_map = Sigillum::OrchestralDSL.production_readout(piece, :gesture_map)
+    gesture_map = Partitura.production_readout(piece, :gesture_map)
     assert_includes gesture_map, "not_prose_only"
     assert_includes gesture_map, "solo_violin enters at bar 3 beat 1.5"
     refute_includes gesture_map, "mechanism: not written yet"
@@ -127,13 +127,13 @@ class ProductionSurfaceCoreTest < Minitest::Test
 
   def test_harmony_with_melody_readout_shows_melody_against_harmony_and_bass
     piece = load_piece
-    readout = Sigillum::OrchestralDSL.production_readout(piece, :harmony_with_melody, bars: 1..1)
+    readout = Partitura.production_readout(piece, :harmony_with_melody, bars: 1..1)
 
     assert_includes readout, "# Harmony With Melody"
     assert_includes readout, "b1:1  clarinet  C5:1.5"
     assert_includes readout, 'harmony="F home; raised 1 is melodic bite, not a modulation."'
     assert_includes readout, "bass=cello=F2"
-    readout_with_answer = Sigillum::OrchestralDSL.production_readout(piece, :harmony_with_melody, bars: 3..3)
+    readout_with_answer = Partitura.production_readout(piece, :harmony_with_melody, bars: 3..3)
     assert_includes readout_with_answer, "b3:1.5  solo_violin  A4:.5"
     assert_includes readout_with_answer, "bass=cello=F2"
   end
@@ -141,7 +141,7 @@ class ProductionSurfaceCoreTest < Minitest::Test
   private
 
   def documented_syntax_piece
-    Sigillum::OrchestralDSL::Production.piece("Documented syntax") do
+    Partitura::Production.piece("Documented syntax") do
       meter "7/8", beat_pattern: [3, 2, 2]
       key "F"
       tempo "eighth = 132"
@@ -159,7 +159,7 @@ class ProductionSurfaceCoreTest < Minitest::Test
   end
 
   def audit_projection_piece
-    Sigillum::OrchestralDSL::Production.piece("Audit projections") do
+    Partitura::Production.piece("Audit projections") do
       meter "4/4"
       key "C"
       roster { part :upper, "Upper", music21: "Flute"; part :lower, "Lower", music21: "Cello" }

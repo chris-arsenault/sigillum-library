@@ -7,11 +7,11 @@ require "open3"
 require "tmpdir"
 
 $LOAD_PATH.unshift(File.expand_path("../../lib", __dir__))
-require "partitura/orchestral_dsl"
+require "partitura"
 
 module ProductionSurfaceHelpers
   EXAMPLE = File.expand_path(
-    "../../../experiments/orchestral_dsl/production_hybrid_study.rb",
+    "../../../experiments/partitura/production_hybrid_study.rb",
     __dir__
   )
 
@@ -73,7 +73,7 @@ module ProductionSurfaceHelpers
   XML
 
   def load_piece
-    Sigillum::OrchestralDSL.load_production_file(EXAMPLE)
+    Partitura.load_production_file(EXAMPLE)
   end
 
   def assert_event(events, piece, offset:, part:, pitch:, role:, phrase:)

@@ -3,10 +3,10 @@
 require "minitest/autorun"
 
 $LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
-require "partitura/orchestral_dsl"
+require "partitura"
 
 class SurfaceLabTest < Minitest::Test
-  ROOT = File.expand_path("../../experiments/orchestral_dsl/surface_lab", __dir__)
+  ROOT = File.expand_path("../../experiments/partitura/surface_lab", __dir__)
   FILES = {
     key_relative_degrees: "degree_key_32.rb",
     relative_intervals: "relative_interval_32.rb",
@@ -65,7 +65,7 @@ class SurfaceLabTest < Minitest::Test
 
   def test_readouts_are_available_for_comparison
     study = load_study("degree_key_32.rb")
-    structure = Sigillum::OrchestralDSL::SurfaceLab.readout(study, :structure)
+    structure = Partitura::SurfaceLab.readout(study, :structure)
 
     assert_includes structure, "32-bar key-relative degree surface"
     assert_includes structure, "foreground_32"
@@ -75,6 +75,6 @@ class SurfaceLabTest < Minitest::Test
   private
 
   def load_study(filename)
-    Sigillum::OrchestralDSL::SurfaceLab.load_file(File.join(ROOT, filename))
+    Partitura::SurfaceLab.load_file(File.join(ROOT, filename))
   end
 end

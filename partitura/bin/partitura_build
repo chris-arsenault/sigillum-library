@@ -18,10 +18,10 @@ if registry_path.nil?
 end
 
 begin
-  registry = Sigillum::Framework::Registry.load_file(registry_path)
+  registry = Partitura::Framework::Registry.load_file(registry_path)
   paths = registry.write_transport(movement)
   puts JSON.pretty_generate(transports: paths.map(&:to_s))
-rescue Sigillum::OrchestralDSL::Production::CompileError => e
+rescue Partitura::Production::CompileError => e
   warn JSON.pretty_generate(e.response)
   exit 1
 rescue KeyError => e

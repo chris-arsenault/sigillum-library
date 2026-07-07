@@ -3,7 +3,7 @@
 require "json"
 require "pathname"
 
-module Sigillum
+module Partitura
   module Framework
     module Transport
       module_function
@@ -11,20 +11,20 @@ module Sigillum
       def piece_from(source_or_piece)
         return source_or_piece if source_or_piece.respond_to?(:compile_response)
 
-        Sigillum::OrchestralDSL.load_production_file(source_or_piece)
+        Partitura.load_production_file(source_or_piece)
       end
 
       def hash_for(source_or_piece)
         piece = piece_from(source_or_piece)
-        transport = Sigillum::OrchestralDSL.production_transport_hash(piece)
+        transport = Partitura.production_transport_hash(piece)
         return transport unless error_transport?(transport)
 
-        raise Sigillum::OrchestralDSL::Production::CompileError.new(
+        raise Partitura::Production::CompileError.new(
           code: fetch_any(transport, :code) || "transport_error",
           message: fetch_any(transport, :message) || "Transport build failed.",
           repair_instruction: fetch_any(transport, :repair_instruction) || "Fix the DSL compile error.",
           help_topic: fetch_any(transport, :help_topic) || "compile",
-          docs: fetch_any(transport, :docs) || ["docs/architecture/orchestral_dsl/INDEX.md"]
+          docs: fetch_any(transport, :docs) || ["docs/architecture/partitura/INDEX.md"]
         )
       end
 

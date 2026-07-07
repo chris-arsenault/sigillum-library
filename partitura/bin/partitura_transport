@@ -21,9 +21,9 @@ end
 
 stem = options[:stem] || File.basename(source, File.extname(source))
 begin
-  path = Sigillum::Framework::Transport.write(source, out_dir, stem: stem)
+  path = Partitura::Framework::Transport.write(source, out_dir, stem: stem)
   puts JSON.pretty_generate(transport: path.to_s)
-rescue Sigillum::OrchestralDSL::Production::CompileError => e
+rescue Partitura::Production::CompileError => e
   warn JSON.pretty_generate(e.response)
   exit 1
 end

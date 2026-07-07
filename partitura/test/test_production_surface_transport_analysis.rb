@@ -7,7 +7,7 @@ class ProductionSurfaceTransportAnalysisTest < Minitest::Test
 
   def test_transport_hash_is_versioned_and_backend_ready
     piece = load_piece
-    transport = Sigillum::OrchestralDSL.production_transport_hash(piece)
+    transport = Partitura.production_transport_hash(piece)
 
     assert_transport_header(transport)
     assert_transport_parts(transport)
@@ -15,7 +15,7 @@ class ProductionSurfaceTransportAnalysisTest < Minitest::Test
   end
 
   def assert_transport_header(transport)
-    assert_equal "sigillum.orchestral_dsl.transport", transport.fetch(:schema)
+    assert_equal "partitura.transport", transport.fetch(:schema)
     assert_equal 3, transport.fetch(:schema_version)
     assert_equal "Production Hybrid Surface Study", transport.fetch(:title)
     assert_equal "7/8", transport.fetch(:meter)
@@ -40,7 +40,7 @@ class ProductionSurfaceTransportAnalysisTest < Minitest::Test
   def test_transport_metrics_replace_card_metrics_script_as_dsl_model
     piece = transport_metrics_piece
 
-    metrics = Sigillum::OrchestralDSL.production_transport_metrics(piece)
+    metrics = Partitura.production_transport_metrics(piece)
     assert_equal "Metric model", metrics.fetch(:name)
     assert_equal(
       { attacks: 3, onset_vocab: 3, duration_vocab: 2, pitch_vocab: 2 },
@@ -51,7 +51,7 @@ class ProductionSurfaceTransportAnalysisTest < Minitest::Test
       metrics.fetch(:parts).fetch("cello")
     )
 
-    readout = Sigillum::OrchestralDSL.production_readout(piece, :transport_metrics)
+    readout = Partitura.production_readout(piece, :transport_metrics)
     assert_includes readout, "# Transport Metrics Metric model"
     assert_includes readout, "flute                attacks   3 onsets  3 durations  2 pitches   2"
     assert_includes piece.compile_response.fetch(:available_projections), "transport_metrics"
@@ -60,18 +60,18 @@ class ProductionSurfaceTransportAnalysisTest < Minitest::Test
   def test_melody_analysis_replaces_python_analysis_scripts_as_dsl_model
     piece = melody_analysis_piece
 
-    analysis = Sigillum::OrchestralDSL.production_melody_analysis(piece, part: :flute)
+    analysis = Partitura.production_melody_analysis(piece, part: :flute)
     assert_equal "Melody analysis model", analysis.fetch(:title)
     assert_equal :flute, analysis.fetch(:part)
     assert_equal "C5", analysis.fetch(:melody_notes).first.fetch(:pitch)
     assert_equal 1, analysis.fetch(:melody_notes).first.fetch(:tonal).fetch(:degree)
 
-    readout = Sigillum::OrchestralDSL.production_readout(piece, :melody_analysis, part: :flute)
+    readout = Partitura.production_readout(piece, :melody_analysis, part: :flute)
     assert_includes readout, "# Melody Analysis Melody analysis model [part=flute]"
     assert_includes readout, "per-note (offset | part | pitch | degree | roman role | figure | motif):"
     assert_includes readout, "b1:1"
 
-    report = Sigillum::OrchestralDSL.production_readout(piece, :melody_report, part: :flute)
+    report = Partitura.production_readout(piece, :melody_report, part: :flute)
     assert_includes report, "# Melody Report Melody analysis model [part=flute]"
     assert_includes report, "motif/hook"
     assert_includes report, "implies:"
@@ -84,7 +84,7 @@ class ProductionSurfaceTransportAnalysisTest < Minitest::Test
       path = File.join(dir, "hand.musicxml")
       File.write(path, MINIMAL_IMPORT_MUSICXML)
 
-      conversion = Sigillum::OrchestralDSL.production_musicxml_import(
+      conversion = Partitura.production_musicxml_import(
         path,
         bars: 1..1,
         segments: "opening:1-1",
@@ -99,7 +99,7 @@ class ProductionSurfaceTransportAnalysisTest < Minitest::Test
       assert_includes render, "C5:1{mf,txt:cantabile,stacc} D5:1"
       assert_includes render, 'text "C", at: "bar 1 beat 1", for: :all'
 
-      verification = Sigillum::OrchestralDSL.production_musicxml_import_verify(path, path, bars: 1..1, beats: 4)
+      verification = Partitura.production_musicxml_import_verify(path, path, bars: 1..1, beats: 4)
       assert verification.ok?
       assert_equal 0, verification.total_differing_bars
       assert_includes verification.render, "flute: OK"
@@ -109,7 +109,7 @@ class ProductionSurfaceTransportAnalysisTest < Minitest::Test
   private
 
   def transport_metrics_piece
-    Sigillum::OrchestralDSL::Production.piece("Metric model") do
+    Partitura::Production.piece("Metric model") do
       meter "4/4"; key "C"
       roster {
  part :flute, "Flute", music21: "Flute", family: :woodwind;
@@ -126,7 +126,7 @@ class ProductionSurfaceTransportAnalysisTest < Minitest::Test
   end
 
   def melody_analysis_piece
-    Sigillum::OrchestralDSL::Production.piece("Melody analysis model") do
+    Partitura::Production.piece("Melody analysis model") do
       meter "4/4"; key "C"
       roster {
  part :flute, "Flute", music21: "Flute", family: :woodwind;

@@ -5,11 +5,11 @@ require "rexml/document"
 require "rexml/xpath"
 
 $LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
-require "partitura/orchestral_dsl"
+require "partitura"
 
 class MusicXMLExporterTest < Minitest::Test
   def test_renders_single_staff_transport_to_musicxml
-    piece = Sigillum::OrchestralDSL::Production.piece("Ruby Export Core") do
+    piece = Partitura::Production.piece("Ruby Export Core") do
       meter "4/4"
       key "C"
 
@@ -39,7 +39,7 @@ class MusicXMLExporterTest < Minitest::Test
   end
 
   def test_splits_long_notes_at_barlines_with_ties
-    piece = Sigillum::OrchestralDSL::Production.piece("Ruby Tie Split") do
+    piece = Partitura::Production.piece("Ruby Tie Split") do
       meter "4/4"
       key "d"
 
@@ -65,18 +65,18 @@ class MusicXMLExporterTest < Minitest::Test
   end
 
   def test_rejects_unsupported_transport_schema
-    error = assert_raises(Sigillum::OrchestralDSL::Export::Error) do
-      Sigillum::OrchestralDSL::Export::MusicXML.render(
-        "schema" => "sigillum.orchestral_dsl.transport",
+    error = assert_raises(Partitura::Export::Error) do
+      Partitura::Export::MusicXML.render(
+        "schema" => "partitura.transport",
         "schema_version" => 2
       )
     end
 
-    assert_includes error.message, "unsupported orchestral DSL transport"
+    assert_includes error.message, "unsupported Partitura transport"
   end
 
   def test_top_level_production_musicxml_helper_accepts_piece
-    piece = Sigillum::OrchestralDSL::Production.piece("Helper Export") do
+    piece = Partitura::Production.piece("Helper Export") do
       meter "3/4"
       key "F"
 
@@ -92,7 +92,7 @@ class MusicXMLExporterTest < Minitest::Test
       end
     end
 
-    xml = Sigillum::OrchestralDSL.production_musicxml(piece)
+    xml = Partitura.production_musicxml(piece)
 
     assert_includes xml, "<work-title>Helper Export</work-title>"
     assert_includes xml, "<beats>3</beats>"
@@ -112,7 +112,7 @@ class MusicXMLExporterTest < Minitest::Test
   end
 
   def test_text_controls_create_notes_staff
-    piece = Sigillum::OrchestralDSL::Production.piece("Notes Staff Export") do
+    piece = Partitura::Production.piece("Notes Staff Export") do
       meter "4/4"
       key "C"
 
@@ -142,7 +142,7 @@ REXML::XPath.match(document, "/score-partwise/part-list/score-part/part-name").m
   private
 
   def grand_staff_piece
-    Sigillum::OrchestralDSL::Production.piece("Grand Staff Export") do
+    Partitura::Production.piece("Grand Staff Export") do
       meter "4/4"; key "C"; tempo "quarter = 96"
       roster do
         part :piano_upper, "Piano Upper", music21: "Piano", family: :keyboard, notation_group: :piano, notation_staff: 1
@@ -160,8 +160,8 @@ REXML::XPath.match(document, "/score-partwise/part-list/score-part/part-name").m
   end
 
   def render_document(piece)
-    transport = Sigillum::OrchestralDSL.production_transport_hash(piece)
-    REXML::Document.new(Sigillum::OrchestralDSL::Export::MusicXML.render(transport))
+    transport = Partitura.production_transport_hash(piece)
+    REXML::Document.new(Partitura::Export::MusicXML.render(transport))
   end
 
   def text_at(document, path)
