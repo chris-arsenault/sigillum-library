@@ -12,8 +12,12 @@ Status: IMPLEMENTED (2026-07-07) through milestone M3 plus the M4 doc rewiring.
   (running the library suite inside a consumer-repo closeout is wrong-shaped; revisit
   when a consumer-side check command exists); `runs` scans a given root rather than
   only PARTITURA_PROJECT_ROOT; `commit --source` may register/update the source path.
-- Still open from M4: the `section_recomposition` manifest and a real trial run in the
-  consumer repo.
+- Second manifest shipped: `section_recomposition`
+  (`reference/written/procedures/partitura/section_recomposition/`) - diagnose,
+  repair contract, iterative recompose, seams/adherence, closeout; its Diagnose stage
+  deliberately omits the `source_compiles` gate because a piece that fails the
+  notation gates is a primary reason to start that procedure.
+- Still open from M4: a real trial run in the consumer repo.
 
 Companion finding source: `docs/reviews/2026-07-07_partitura_llm_first_review.md`
 (Areas 1, 4, 5).

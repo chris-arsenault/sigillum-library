@@ -18,9 +18,15 @@ stage at a time, so no agent needs the whole procedure in context:
 partitura/bin/partitura start <piece_dir> --source <SOURCE.rb>
 ```
 
-- `dsl_composition/` - the procedure as data: `manifest.json` (stages, artifacts,
-  gates), `principles.md` (standing orders, read once per fresh context), and
-  `stages/*.md` (one file per stage; the run payload inlines the current one).
+- `dsl_composition/` - composing a new piece from the ground up: `manifest.json`
+  (stages, artifacts, gates), `principles.md` (standing orders, read once per fresh
+  context), and `stages/*.md` (one file per stage; the run payload inlines the
+  current one).
+- `section_recomposition/` - surgical repair of one section/passage of an existing
+  piece: diagnose -> repair contract -> recompose in verdict loops -> seams and plan
+  adherence -> export/audition/close. Start it with
+  `partitura start <piece_dir> --procedure section_recomposition --source <SOURCE.rb>`.
+  A piece that no longer compiles under the notation gates is a valid starting state.
 - `dsl_composition_procedure.md` - pointer page with the run commands.
 
 ## Binding Source Model

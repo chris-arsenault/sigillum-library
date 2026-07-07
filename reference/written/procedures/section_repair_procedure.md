@@ -1,5 +1,11 @@
 # section_repair_procedure — SECTION REPAIR PROCEDURE (agent-executable)
 
+> DSL-era note: for pieces whose source of truth is the production Ruby DSL, run the
+> guided successor instead:
+> `partitura start <piece_dir> --procedure section_recomposition --source <SOURCE.rb>`
+> (`reference/written/procedures/partitura/section_recomposition/`). This document
+> remains the craft source for the Python/symphony-shaped workflow it describes.
+
 Hand-compose a fix for ONE section (or sub-passage) of a movement, SURGICALLY — keep everything that
 works, replace only the named defect. Reuses orchestration_procedure's section-agent refine loop (compose → inspect →
 adapt, never one-shot) but for a targeted repair, grounded in the contract + the line spine + the

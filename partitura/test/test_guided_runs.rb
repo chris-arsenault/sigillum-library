@@ -48,6 +48,29 @@ class GuidedRunsTest < Minitest::Test
     assert(combined.gates.include?("artifact_exists:form_contract"))
   end
 
+  def test_procedure_list_names_all_manifests
+    assert_includes Partitura::Guided::Manifest.list, "dsl_composition"
+    assert_includes Partitura::Guided::Manifest.list, "section_recomposition"
+  end
+
+  def test_section_recomposition_manifest_loads_and_runs
+    manifest = Partitura::Guided::Manifest.load("section_recomposition")
+    assert_equal %w[s0 s1 s2 s3 s4], manifest.stages.map(&:id)
+    assert manifest.stage("s2").iterative
+    assert_equal "passage", manifest.stage("s2").unit
+    assert(manifest.stages.all? { |stage| stage.docs.all? { |doc| File.exist?(doc) } })
+    assert_equal 3, manifest.stages("miniature").length
+
+    Dir.mktmpdir do |dir|
+      FileUtils.mkdir_p(File.join(dir, "dsl"))
+      File.write(File.join(dir, "dsl", "piece.rb"), SOURCE)
+      run, payload = Partitura::Guided.start(dir, procedure: "section_recomposition", source: "dsl/piece.rb")
+      assert_equal "s0", run.current_stage_id
+      assert_includes payload, "Diagnose"
+      assert_includes payload, "procedure/diagnosis.md"
+    end
+  end
+
   def test_start_status_commit_flow_with_gates
     with_run do |dir|
       run, payload = Partitura::Guided.status(dir)
