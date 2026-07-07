@@ -106,6 +106,21 @@ class ProductionSurfaceTransportAnalysisTest < Minitest::Test
     end
   end
 
+  def test_musicxml_import_verify_reports_mismatched_note_content
+    Dir.mktmpdir do |dir|
+      hand_path = File.join(dir, "hand.musicxml")
+      export_path = File.join(dir, "export.musicxml")
+      File.write(hand_path, MINIMAL_IMPORT_MUSICXML)
+      File.write(export_path, MINIMAL_IMPORT_MUSICXML.sub("<step>C</step>", "<step>E</step>"))
+
+      verification = Partitura.production_musicxml_import_verify(hand_path, export_path, bars: 1..1, beats: 4)
+
+      refute verification.ok?
+      assert_equal 1, verification.total_differing_bars
+      assert_includes verification.render, "flute: DIFF at bars [1]"
+    end
+  end
+
   private
 
   def transport_metrics_piece
@@ -133,8 +148,8 @@ class ProductionSurfaceTransportAnalysisTest < Minitest::Test
  part :cello, "Cello", music21: "Violoncello", family: :string }
       section :s1, "Analysis", bars: 1..2 do
         span bars: 1..2 do
-          phrase(:flute_line, surface: :absolute) { events "C5:1 D5:1 E5:1 G5:.5 A5:.5 G5:1 E5:1 D5:1 C5:1" }
-          phrase(:cello_support, surface: :absolute) { events "[C3,E3,G3]:4 [G2,B2,D3,F3]:4" }
+          phrase(:flute_line, surface: :absolute) { events "C5:1 D5:1 E5:1 G5:.5 A5:.5 | G5:1 E5:1 D5:1 C5:1" }
+          phrase(:cello_support, surface: :absolute) { events "[C3,E3,G3]:4 | [G2,B2,D3,F3]:4" }
           placement :flute_line, part: :flute, at: "bar 1 beat 1", role: :foreground
           placement :cello_support, part: :cello, at: "bar 1 beat 1", role: :bass
         end

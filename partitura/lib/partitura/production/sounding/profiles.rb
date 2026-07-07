@@ -8,6 +8,35 @@ module Partitura
       module Profiles
         include RhythmProfile
 
+        def range_check(part: nil, bars: nil)
+          lines = ["# Range Check (sounding span vs roster range:)"]
+          sounding_parts(part).each do |pname, evs|
+            lines << range_check_line(pname, evs.select { |e| in_bars?(e.offset, bars) })
+          end
+          lines.join("\n")
+        end
+
+        def range_check_line(pname, events)
+          notes = range_check_notes(events)
+          return "#{pname}: (no notes)" if notes.empty?
+
+          low = notes.min_by(&:first)
+          high = notes.max_by(&:first)
+          declared = @piece.parts[pname]&.range
+          span = "sounds #{low[1]}-#{high[1]}"
+          return "#{pname}: #{span}; no range: declared - judge the span against the real instrument" unless declared
+
+          "#{pname}: #{span}; declared #{declared}#{range_extremes_note(low, high)}"
+        end
+
+        def range_check_notes(events)
+          events.flat_map { |event| event.pitches.map { |pitch| [midi_of(pitch), pitch, event] } }
+        end
+
+        def range_extremes_note(low, high)
+          "  (lowest at #{@piece.format_offset(low[2].offset)}, highest at #{@piece.format_offset(high[2].offset)})"
+        end
+
         def adjacency_profile(part: nil, bars: nil)
           lines = ["# Adjacency Profile (sounding)"]
           sounding_parts(part).each do |pname, evs|

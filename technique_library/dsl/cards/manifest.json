@@ -8589,7 +8589,7 @@
     "cite": "phrasing_variation_line s5 ; Bach m31=m49 ; Kietzer m40-41",
     "behavior": "a run is spent, not written: every run has a TARGET (lands on the next skeleton note) and BENDS within 5-6 notes (direction change, leap out, early exit); the one UNBENT scale is a formal event at the dynamic peak, spent exactly once like a reserved top note - scales are discharge, not texture",
     "key": "am",
-    "meter": "4/4",
+    "meter": "3/4 to 4/4 at bar 8",
     "tempo": 96,
     "bars": 9,
     "parts": [
@@ -8891,7 +8891,7 @@
     "key": "C",
     "meter": "2/4",
     "tempo": 108,
-    "bars": 6,
+    "bars": 7,
     "parts": [
       {
         "id": "violin",
@@ -8971,7 +8971,7 @@
     "key": "D",
     "meter": "4/4",
     "tempo": 112,
-    "bars": 8,
+    "bars": 9,
     "parts": [
       {
         "id": "violin",

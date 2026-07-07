@@ -1,35 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require "json"
-require "optparse"
-require_relative "../lib/partitura"
-
-options = {}
-parser = OptionParser.new do |opts|
-  opts.banner = "Usage: production_view SOURCE.rb [view] [--part PART] [--bars A-B]"
-  opts.on("--part PART", "Part id for line view") { |value| options[:part] = value.to_sym }
-  opts.on("--bars RANGE", "Bar or bar range, for example 5 or 5-8") { |value| options[:bars] = value }
-end
-
-parser.parse!
-source = ARGV.shift
-view = (ARGV.shift || "structure").to_sym
-
-if source.nil?
-  warn parser
-  exit 2
-end
-
-begin
-  piece = Partitura.load_production_file(source)
-  puts Partitura.production_readout(piece, view, **options)
-rescue Partitura::Production::CompileError => e
-  if view == :compile
-    puts JSON.pretty_generate(e.response)
-    exit 0
-  end
-
-  warn JSON.pretty_generate(e.response)
-  exit 1
-end
+# Shim: this command is consolidated into the `partitura` CLI (see
+# docs/architecture/partitura/08_cli_and_guided_runs.md). Equivalent call:
+#   partitura view ...
+exec File.expand_path("partitura", __dir__), "view", *ARGV

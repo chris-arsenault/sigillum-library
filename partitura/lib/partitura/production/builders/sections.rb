@@ -3,8 +3,17 @@
 module Partitura
   module Production
     class SectionBuilder
-      def initialize(section)
+      def initialize(section, default_key: nil)
         @section = section
+        @default_key = default_key
+        @key_explicit = false
+      end
+
+      # Section-level key: the default key_context for degree phrases in this section's
+      # spans (use after a key_change so inherited degrees resolve in the new key).
+      def key(value)
+        @default_key = value.to_s
+        @key_explicit = true
       end
 
       def build(&block)
@@ -21,8 +30,10 @@ module Partitura
 
       def span(bars:, texture: nil, &block)
         span = Span.new(bars: bars, texture: texture)
-        SpanBuilder.new(span).build(&block)
+        SpanBuilder.new(span, default_key: @default_key, default_key_explicit: @key_explicit).build(&block)
         @section.add_span(span)
+      rescue CompileError => e
+        raise e.with_context(section: @section.id, span_bars: "#{bars.begin}-#{bars.end}")
       end
 
       def gesture(id, &block)
@@ -32,16 +43,43 @@ module Partitura
     end
 
     class SpanBuilder
-      def initialize(span)
+      def initialize(span, default_key: nil, default_key_explicit: false)
         @span = span
+        @default_key = default_key
+        @key_explicit = default_key_explicit
+      end
+
+      # Span-level key: the default key_context for this span's degree phrases.
+      def key(value)
+        @default_key = value.to_s
+        @key_explicit = true
       end
 
       def build(&block)
         instance_eval(&block) if block
       end
 
+      # Per-bar declared chord track: "b17:Am b18:Am b19-20:Dm". Bars must sit inside
+      # the span; symbols are letter chords (see Production::Chords). `harmony` routes
+      # here automatically when its text is entirely in this microformat, so free prose
+      # stays commentary and the chord track stays machine-comparable.
+      def chords(text)
+        text.to_s.split(/\s+/).reject(&:empty?).each do |token|
+          bars_part, symbol = parse_chord_token(token)
+          bars_part.each do |bar|
+            validate_chord_bar!(bar, token)
+            @span.add_chord(bar, symbol)
+          end
+        end
+      end
+
       def harmony(text)
-        @span.add_harmony(text)
+        tokens = text.to_s.split(/\s+/).reject(&:empty?)
+        if tokens.any? && tokens.all? { |token| token.match?(/\Ab\d+(-\d+)?:\S+\z/) }
+          chords(text)
+        else
+          @span.add_harmony(text)
+        end
       end
 
       def process(text)
@@ -49,7 +87,8 @@ module Partitura
       end
 
       def phrase(id, surface: nil, pitch: nil, &block)
-        builder = PhraseBuilder.new(id, surface || pitch)
+        builder = PhraseBuilder.new(id, surface || pitch, default_key: @default_key,
+                                                          default_key_explicit: @key_explicit)
         @span.add_phrase(builder.build(&block))
       end
 
@@ -76,6 +115,37 @@ module Partitura
       def gesture(id, &block)
         gesture = GestureBuilder.new(id).build(&block)
         @span.add_gesture(gesture)
+      end
+
+      private
+
+      def parse_chord_token(token)
+        match = token.match(/\Ab(\d+)(?:-(\d+))?:(\S+)\z/)
+        raise chord_track_error(token, "must look like b17:Am or b19-20:Dm") unless match
+
+        symbol = match[3]
+        raise chord_track_error(token, "chord symbol #{symbol.inspect} is not a recognized letter chord") unless
+          Chords.valid?(symbol)
+
+        [Integer(match[1])..Integer(match[2] || match[1]), symbol]
+      end
+
+      def validate_chord_bar!(bar, token)
+        return if @span.bars.cover?(bar)
+
+        raise chord_track_error(token, "bar #{bar} is outside span bars #{@span.bars.begin}-#{@span.bars.end}")
+      end
+
+      def chord_track_error(token, detail)
+        CompileError.new(
+          code: "bad_chord_track",
+          message: "Chord track token #{token.inspect}: #{detail}.",
+          repair_instruction: "Declare per-bar chords as bN:Symbol inside the span, e.g. " \
+                              "chords \"b17:Am b18:E7 b19-20:Dm\". Symbols: letter, optional #/b, optional " \
+                              "quality (#{Chords::TEMPLATES.keys.reject(&:empty?).join(' ')}), optional /bass.",
+          help_topic: "container",
+          docs: ["docs/architecture/partitura/01_container.md"]
+        )
       end
     end
 

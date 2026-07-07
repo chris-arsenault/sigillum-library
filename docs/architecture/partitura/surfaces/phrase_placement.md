@@ -23,6 +23,10 @@ placement :call_8, part: :clarinet, at: "bar 1 beat 1" do
   role :foreground
   realization "materialized/readable result must be available"
 end
+
+# Equivalent compact keyword form (preferred when there is no block body):
+placement :call_8, part: :clarinet, at: "bar 1 beat 1", role: :foreground,
+          realization: "materialized/readable result must be available"
 ```
 
 ## Rules

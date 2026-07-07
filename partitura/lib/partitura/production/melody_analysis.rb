@@ -70,7 +70,8 @@ module Partitura
         @texture = build_texture
         @total = @texture.map { |event| event.onset + event.duration.to_f }.max || 0.0
         @melody = melody_line(@texture)
-        @key = estimate_key(pc_histogram(@texture))
+        @estimated_key = estimate_key(pc_histogram(@texture))
+        @key = declared_key || @estimated_key
         @windows = windowed_harmony(accompaniment(@texture, @melody))
         @ordinals = diatonic_ordinals(*@key)
         @notes = analyze_notes
@@ -82,7 +83,9 @@ module Partitura
           title: piece.title,
           part: part,
           bars: bars && "#{bars.begin}-#{bars.end}",
-          estimated_key: key_label,
+          key: key_label,
+          estimated_key: estimated_key_label,
+          declared_key: declared_key && declared_key_label,
           melody_notes: notes.map { |note| note_to_h(note) },
           segment: segment_to_h
         }

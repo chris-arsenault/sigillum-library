@@ -5,7 +5,7 @@ module Partitura
     class CompileError < StandardError
       attr_reader :response
 
-      def initialize(code:, message:, repair_instruction:, help_topic:, docs:, minimal_example: nil)
+      def initialize(code:, message:, repair_instruction:, help_topic:, docs:, minimal_example: nil, extra: nil)
         @response = {
           status: "error",
           code: code,
@@ -15,7 +15,38 @@ module Partitura
           docs: docs,
           minimal_example: minimal_example
         }.compact
+        @response.merge!(extra) if extra
         super(message)
+      end
+
+      CORE_RESPONSE_KEYS = %i[status code message repair_instruction help_topic docs minimal_example].freeze
+
+      # Returns a copy of the error carrying authoring context (phrase id, span bars,
+      # section id). Existing context is never overwritten, so the innermost frame wins.
+      def with_context(context)
+        extra = @response.reject { |key, _| CORE_RESPONSE_KEYS.include?(key) }
+        added = context.reject { |key, value| @response.key?(key) || value.nil? }
+        return self if added.empty?
+
+        CompileError.new(
+          code: @response[:code],
+          message: contextualized_message(added),
+          repair_instruction: @response[:repair_instruction],
+          help_topic: @response[:help_topic],
+          docs: @response[:docs],
+          minimal_example: @response[:minimal_example],
+          extra: extra.merge(added)
+        )
+      end
+
+      private
+
+      def contextualized_message(added)
+        phrase = added[:phrase]
+        message = @response[:message].to_s
+        return message if phrase.nil? || message.match?(/\b#{Regexp.escape(phrase.to_s)}\b/)
+
+        "phrase :#{phrase}: #{message}"
       end
     end
 
@@ -99,12 +130,18 @@ notation_staff: nil)
     end
 
     class Phrase
-      attr_reader :id, :surface, :events
+      attr_reader :id, :surface, :events, :segment_counts, :assumed_key
 
-      def initialize(id:, surface:, events:)
+      # segment_counts: events per `|`-delimited segment of the authored stream, used to
+      # verify that every bar marker lands on a barline once the phrase is placed.
+      # assumed_key: set when a degrees phrase silently inherited the piece-level key;
+      # validation checks that assumption against any key_change at placement time.
+      def initialize(id:, surface:, events:, segment_counts: nil, assumed_key: nil)
         @id = id.to_sym
         @surface = surface.to_sym
         @events = events.freeze
+        @segment_counts = segment_counts&.freeze
+        @assumed_key = assumed_key
       end
 
       def duration
@@ -214,13 +251,14 @@ notation_staff: nil)
     end
 
     class Span
-      attr_reader :bars, :texture, :harmony_texts, :process_texts, :phrases,
+      attr_reader :bars, :texture, :harmony_texts, :chord_track, :process_texts, :phrases,
                   :phrase_definitions, :placements, :staff_bars, :gestures
 
       def initialize(bars:, texture: nil)
         @bars = bars
         @texture = texture&.to_sym
         @harmony_texts = []
+        @chord_track = {}
         @process_texts = []
         @phrases = {}
         @phrase_definitions = []
@@ -231,6 +269,10 @@ notation_staff: nil)
 
       def add_harmony(text)
         @harmony_texts << text.to_s
+      end
+
+      def add_chord(bar, symbol)
+        @chord_track[Integer(bar)] = symbol.to_s
       end
 
       def add_process(text)

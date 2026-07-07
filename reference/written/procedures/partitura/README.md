@@ -11,9 +11,17 @@ mechanics. This procedure keeps their musical standards but replaces their sourc
 
 ## Start Here
 
-- `dsl_composition_procedure.md` - one coherent DSL-first procedure for composing new music, including
-  research routing, material design, section writing, flow/interleaving, whole-piece revision, export,
-  and closeout.
+Run the procedure as a guided run - the runtime owns the stage sequence and emits one
+stage at a time, so no agent needs the whole procedure in context:
+
+```bash
+partitura/bin/partitura start <piece_dir> --source <SOURCE.rb>
+```
+
+- `dsl_composition/` - the procedure as data: `manifest.json` (stages, artifacts,
+  gates), `principles.md` (standing orders, read once per fresh context), and
+  `stages/*.md` (one file per stage; the run payload inlines the current one).
+- `dsl_composition_procedure.md` - pointer page with the run commands.
 
 ## Binding Source Model
 

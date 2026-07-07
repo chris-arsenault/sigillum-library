@@ -92,36 +92,110 @@ def usage
     lib -- production-DSL technique library lookup
 
     Usage:
-      ruby tools/lib.rb <term>        # category or derived facet search
-      ruby tools/lib.rb show <NAME>   # card metadata + DSL specimen path
+      ruby tools/lib.rb <term> [term...]   # free-text search over categories, facets,
+                                           #   card names, and card behavior; multiple
+                                           #   terms narrow (AND)
+      ruby tools/lib.rb show <NAME>        # card metadata + DSL specimen path
       ruby tools/lib.rb show dsl:<category>/<NAME>
-      ruby tools/lib.rb terms         # categories + facets
+      ruby tools/lib.rb terms              # categories + facets
   TEXT
 end
+
+SEARCH_LIMIT = 15
 
 def category_match?(term, category)
   category == term || (term == "orchestration" && category.start_with?("orch."))
 end
 
-def search(term)
-  cards = manifest
-  normalized = term.downcase.strip
-  hits = matching_cards(cards, normalized)
-
-  if hits.empty?
-    puts "no cards for '#{term}'. valid terms:"
-    return terms
+# A raw query token expands to itself plus every facet keyword it overlaps with, so
+# "arpeggio" reaches cards that say "arpeggiated" (via the "arpegg" keyword) and
+# "arp" reaches "arpeggio" (keyword prefix). Expansion never crosses facets: the
+# token matches cards, not whole facet buckets.
+def expand_token(token)
+  keyword_matches = FACETS.values.flatten.uniq.select do |keyword|
+    keyword.include?(token) || (token.length >= 3 && keyword.start_with?(token)) ||
+      (keyword.length >= 3 && token.start_with?(keyword))
   end
-
-  puts "#{hits.length} card(s) for '#{term}':"
-  puts
-  hits.each { |card| print_search_hit(card) }
+  ([token] + keyword_matches).uniq
 end
 
-def matching_cards(cards, normalized)
-  cards.select do |card|
-    category_match?(normalized, card.fetch("category")) || facets_of(card).include?(normalized)
+def card_haystacks(card)
+  {
+    name: card.fetch("name").downcase,
+    category: card.fetch("category").downcase,
+    behavior: card.fetch("behavior", "").downcase
+  }
+end
+
+def token_score(card, haystacks, token)
+  return 10 if haystacks[:name].include?(token)
+  return 6 if category_match?(token, haystacks[:category])
+  return 4 if facets_of(card).include?(token)
+
+  behavior_score(haystacks[:behavior], token)
+end
+
+def behavior_score(behavior, token)
+  return 2 if expand_token(token).any? { |term| term != token && behavior.include?(term) }
+  return 1 if behavior.include?(token)
+
+  0
+end
+
+def score_card(card, tokens)
+  haystacks = card_haystacks(card)
+  scores = tokens.map { |token| token_score(card, haystacks, token) }
+  return 0 if scores.any?(&:zero?)
+
+  scores.sum
+end
+
+def search(query)
+  tokens = query.downcase.strip.split(/\s+/)
+  return puts(usage) if tokens.empty?
+
+  scored = manifest.filter_map do |card|
+    score = score_card(card, tokens)
+    [score, card] if score.positive?
   end
+  return no_hits(query, tokens) if scored.empty?
+
+  print_ranked_hits(query, scored)
+end
+
+def print_ranked_hits(query, scored)
+  ranked = scored.sort_by { |score, card| [-score, card.fetch("name")] }.map(&:last)
+  shown = ranked.first(SEARCH_LIMIT)
+  suffix = ranked.length > shown.length ? ", showing #{shown.length}" : ""
+  puts "#{ranked.length} card(s) for '#{query}'#{suffix}:"
+  puts
+  shown.each { |card| print_search_hit(card) }
+  return unless ranked.length > shown.length
+
+  puts
+  puts "  ...and #{ranked.length - shown.length} more. Add a word to narrow, e.g. " \
+       "`ruby tools/lib.rb #{query} <instrument-or-technique>`."
+end
+
+def no_hits(query, tokens)
+  puts "no cards for '#{query}'."
+  suggestions = near_miss_terms(tokens)
+  unless suggestions.empty?
+    puts "closest terms: #{suggestions.join(', ')}"
+    puts
+  end
+  puts "valid terms:"
+  terms
+end
+
+def near_miss_terms(tokens)
+  vocabulary = manifest.map { |card| card.fetch("category") }.uniq + FACETS.keys + FACETS.values.flatten
+  tokens.flat_map do |token|
+    prefix = token[0, 4]
+    next [] if prefix.nil? || prefix.length < 3
+
+    vocabulary.select { |term| term.start_with?(prefix) || token.start_with?(term[0, 4].to_s) }
+  end.uniq.first(8)
 end
 
 def print_search_hit(card)
@@ -194,10 +268,10 @@ def main(argv)
     puts usage
   elsif argv[0] == "show" && argv[1]
     show(argv[1])
-  elsif %w[terms list help].include?(argv[0])
+  elsif %w[terms list help].include?(argv[0]) && argv.length == 1
     terms
   else
-    search(argv[0])
+    search(argv.join(" "))
   end
 end
 

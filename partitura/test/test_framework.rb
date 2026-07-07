@@ -53,6 +53,43 @@ class FrameworkTest < Minitest::Test
     FileUtils.rm_rf(movement_output_dir)
   end
 
+  def test_registry_rejects_unknown_movement_selection
+    registry = Partitura::Framework::Registry.new
+    registry.register(
+      id: :mvt1,
+      title: "One",
+      source: "one.rb",
+      output_stem: "one",
+      bars: 1..1,
+      roman: "I",
+      status: :draft
+    )
+
+    error = assert_raises(KeyError) { registry.write_transport(:missing) }
+    assert_includes error.message, "unknown movement: missing"
+  end
+
+  def test_movement_spec_resolves_relative_and_absolute_sources
+    spec = Partitura::Framework::MovementSpec.new(id: :mvt1, title: "One", source: "movement.rb")
+    assert_equal Pathname.new("/tmp/project/movement.rb"), spec.source_path(base_dir: "/tmp/project")
+
+    absolute = Partitura::Framework::MovementSpec.new(id: :mvt2, title: "Two", source: "/tmp/source.rb")
+    assert_equal Pathname.new("/tmp/source.rb"), absolute.source_path(base_dir: "/ignored")
+  end
+
+  def test_transport_hash_for_raises_structured_compile_error_for_invalid_piece
+    bad_piece = Partitura::Production.piece("Bad transport") do
+      control { dynamic :mf, at: "bar 1 beat 1", for: :all }
+    end
+
+    error = assert_raises(Partitura::Production::CompileError) do
+      Partitura::Framework::Transport.hash_for(bad_piece)
+    end
+
+    assert_equal "unknown_control_target", error.response.fetch(:code)
+    assert_includes error.response.fetch(:repair_instruction), "existing part"
+  end
+
   def test_dynamic_tempo_audit_reads_transport_facts
     piece = dynamic_tempo_audit_piece
 

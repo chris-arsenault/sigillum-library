@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative "../marks"
+require_relative "degree_parsing"
+
 module Partitura
   module Production
     PITCH_CLASS = {
@@ -8,6 +11,19 @@ module Partitura
     LETTERS = %w[C D E F G A B].freeze
     PC_TO_SHARP = %w[C C# D D# E F F# G G# A A# B].freeze
     MAJOR_STEPS = [0, 2, 4, 5, 7, 9, 11].freeze
+    MODE_STEPS = {
+      "major" => MAJOR_STEPS,
+      "ionian" => MAJOR_STEPS,
+      "minor" => [0, 2, 3, 5, 7, 8, 10].freeze,
+      "aeolian" => [0, 2, 3, 5, 7, 8, 10].freeze,
+      "harmonic_minor" => [0, 2, 3, 5, 7, 8, 11].freeze,
+      "melodic_minor" => [0, 2, 3, 5, 7, 9, 11].freeze, # ascending form; write b6/b7 for descent
+      "dorian" => [0, 2, 3, 5, 7, 9, 10].freeze,
+      "phrygian" => [0, 1, 3, 5, 7, 8, 10].freeze,
+      "lydian" => [0, 2, 4, 6, 7, 9, 11].freeze,
+      "mixolydian" => [0, 2, 4, 5, 7, 9, 10].freeze,
+      "locrian" => [0, 1, 3, 5, 6, 8, 10].freeze
+    }.freeze
 
     module_function
 
@@ -20,12 +36,11 @@ module Partitura
 
     def events_from_degrees(degrees, rhythm, key_context)
       degree_tokens, rhythm_tokens = parallel_tokens(degrees, rhythm, "degrees", "rhythm", :degrees)
-      tonic_midi = pitch_to_midi(key_context =~ /\d/ ? key_context : "#{key_context}4")
-      tonic_name = key_context =~ /\d/ ? key_context : "#{key_context}4"
+      key = parse_key_context(key_context)
       degree_tokens.zip(rhythm_tokens).map do |degree_token, duration|
         parsed = parse_marked_token(degree_token)
         Event.new(
-          pitch: pitch_from_degree_body(parsed[:body], tonic_name, tonic_midi),
+          pitch: pitch_from_degree_body(parsed[:body], key),
           duration: Rational(duration),
           source: parsed[:body],
           local_marks: parsed[:marks]
@@ -92,7 +107,23 @@ module Partitura
     end
 
     def parse_marks(text)
-      text.to_s.split(",").map(&:strip).reject(&:empty?)
+      marks = text.to_s.split(",").map(&:strip).reject(&:empty?)
+      marks.each { |mark| assert_valid_mark!(mark) }
+      marks
+    end
+
+    def assert_valid_mark!(mark)
+      return if Marks.valid?(mark)
+
+      raise CompileError.new(
+        code: "unknown_mark",
+        message: "Unknown inline mark #{mark.inspect}; the mark vocabulary is closed.",
+        repair_instruction: "Use a mark from the vocabulary (`partitura_help marks`) or `txt:<words>` when it " \
+                            "really is free text. Techniques must never be spelled as `txt:` labels.",
+        help_topic: "marks",
+        docs: ["docs/architecture/partitura/surfaces/absolute.md"],
+        extra: { vocabulary: Marks.vocabulary_lines }
+      )
     end
 
     def pitch_from_absolute_body(body, help_topic: :split_pitch_rhythm)
@@ -109,15 +140,15 @@ module Partitura
       end
     end
 
-    def pitch_from_degree_body(body, tonic_name, tonic_midi)
+    def pitch_from_degree_body(body, key)
       return nil if rest_token?(body)
 
       if chord_body?(body)
         parse_chord_body(body, help_topic: :degrees) do |degree|
-          degree_to_pitch(degree, tonic_name, tonic_midi)
+          degree_to_pitch(degree, key)
         end
       else
-        degree_to_pitch(body, tonic_name, tonic_midi)
+        degree_to_pitch(body, key)
       end
     end
 
@@ -221,6 +252,22 @@ module Partitura
       )
     end
 
+    def parse_part_range(text, part: nil)
+      match = text.to_s.strip.match(/\A([A-G](?:##|bb|[#b])?-?\d+)\s*-\s*([A-G](?:##|bb|[#b])?-?\d+)\z/)
+      unless match
+        raise CompileError.new(
+          code: "bad_part_range",
+          message: "Part #{part} range must look like \"E3-C6\", got #{text.inspect}.",
+          repair_instruction: "Declare range: as \"LOW-HIGH\" with explicit octaves, or omit range: to skip " \
+                              "range enforcement for this part.",
+          help_topic: "container",
+          docs: ["docs/architecture/partitura/01_container.md"]
+        )
+      end
+      low, high = [pitch_to_midi(match[1]), pitch_to_midi(match[2])].minmax
+      [low, high]
+    end
+
     def parse_location(text)
       match = text.to_s.match(/\Abar\s+(\d+)\s+beat\s+([0-9.\/]+)\z/)
       unless match
@@ -311,66 +358,6 @@ module Partitura
       ) unless match
 
       Rational(match[1].to_i * 4, match[2].to_i)
-    end
-
-    def degree_to_midi(token, tonic_midi)
-      parsed = parse_degree_token(token)
-      tonic_midi +
-        MAJOR_STEPS[parsed.fetch(:degree) - 1] +
-        degree_accidental_offset(parsed) +
-        degree_octave_offset(parsed)
-    end
-
-    def degree_to_pitch(token, tonic_name, tonic_midi)
-      parsed = parse_degree_token(token)
-      midi = degree_to_midi(token, tonic_midi)
-      letter, octave = degree_letter_and_octave(parsed, tonic_name)
-      accidental = midi - pitch_to_midi("#{letter}#{octave}")
-      accidental_text = accidental_text_for(accidental)
-      return midi_to_pitch(midi) unless accidental_text
-
-      "#{letter}#{accidental_text}#{octave}"
-    end
-
-    def parse_degree_token(token)
-      match = token.match(/\A([#b]*)([1-7])('*)(,*)\z/)
-      raise_bad_degree!(token) unless match
-
-      accidentals, degree_text, ups, downs = match.captures
-      { accidentals: accidentals, degree: degree_text.to_i, ups: ups, downs: downs }
-    end
-
-    def raise_bad_degree!(token)
-      raise CompileError.new(
-        code: "bad_degree",
-        message: "Bad degree token #{token.inspect}.",
-        repair_instruction: "Use degree tokens like 5, #1, b6, or 1'.",
-        help_topic: "degrees",
-        docs: ["docs/architecture/partitura/surfaces/degrees.md"]
-      )
-    end
-
-    def degree_accidental_offset(parsed)
-      parsed.fetch(:accidentals).chars.sum { |char| char == "#" ? 1 : -1 }
-    end
-
-    def degree_octave_offset(parsed)
-      (parsed.fetch(:ups).length - parsed.fetch(:downs).length) * 12
-    end
-
-    def degree_letter_and_octave(parsed, tonic_name)
-      tonic_match = tonic_name.match(/\A([A-G])([#b]?)(-?\d+)\z/)
-      tonic_letter = tonic_match[1]
-      tonic_octave = tonic_match[3].to_i
-      tonic_letter_index = LETTERS.index(tonic_letter)
-      target_index = tonic_letter_index + parsed.fetch(:degree) - 1
-      letter = LETTERS[target_index % 7]
-      octave = tonic_octave + (target_index / 7) + parsed.fetch(:ups).length - parsed.fetch(:downs).length
-      [letter, octave]
-    end
-
-    def accidental_text_for(accidental)
-      { -2 => "bb", -1 => "b", 0 => "", 1 => "#", 2 => "##" }[accidental]
     end
 
     def pitch_to_midi(text, help_topic: "split_pitch_rhythm")

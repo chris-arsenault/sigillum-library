@@ -23,8 +23,8 @@ placement :foreground, part: :clarinet, at: "bar 1 beat 1" do
 end
 
 staff_bar 1 do
-  foreground "clarinet: C5 _ Bb4/A4 F#4 _ F4"
-  bass "cello: F2 _ C3 _ F2"
+  foreground "clarinet: C5 _ _ Bb4/A4 F#4 F4 _"
+  bass "cello: F2 _ _ C3 _ F2 _"
   pulse "hand_drum: X . X X . X ."
 end
 

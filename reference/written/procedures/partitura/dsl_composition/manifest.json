@@ -1,0 +1,86 @@
+{
+  "id": "dsl_composition",
+  "version": 2,
+  "title": "DSL new-composition procedure",
+  "principles": "principles.md",
+  "pass_note_fields": ["bars", "decisions", "weaknesses", "revisions", "outputs", "verdict"],
+  "stages": [
+    {
+      "id": "s0",
+      "name": "Brief, Form, And Destination",
+      "doc": "stages/00_brief.md",
+      "artifacts": [{ "id": "brief", "path": "procedure/brief.md" }],
+      "gates": ["artifact_exists:brief", "pass_note_complete"]
+    },
+    {
+      "id": "s1",
+      "name": "Form And Texture Contract",
+      "doc": "stages/01_form_contract.md",
+      "artifacts": [{ "id": "form_contract", "path": "procedure/form_contract.md" }],
+      "gates": ["artifact_exists:form_contract", "pass_note_complete"]
+    },
+    {
+      "id": "s2",
+      "name": "Research-To-Music Commitments",
+      "doc": "stages/02_research_commitments.md",
+      "artifacts": [{ "id": "research_commitments", "path": "procedure/research_commitments.md" }],
+      "gates": ["artifact_exists:research_commitments", "pass_note_complete"]
+    },
+    {
+      "id": "s3",
+      "name": "DSL Frame",
+      "doc": "stages/03_frame.md",
+      "gates": ["source_compiles", "pass_note_complete"]
+    },
+    {
+      "id": "s4",
+      "name": "Compose Primary Materials First",
+      "doc": "stages/04_primary_materials.md",
+      "gates": ["source_compiles", "pass_note_complete"]
+    },
+    {
+      "id": "s5",
+      "name": "Compose Each Span In A Verdict Loop",
+      "doc": "stages/05_span_pass.md",
+      "iterative": true,
+      "unit": "span",
+      "gates": ["source_compiles", "pass_note_complete"],
+      "stage_complete_gates": ["source_compiles", "lint_max:error", "pass_note_complete"]
+    },
+    {
+      "id": "s6",
+      "name": "Interleave Ideas Below The Section Level",
+      "doc": "stages/06_interleave.md",
+      "gates": ["source_compiles", "pass_note_complete"]
+    },
+    {
+      "id": "s7",
+      "name": "Material Returns And Identity",
+      "doc": "stages/07_returns.md",
+      "artifacts": [{ "id": "return_ledger", "path": "procedure/return_ledger.md" }],
+      "gates": ["artifact_exists:return_ledger", "source_compiles", "pass_note_complete"]
+    },
+    {
+      "id": "s8",
+      "name": "Harmony, Accidentals, And Verticals",
+      "doc": "stages/08_harmony_verticals.md",
+      "gates": ["source_compiles", "pass_note_complete"]
+    },
+    {
+      "id": "s9",
+      "name": "Whole-Piece Musical Revision",
+      "doc": "stages/09_merge_revision.md",
+      "gates": ["source_compiles", "pass_note_complete"]
+    },
+    {
+      "id": "s10",
+      "name": "Export, Audition, And Close",
+      "doc": "stages/10_export_audition_close.md",
+      "gates": ["source_compiles", "export_current", "no_open_skips", "no_stale_stages", "pass_note_complete"]
+    }
+  ],
+  "miniature": {
+    "collapse": [["s0", "s1"], ["s2", "s3"], ["s5", "s6"], ["s7", "s8"]],
+    "note": "the procedure's documented true-miniature fallback: fewer fresh contexts, same pass order"
+  }
+}

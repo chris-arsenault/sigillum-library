@@ -75,7 +75,16 @@ module Partitura
           lines = ["# Harmony With Melody"]
           melody_events = matching_events(bars: bars, roles: %i[foreground lead melody answer])
           bass_events = matching_events(bars: nil, roles: %i[bass bass_line ground])
-          melody_events.each { |event| lines << harmony_melody_line(event, bass_events) }
+          chords = @piece.declared_chords
+          current_bar = nil
+          melody_events.each do |event|
+            bar = bar_number_of(event.offset)
+            if bar != current_bar
+              lines << harmony_bar_header(bar, chords)
+              current_bar = bar
+            end
+            lines << harmony_melody_line(event, bass_events)
+          end
           lines.join("\n")
         end
 
@@ -194,12 +203,32 @@ module Partitura
           lines.join("\n")
         end
 
+        def harmony_bar_header(bar, chords)
+          chord = chords[bar]
+          return "-- b#{bar} chord=#{chord}" if chord
+
+          prose = harmony_at(@piece.offset_for(bar, 1))
+          prose ? "-- b#{bar} (span harmony: #{prose})" : "-- b#{bar} (no harmony declared)"
+        end
+
+        def bar_number_of(offset)
+          bar = 1
+          bar_start = Rational(0)
+          loop do
+            length = @piece.bar_length_for(bar)
+            break if offset < bar_start + length
+
+            bar_start += length
+            bar += 1
+          end
+          bar
+        end
+
         def harmony_melody_line(event, bass_events)
           parts = [
-            @piece.format_offset(event.offset),
+            "  #{@piece.format_offset(event.offset)}",
             event.part,
             "#{event.pitch_label}:#{Production.format_duration(event.duration)}",
-            "harmony=#{harmony_at(event.offset).inspect}",
             active_bass_text(event, bass_events),
             "phrase=#{event.phrase_id}"
           ]

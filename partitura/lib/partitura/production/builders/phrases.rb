@@ -3,16 +3,21 @@
 module Partitura
   module Production
     class PhraseBuilder
-      def initialize(id, surface)
+      def initialize(id, surface, default_key: nil, default_key_explicit: false)
         @id = id
         @surface = surface&.to_sym
+        @default_key = default_key
+        @default_key_explicit = default_key_explicit
         @fields = {}
       end
 
       def build(&block)
         instance_eval(&block) if block
         @surface ||= infer_surface
-        Phrase.new(id: @id, surface: @surface, events: build_events)
+        Phrase.new(id: @id, surface: @surface, events: build_events, segment_counts: segment_counts,
+                   assumed_key: assumed_key)
+      rescue CompileError => e
+        raise e.with_context(phrase: @id, surface: @surface)
       end
 
       def key_context(value)
@@ -53,6 +58,23 @@ module Partitura
 
       private
 
+      # The key this degrees phrase resolved against when it neither declared
+      # key_context nor sat under an explicit span/section key.
+      def assumed_key
+        return nil unless @surface == :degrees
+        return nil if @fields.key?(:key_context) || @default_key_explicit
+
+        @default_key || "C4"
+      end
+
+      # Events per `|` segment, taken from the stream the author laid out in bars.
+      def segment_counts
+        text = @fields[:degrees] || @fields[:intervals] || @fields[:events] || @fields[:pitch_bars]
+        return nil unless text
+
+        Production.token_bars(text).map(&:length)
+      end
+
       def infer_surface
         return :degrees if @fields.key?(:degrees)
         return :intervals if @fields.key?(:intervals)
@@ -73,23 +95,29 @@ module Partitura
         return Production.events_from_absolute_events(required(:events)) if @fields.key?(:events)
 
         case @surface
-        when :degrees
-          Production.events_from_degrees(required(:degrees), required(:rhythm), @fields[:key_context] || "C4")
-        when :intervals
-          Production.events_from_intervals(required(:intervals), required(:rhythm), required(:anchor))
-        when :split_pitch_rhythm
-          Production.events_from_absolute(required(:pitch_bars), required_rhythm_bars)
-        when :absolute
-          Production.events_from_absolute(required(:pitch_bars), required_rhythm_bars, help_topic: :absolute)
-        else
-          raise CompileError.new(
-            code: "unknown_surface",
-            message: "Unknown phrase surface #{@surface}.",
-            repair_instruction: "Use one of: degrees, intervals, split_pitch_rhythm, absolute.",
-            help_topic: "decision",
-            docs: ["docs/architecture/partitura/02_surface_decision.md"]
-          )
+        when :degrees then degree_events
+        when :intervals then Production.events_from_intervals(required(:intervals), required(:rhythm),
+                                                              required(:anchor))
+        when :split_pitch_rhythm then Production.events_from_absolute(required(:pitch_bars), required_rhythm_bars)
+        when :absolute then Production.events_from_absolute(required(:pitch_bars), required_rhythm_bars,
+                                                            help_topic: :absolute)
+        else raise unknown_surface_error
         end
+      end
+
+      def degree_events
+        Production.events_from_degrees(required(:degrees), required(:rhythm),
+                                       @fields[:key_context] || @default_key || "C4")
+      end
+
+      def unknown_surface_error
+        CompileError.new(
+          code: "unknown_surface",
+          message: "Unknown phrase surface #{@surface}.",
+          repair_instruction: "Use one of: degrees, intervals, split_pitch_rhythm, absolute.",
+          help_topic: "decision",
+          docs: ["docs/architecture/partitura/02_surface_decision.md"]
+        )
       end
 
       def required(name)

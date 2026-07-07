@@ -26,7 +26,8 @@ Production entry points:
 - Ruby transport API: `Partitura.production_transport_hash(piece)`
 - CLI readouts: `structure`, `roles`, `phrases`, `placements`, `timed_events`, `verticals`,
   `staff_bars`, `foreground`, `bass_path`, `line`, `harmony`, `harmony_with_melody`,
-  `controls`, `material_map`, `gesture_map`, `transport`, `compile`
+  `harmony_check`, `range_check`, `lint`, `controls`, `material_map`, `gesture_map`,
+  `transport`, `compile` (run `production_view` with no arguments for the full view list)
 - CLI export: `production_export SOURCE.rb --stem STEM`
 - Ruby framework transport build: `partitura_transport SOURCE.rb OUT_DIR --stem STEM`
 - Ruby framework registry build: `partitura_build REGISTRY.rb [movement|all]`
@@ -55,10 +56,18 @@ Production entry points:
 
 ## Composition Procedure
 
-Use the project-neutral DSL procedure for new composition work:
+New composition work runs as a guided run: the runtime feeds one stage at a time, gates
+each transition mechanically, and keeps an audit log in `<piece_dir>/procedure/`.
+
+```bash
+partitura/bin/partitura start <piece_dir> --source <SOURCE.rb>
+partitura/bin/partitura status        # fresh contexts re-orient with this one command
+partitura/bin/partitura commit --notes -
+```
 
 - `reference/written/procedures/partitura/README.md`
-- `reference/written/procedures/partitura/dsl_composition_procedure.md`
+- `reference/written/procedures/partitura/dsl_composition/` (manifest + principles + stages)
+- design: `docs/architecture/partitura/08_cli_and_guided_runs.md`
 
 ## Surface Files
 
@@ -73,18 +82,18 @@ Use the project-neutral DSL procedure for new composition work:
 
 ## Runtime Discovery
 
-Use:
+All commands live in one binary; run it bare for the verb map:
 
 ```bash
-partitura/bin/partitura_help index
-partitura/bin/partitura_help production
-partitura/bin/partitura_help decision
-partitura/bin/partitura_help controls
-partitura/bin/partitura_help hybrid
-partitura/bin/partitura_help transport_export
+partitura/bin/partitura                    # verb map (compose | author | library | output)
+partitura/bin/partitura help index         # JIT topics (production, decision, marks, ...)
+partitura/bin/partitura view SOURCE.rb     # projections (bare/unknown view lists them all)
+partitura/bin/partitura cards <term>       # technique-card search
 ```
 
-The help response is intentionally short and names the next topics to request.
+The old per-command bins (`partitura_help`, `production_view`, `production_export`,
+`partitura_transport`, `partitura_build`) remain as shims. The help response is
+intentionally short and names the next topics to request.
 
 ## Exploratory Material
 

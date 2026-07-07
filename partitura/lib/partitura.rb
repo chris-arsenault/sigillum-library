@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "partitura/marks"
 require_relative "partitura/model"
 require_relative "partitura/parser"
 require_relative "partitura/builders"
@@ -7,6 +8,7 @@ require_relative "partitura/projections"
 require_relative "partitura/surface_lab"
 require_relative "partitura/jit_docs"
 require_relative "partitura/production"
+require_relative "partitura/guided"
 require_relative "partitura/export"
 
 module Partitura

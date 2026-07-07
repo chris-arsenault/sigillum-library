@@ -19,7 +19,7 @@ class MusicXMLExporterTest < Minitest::Test
 
       section :s1, "Opening", bars: 1..2 do
         span bars: 1..2 do
-          phrase(:line, surface: :absolute) { events "C5:1 r:1 [E4,G4]:2 D5:4{accent}" }
+          phrase(:line, surface: :absolute) { events "C5:1 r:1 [E4,G4]:2 | D5:4{accent}" }
           placement :line, part: :clarinet, at: "bar 1 beat 1", role: :foreground
         end
       end
@@ -73,6 +73,28 @@ class MusicXMLExporterTest < Minitest::Test
     end
 
     assert_includes error.message, "unsupported Partitura transport"
+  end
+
+  def test_rejects_unsupported_event_pitch_inside_valid_transport
+    transport = Partitura.production_transport_hash(grand_staff_piece)
+    transport.fetch(:timed_events).first[:pitches] = ["H4"]
+
+    error = assert_raises(Partitura::Export::Error) do
+      Partitura::Export::MusicXML.render(transport)
+    end
+
+    assert_includes error.message, 'unsupported pitch "H4"'
+  end
+
+  def test_rejects_wrong_transport_schema_name
+    error = assert_raises(Partitura::Export::Error) do
+      Partitura::Export::MusicXML.render(
+        "schema" => "old.transport",
+        "schema_version" => 3
+      )
+    end
+
+    assert_includes error.message, 'unsupported Partitura transport "old.transport" version 3'
   end
 
   def test_top_level_production_musicxml_helper_accepts_piece

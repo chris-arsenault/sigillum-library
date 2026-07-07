@@ -4,6 +4,7 @@ require_relative "models/entities"
 require_relative "models/compile_response"
 require_relative "models/timing"
 require_relative "models/validation"
+require_relative "models/checkpoint_validation"
 
 module Partitura
   module Production
@@ -11,11 +12,14 @@ module Partitura
       include CompileResponse
       include Timing
       include Validation
+      include CheckpointValidation
 
       attr_reader :title, :meter_value, :beat_pattern, :bar_length, :key_value, :tempo_marks,
                   :meter_changes, :tempo_events, :anchors, :controls, :key_changes, :parts, :sections
+      attr_accessor :lint_config
 
       def initialize(title)
+        @lint_config = {}
         @title = title
         @meter_value = "4/4"
         @beat_pattern = nil
@@ -53,6 +57,11 @@ module Partitura
 
       def set_key(value)
         @key_value = value.to_s
+        @key_declared = true
+      end
+
+      def key_declared?
+        !!@key_declared
       end
 
       def add_tempo(text, at: "bar 1 beat 1")
@@ -123,6 +132,26 @@ module Partitura
         @sections.flat_map { |section| section.spans.flat_map(&:staff_bars) }
       end
 
+      # Merged declared per-bar chord track across all spans ({bar => symbol}).
+      def declared_chords
+        @sections.each_with_object({}) do |section, out|
+          section.spans.each do |span|
+            span.chord_track.each do |bar, symbol|
+              if out.key?(bar) && out[bar] != symbol
+                raise compile_error(
+                  code: "conflicting_chord_track",
+                  message: "Bar #{bar} declares two different chords: #{out[bar]} and #{symbol}.",
+                  repair_instruction: "Keep one declared chord per bar across spans.",
+                  help_topic: "container",
+                  docs: ["docs/architecture/partitura/01_container.md"]
+                )
+              end
+              out[bar] = symbol
+            end
+          end
+        end
+      end
+
       def gestures
         @sections.flat_map { |section| section.gestures + section.spans.flat_map(&:gestures) }
       end
@@ -170,8 +199,12 @@ module Partitura
 
       def validate!
         validate_meter_events!
-        validate_spans_and_placements!
+        phrase_map = phrases
+        validate_spans_and_placements!(phrase_map)
+        validate_degree_key_assumptions!(phrase_map)
         events = timed_events(include_rests: true)
+        validate_part_ranges!(events)
+        validate_staff_bars!(events)
         validate_tempo_events!
         validate_controls!(events)
         validate_key_changes!
@@ -195,6 +228,35 @@ module Partitura
       def meter_timeline
         [MeterEvent.new(meter: @meter_value, beat_pattern: @beat_pattern, bar: 1)] +
           @meter_changes.sort_by(&:bar)
+      end
+
+      # The key in force at a bar: the opening key plus any key_change controls at or
+      # before that bar.
+      def key_for_bar(bar)
+        active = @key_value
+        active_bar = 0
+        @key_changes.each do |key_change|
+          change_bar = bar_of_reference(key_change.at)
+          next if change_bar > bar || change_bar < active_bar
+
+          active = key_change.key
+          active_bar = change_bar
+        end
+        active
+      end
+
+      def bar_of_reference(reference)
+        offset = offset_for_reference(reference)
+        bar = 1
+        bar_start = Rational(0)
+        loop do
+          length = bar_length_for(bar)
+          break if offset < bar_start + length
+
+          bar_start += length
+          bar += 1
+        end
+        bar
       end
 
       def meter_for(bar)

@@ -26,9 +26,15 @@ end
 ## Rules
 
 - Pitch and rhythm streams must have the same bar count and the same event count per bar.
-- Keep bars aligned with `|`.
+- Bar markers are verified requirements, not decoration: every `|` must land exactly on a
+  barline once the phrase is placed (compile error `bar_marker_misaligned` otherwise), each
+  segment may hold at most one bar of attacks (`bar_onsets_cross_barline`), and placed
+  material must not sound past its span (`phrase_exceeds_span`). Only a sustained event or
+  rest may cross a barline without a marker.
+- Duration tokens accept decimals (`.5`) and fractions (`1/2`, `3/2`, `1/3` for triplets).
 - Pitch tokens may be scalar notes, rests, or bracketed chords.
-- Inline marks attach to the pitch token and travel with the event.
+- Inline marks attach to the pitch token and travel with the event; the closed mark
+  vocabulary is in `partitura_help marks`.
 - Do not hide phrase rhythm inside prose.
 - Use this for editable line design, not dense vertical events.
 - Put crescendos, diminuendos, and shared dynamics in `control`, not in a third parallel stream.

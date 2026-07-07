@@ -45,6 +45,10 @@ end
 - `harp_pedals` takes the seven pedals in diagram order `D C B | E F G A` (optional `#`/`b` per pedal)
   and renders a real MusicXML `<harp-pedals>` diagram above the target's top staff — set it at the
   start, at every key change, and before glissandi. Never spell pedal settings as `text`.
+- `key_change "g", at: "bar 9"` accepts a bare bar (pinned to beat 1). It interacts with the
+  degrees surface: a degrees phrase placed after the change may not silently inherit the old
+  piece key — declare `key` on the span/section or `key_context` on the phrase
+  (compile error `key_context_required` otherwise).
 - Controls are not phrase material. They should not hide missing notes, rhythm, or orchestration.
 
 ## Projection Needed

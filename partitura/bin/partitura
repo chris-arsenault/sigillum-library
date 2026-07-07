@@ -1,0 +1,304 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# The consolidated Partitura CLI. See docs/architecture/partitura/08_cli_and_guided_runs.md.
+#   compose    start | status | commit | next | back | log | abandon | runs
+#   author     compile | lint | view | help
+#   library    cards
+#   output     export | transport | build
+
+require "json"
+require "optparse"
+require "fileutils"
+
+BIN_DIR = __dir__
+LIBRARY_ROOT = File.expand_path("../..", __dir__)
+
+def require_partitura
+  require_relative "../lib/partitura"
+end
+
+def usage
+  <<~TEXT
+    usage: partitura <command> [args]
+
+      compose    start <dir> [--procedure ID] [--source FILE] [--miniature] [--force-new]
+                 status [<dir>]
+                 commit [<dir>] [--span A-B | --unit LABEL] [--stage-complete] --notes FILE|-
+                 next [<dir>] --reason TEXT        (skip; logged as skipped_audit)
+                 back [<dir>] --to sN --reason TEXT
+                 log [<dir>] [--json]
+                 abandon [<dir>] --reason TEXT
+                 runs [<root>]
+      author     compile SOURCE
+                 lint SOURCE
+                 view SOURCE [view] [--part ID] [--bars A-B]
+                 help [topic] [--json]
+      library    cards <query terms> | cards show <ID> | cards terms
+      output     export SOURCE [--stem STEM] [--transport-only]
+                 transport SOURCE OUT_DIR [--stem STEM]
+                 build REGISTRY.rb [movement|all]
+
+    Start here: `partitura help index`. Composing a piece end-to-end: `partitura start <dir>`.
+  TEXT
+end
+
+def emit_error(response, exit_code: 1)
+  warn JSON.pretty_generate(response)
+  exit exit_code
+end
+
+def structured_failure(code, message, repair, help_topic: "production", extra: {})
+  emit_error({
+    status: "error", code: code, message: message, repair_instruction: repair,
+    help_topic: help_topic, docs: ["docs/architecture/partitura/08_cli_and_guided_runs.md"]
+  }.merge(extra))
+end
+
+def guided_guard
+  require_partitura
+  yield
+rescue Partitura::Guided::GateFailure => e
+  failures = e.results.reject(&:ok)
+  structured_failure("gate_failed", e.message,
+                     "Resolve each failed gate, then rerun the same commit: " \
+                     "#{failures.map { |r| "#{r.gate}: #{r.detail}" }.join('; ')}",
+                     extra: { gates: e.results.map(&:to_h) })
+rescue Partitura::Guided::PassNoteError => e
+  structured_failure("pass_note_incomplete", e.message,
+                     "Write the pass note as `field: value` lines and rerun the commit.")
+rescue Partitura::Guided::RunError, Partitura::Guided::ManifestError => e
+  structured_failure("run_error", e.message, "Follow the message; `partitura status` shows the current stage.")
+end
+
+def read_notes(path)
+  return $stdin.read if path == "-"
+
+  structured_failure("missing_notes", "commit requires --notes FILE|-",
+                     "Pass the pass note file, or `-` to read it from stdin.") unless path && File.exist?(path)
+  File.read(path)
+end
+
+def optional_dir(argv)
+  argv.first && !argv.first.start_with?("-") ? argv.shift : nil
+end
+
+command = ARGV.shift
+case command
+when nil, "-h", "--help"
+  puts usage
+
+when "help"
+  require_partitura
+  json = ARGV.delete("--json")
+  topic = (ARGV.shift || "index").to_sym
+  puts(json ? Partitura::JITDocs.render_json(topic) : Partitura::JITDocs.render(topic))
+
+when "view"
+  require_partitura
+  options = {}
+  parser = OptionParser.new do |opts|
+    opts.on("--part PART") { |value| options[:part] = value.to_sym }
+    opts.on("--bars RANGE") { |value| options[:bars] = value }
+  end
+  parser.parse!
+  source = ARGV.shift
+  view = (ARGV.shift || "structure").to_sym
+  unless source
+    warn "usage: partitura view SOURCE.rb [view] [--part PART] [--bars A-B]"
+    catalog = Partitura::Production::Readout.view_catalog
+    warn ""
+    warn "Views (sounding, primary): #{catalog[:sounding_views].join(', ')}"
+    warn "Views (data): #{catalog[:data_views].join(', ')}"
+    warn "Views (secondary, declared intent): #{catalog[:secondary_declared_intent_views].join(', ')}"
+    exit 2
+  end
+  begin
+    puts Partitura.production_readout(Partitura.load_production_file(source), view, **options)
+  rescue Partitura::Production::CompileError => e
+    if view == :compile
+      puts JSON.pretty_generate(e.response)
+      exit 0
+    end
+    emit_error(e.response)
+  end
+
+when "compile", "lint"
+  require_partitura
+  source = ARGV.shift or (warn "usage: partitura #{command} SOURCE.rb"; exit 2)
+  begin
+    piece = Partitura.load_production_file(source)
+    if command == "compile"
+      response = piece.compile_response
+      puts JSON.pretty_generate(response)
+      exit(response[:status] == "ok" ? 0 : 1)
+    else
+      puts Partitura::Production::Lint.render(piece)
+    end
+  rescue Partitura::Production::CompileError => e
+    command == "compile" ? (puts JSON.pretty_generate(e.response); exit 1) : emit_error(e.response)
+  end
+
+when "export"
+  require_partitura
+  options = { stem: nil, transport_only: false }
+  OptionParser.new do |opts|
+    opts.on("--stem STEM") { |value| options[:stem] = value }
+    opts.on("--transport-only") { options[:transport_only] = true }
+  end.parse!
+  source = ARGV.shift or (warn "usage: partitura export SOURCE.rb [--stem STEM] [--transport-only]"; exit 2)
+  stem = options[:stem] || File.basename(source, File.extname(source))
+  repo_root = `git -C #{File.dirname(File.expand_path(source))} rev-parse --show-toplevel`.chomp
+  source_rel = File.expand_path(source).delete_prefix("#{repo_root}/")
+  out_dir = File.join(repo_root, "outputs", File.dirname(source_rel), stem)
+  FileUtils.mkdir_p(out_dir)
+  begin
+    transport = Partitura.production_transport_hash(Partitura.load_production_file(source))
+  rescue Partitura::Production::CompileError => e
+    emit_error(e.response)
+  end
+  emit_error(transport) if transport[:status] == "error"
+  transport_path = File.join(out_dir, "#{stem}.partitura_transport.json")
+  File.write(transport_path, JSON.pretty_generate(transport))
+  result = { transport: transport_path }
+  unless options[:transport_only]
+    File.write(File.join(out_dir, "#{stem}.musicxml"), Partitura.production_musicxml(transport))
+    File.binwrite(File.join(out_dir, "#{stem}.mid"), Partitura.production_midi(transport))
+    result[:musicxml] = File.join(out_dir, "#{stem}.musicxml")
+    result[:midi] = File.join(out_dir, "#{stem}.mid")
+  end
+  puts JSON.pretty_generate(result)
+
+when "transport"
+  require_relative "../lib/partitura/framework"
+  options = { stem: nil }
+  OptionParser.new { |opts| opts.on("--stem STEM") { |value| options[:stem] = value } }.parse!
+  source, out_dir = ARGV.shift(2)
+  (warn "usage: partitura transport SOURCE.rb OUT_DIR [--stem STEM]"; exit 2) unless source && out_dir
+  stem = options[:stem] || File.basename(source, File.extname(source))
+  begin
+    path = Partitura::Framework::Transport.write(source, out_dir, stem: stem)
+    puts JSON.pretty_generate(transport: path.to_s)
+  rescue Partitura::Production::CompileError => e
+    emit_error(e.response)
+  end
+
+when "build"
+  require_relative "../lib/partitura/framework"
+  registry_path = ARGV.shift or (warn "usage: partitura build REGISTRY.rb [movement|all]"; exit 2)
+  movement = ARGV.shift || "all"
+  begin
+    registry = Partitura::Framework::Registry.load_file(registry_path)
+    puts JSON.pretty_generate(transports: registry.write_transport(movement).map(&:to_s))
+  rescue Partitura::Production::CompileError => e
+    emit_error(e.response)
+  end
+
+when "cards"
+  exec RbConfig.ruby, File.join(LIBRARY_ROOT, "tools", "lib.rb"), *ARGV
+
+when "start"
+  guided_guard do
+    options = { procedure: "dsl_composition", source: nil, miniature: false, force_new: false }
+    OptionParser.new do |opts|
+      opts.on("--procedure ID") { |value| options[:procedure] = value }
+      opts.on("--source FILE") { |value| options[:source] = value }
+      opts.on("--miniature") { options[:miniature] = true }
+      opts.on("--force-new") { options[:force_new] = true }
+    end.parse!
+    dir = ARGV.shift or (warn "usage: partitura start <dir> [--procedure ID] [--source FILE] [--miniature]"; exit 2)
+    _run, payload = Partitura::Guided.start(dir, **options)
+    puts payload
+  end
+
+when "status"
+  guided_guard do
+    json = ARGV.delete("--json")
+    dir = optional_dir(ARGV)
+    run, payload = Partitura::Guided.status(dir)
+    puts(json ? JSON.pretty_generate(Partitura::Guided::Payload.data(run)) : payload)
+  end
+
+when "commit"
+  guided_guard do
+    options = { notes: nil, unit: nil, stage_complete: false, source: nil }
+    OptionParser.new do |opts|
+      opts.on("--notes PATH") { |value| options[:notes] = value }
+      opts.on("--span RANGE") { |value| options[:unit] = "bars #{value}" }
+      opts.on("--unit LABEL") { |value| options[:unit] = value }
+      opts.on("--stage-complete") { options[:stage_complete] = true }
+      opts.on("--source FILE") { |value| options[:source] = value }
+    end.parse!
+    dir = optional_dir(ARGV)
+    notes = read_notes(options[:notes])
+    _run, payload = Partitura::Guided.commit(dir: dir, notes: notes, unit: options[:unit],
+                                             stage_complete: options[:stage_complete], source: options[:source])
+    puts payload
+  end
+
+when "next"
+  guided_guard do
+    reason = nil
+    OptionParser.new { |opts| opts.on("--reason TEXT") { |value| reason = value } }.parse!
+    _run, payload = Partitura::Guided.skip(dir: optional_dir(ARGV), reason: reason)
+    puts "WARNING: stage skipped without audit; logged as skipped_audit (blocks closeout until resolved)."
+    puts
+    puts payload
+  end
+
+when "back"
+  guided_guard do
+    options = { to: nil, reason: nil }
+    OptionParser.new do |opts|
+      opts.on("--to STAGE") { |value| options[:to] = value }
+      opts.on("--reason TEXT") { |value| options[:reason] = value }
+    end.parse!
+    structured_failure("missing_option", "back requires --to sN", "Name the stage to reopen.") unless options[:to]
+    _run, payload = Partitura::Guided.back(dir: optional_dir(ARGV), to: options[:to], reason: options[:reason])
+    puts payload
+  end
+
+when "log"
+  guided_guard do
+    json = ARGV.delete("--json")
+    run = Partitura::Guided::Run.locate(optional_dir(ARGV))
+    entries = run.log_entries
+    if json
+      puts JSON.pretty_generate(entries)
+    else
+      entries.each do |entry|
+        detail = entry.reject { |key, _| %w[ts event pass_note gates].include?(key) }
+        note = entry["pass_note"] && " verdict=#{entry.dig('pass_note', 'verdict').to_s.lines.first&.strip}"
+        puts "#{entry['ts']}  #{entry['event']}  #{detail.map { |k, v| "#{k}=#{v}" }.join(' ')}#{note}"
+      end
+    end
+  end
+
+when "abandon"
+  guided_guard do
+    reason = nil
+    OptionParser.new { |opts| opts.on("--reason TEXT") { |value| reason = value } }.parse!
+    run = Partitura::Guided.abandon(dir: optional_dir(ARGV), reason: reason)
+    puts "run abandoned: #{run.dir}"
+  end
+
+when "runs"
+  guided_guard do
+    root = ARGV.shift || ENV["PARTITURA_PROJECT_ROOT"] || Dir.pwd
+    runs = Partitura::Guided.runs(root)
+    if runs.empty?
+      puts "no runs under #{root}"
+    else
+      runs.each do |run|
+        state = run.closed? ? run.state.dig("closed", "kind") : "stage #{run.current_stage_id}"
+        puts "#{run.dir}  #{run.manifest.id} v#{run.manifest.version} (#{run.mode})  #{state}"
+      end
+    end
+  end
+
+else
+  warn "unknown command #{command.inspect}"
+  warn ""
+  warn usage
+  exit 2
+end

@@ -51,7 +51,8 @@ module Partitura
         melody_analysis: ->(readout, bars:, part:) { readout.melody_analysis(part: part, bars: bars) },
         analyze_score: ->(readout, bars:, part:) { readout.melody_analysis(part: part, bars: bars) },
         melody_report: ->(readout, bars:, part:) { readout.melody_report(part: part, bars: bars) },
-        compile: ->(readout, **) { JSON.pretty_generate(readout.piece.compile_response) }
+        compile: ->(readout, **) { JSON.pretty_generate(readout.piece.compile_response) },
+        lint: ->(readout, **) { Lint.render(readout.piece) }
       }.freeze
 
       SOUNDING_RENDERERS = {
@@ -62,12 +63,23 @@ module Partitura
         articulation_map: ->(readout, bars:, part:) { readout.articulation_map(part: part, bars: bars) },
         breath_map: ->(readout, bars:, part:) { readout.breath_map(part: part, bars: bars) },
         implied_harmony: ->(readout, bars:, **) { readout.implied_harmony(bars: bars) },
+        harmony_check: ->(readout, bars:, **) { readout.harmony_check(bars: bars) },
         ensemble_grid: ->(readout, bars:, **) { readout.ensemble_grid(bars: bars) },
         exposed_clashes: ->(readout, bars:, **) { readout.exposed_clashes(bars: bars) },
         composite_stalls: ->(readout, bars:, **) { readout.composite_stalls(bars: bars) },
         bar_profile: ->(readout, bars:, part:) { readout.bar_profile(part: part, bars: bars) },
-        figure_timeline: ->(readout, bars:, part:) { readout.figure_timeline(part: part, bars: bars) }
+        figure_timeline: ->(readout, bars:, part:) { readout.figure_timeline(part: part, bars: bars) },
+        range_check: ->(readout, bars:, part:) { readout.range_check(part: part, bars: bars) }
       }.freeze
+
+      def self.view_catalog
+        all = DECLARED_RENDERERS.keys + DATA_RENDERERS.keys + SOUNDING_RENDERERS.keys
+        {
+          sounding_views: SOUNDING_RENDERERS.keys + (DECLARED_RENDERERS.keys - SECONDARY_VIEWS),
+          data_views: DATA_RENDERERS.keys,
+          secondary_declared_intent_views: all.select { |view| SECONDARY_VIEWS.include?(view) }
+        }
+      end
 
       attr_reader :piece
 
@@ -86,15 +98,38 @@ module Partitura
       def render_view(view, part: nil, bars: nil)
         key = view.to_sym
         renderer = DECLARED_RENDERERS[key] || DATA_RENDERERS[key] || SOUNDING_RENDERERS[key]
-        raise ArgumentError, "unknown production view #{view.inspect}" unless renderer
+        raise unknown_view_error(view) unless renderer
 
         renderer.call(self, part: part, bars: bars)
       end
 
       def render_line_view(part, bars:)
-        raise ArgumentError, "production line view requires part:" unless part
+        unless part
+          raise CompileError.new(
+            code: "missing_view_option",
+            message: "The line view requires --part PART_ID.",
+            repair_instruction: "Rerun with --part and one of the roster part ids.",
+            help_topic: "projections",
+            docs: ["docs/architecture/partitura/04_examples_manifest.md"],
+            extra: { part_ids: piece.parts.keys }
+          )
+        end
 
         line(part, bars: bars)
+      end
+
+      private
+
+      def unknown_view_error(view)
+        CompileError.new(
+          code: "unknown_view",
+          message: "Unknown production view #{view.inspect}.",
+          repair_instruction: "Use one of the views listed under sounding_views (primary), data_views, or " \
+                              "secondary_declared_intent_views.",
+          help_topic: "projections",
+          docs: ["docs/architecture/partitura/04_examples_manifest.md"],
+          extra: self.class.view_catalog
+        )
       end
     end
   end

@@ -19,11 +19,11 @@ production_piece "Technique Card PH8_TERRACED_ECHO - PH8_TERRACED_ECHO" do
     part :violin, "Violin", music21: "Violin", family: :string
   end
 
-  section :card, "PH8_TERRACED_ECHO", bars: 1..8, type: :technique_card do
+  section :card, "PH8_TERRACED_ECHO", bars: 1..9, type: :technique_card do
     journey "auditionable lesson specimen for composing new material"
     destination "the device is audible in the line without reading the prose"
 
-    span bars: 1..8, texture: :library_card do
+    span bars: 1..9, texture: :library_card do
       process "forte statement, piano echo with an altered tail; the pair again a third higher, the final echo changing its exit into the close"
 
       phrase :ph8_terraced_echo, surface: :absolute do

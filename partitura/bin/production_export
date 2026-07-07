@@ -1,64 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require "fileutils"
-require "json"
-require "optparse"
-require_relative "../lib/partitura"
-
-options = {
-  stem: nil,
-  transport_only: false
-}
-
-parser = OptionParser.new do |opts|
-  opts.banner = "Usage: production_export SOURCE.rb [--stem STEM] [--transport-only]"
-  opts.on("--stem STEM", "Output stem; defaults to the source filename") { |value| options[:stem] = value }
-  opts.on("--transport-only", "Write only the JSON transport") { options[:transport_only] = true }
-end
-
-parser.parse!
-source = ARGV.shift
-
-if source.nil?
-  warn parser
-  exit 2
-end
-
-stem = options[:stem] || File.basename(source, File.extname(source))
-
-# Derive output dir: outputs/<source-dir>/<stem>/.
-repo_root = `git -C #{File.dirname(File.expand_path(source))} rev-parse --show-toplevel`.chomp
-source_abs = File.expand_path(source)
-source_rel = source_abs.delete_prefix("#{repo_root}/")
-source_dir = File.dirname(source_rel)
-namespace = source_dir
-out_dir = File.join(repo_root, "outputs", namespace, stem)
-FileUtils.mkdir_p(out_dir)
-
-begin
-  piece = Partitura.load_production_file(source)
-  transport = Partitura.production_transport_hash(piece)
-rescue Partitura::Production::CompileError => e
-  warn JSON.pretty_generate(e.response)
-  exit 1
-end
-
-if transport[:status] == "error"
-  warn JSON.pretty_generate(transport)
-  exit 1
-end
-
-transport_path = File.join(out_dir, "#{stem}.partitura_transport.json")
-File.write(transport_path, JSON.pretty_generate(transport))
-
-result = { transport: transport_path }
-
-unless options[:transport_only]
-  File.write(File.join(out_dir, "#{stem}.musicxml"), Partitura.production_musicxml(transport))
-  File.binwrite(File.join(out_dir, "#{stem}.mid"), Partitura.production_midi(transport))
-  result[:musicxml] = File.join(out_dir, "#{stem}.musicxml")
-  result[:midi] = File.join(out_dir, "#{stem}.mid")
-end
-
-puts JSON.pretty_generate(result)
+# Shim: this command is consolidated into the `partitura` CLI (see
+# docs/architecture/partitura/08_cli_and_guided_runs.md). Equivalent call:
+#   partitura export ...
+exec File.expand_path("partitura", __dir__), "export", *ARGV

@@ -26,7 +26,7 @@ production_piece "Harp Technique Reference" do
         events <<~EVENTS
           [C4,E4,G4]:1{arp} [C4,E4,C5]:1{arp} r:1 [A4,C5,E5]:1{arp:down} |
           G4:1 B4:1 C5:1 D5:1 |
-          E5:1{gliss(} F5:2{gliss),gliss(} G5:2{gliss),lv} | r:1 r:2
+          E5:1{gliss(} F5:2{gliss),gliss(} G5:2{gliss),lv} r:1 r:2
         EVENTS
       end
 

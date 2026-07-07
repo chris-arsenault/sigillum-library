@@ -28,6 +28,10 @@ module Partitura
         @piece.set_key(value)
       end
 
+      def lint(&block)
+        LintConfigBuilder.new(@piece).build(&block)
+      end
+
       def tempo(text = nil, &block)
         if block
           TempoBuilder.new(@piece).build(&block)
@@ -52,8 +56,33 @@ module Partitura
 
       def section(id, name, bars:, type: nil, &block)
         section = Section.new(id: id, name: name, bars: bars, type: type)
-        SectionBuilder.new(section).build(&block)
+        SectionBuilder.new(section, default_key: @piece.key_value).build(&block)
         @piece.add_section(section)
+      end
+    end
+
+    class LintConfigBuilder
+      def initialize(piece)
+        @piece = piece
+      end
+
+      def build(&block)
+        instance_eval(&block) if block
+      end
+
+      def rule(name, **options)
+        key = name.to_sym
+        unless Lint::DEFAULTS.key?(key)
+          raise CompileError.new(
+            code: "unknown_lint_rule",
+            message: "Unknown lint rule #{name.inspect}.",
+            repair_instruction: "Use one of: #{Lint::DEFAULTS.keys.join(', ')}.",
+            help_topic: "production",
+            docs: ["docs/architecture/partitura/01_container.md"]
+          )
+        end
+
+        @piece.lint_config[key] = (@piece.lint_config[key] || {}).merge(options)
       end
     end
 

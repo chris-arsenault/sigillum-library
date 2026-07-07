@@ -1,20 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require "optparse"
-require_relative "../lib/partitura"
-
-json = false
-parser = OptionParser.new do |opts|
-  opts.banner = "Usage: partitura_help TOPIC [--json]"
-  opts.on("--json", "Emit JSON response") { json = true }
-end
-
-parser.parse!
-topic = (ARGV.shift || "index").to_sym
-
-if json
-  puts Partitura::JITDocs.render_json(topic)
-else
-  puts Partitura::JITDocs.render(topic)
-end
+# Shim: this command is consolidated into the `partitura` CLI (see
+# docs/architecture/partitura/08_cli_and_guided_runs.md). Equivalent call:
+#   partitura help ...
+exec File.expand_path("partitura", __dir__), "help", *ARGV

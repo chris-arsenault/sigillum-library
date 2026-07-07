@@ -19,11 +19,11 @@ production_piece "Technique Card L7_PLANTED_LEADING_TONE - L7_PLANTED_LEADING_TO
     part :violin, "Violin", music21: "Violin", family: :string
   end
 
-  section :card, "L7_PLANTED_LEADING_TONE", bars: 1..6, type: :technique_card do
+  section :card, "L7_PLANTED_LEADING_TONE", bars: 1..7, type: :technique_card do
     journey "auditionable lesson specimen for composing new material"
     destination "the device is audible in the line without reading the prose"
 
-    span bars: 1..6, texture: :library_card do
+    span bars: 1..7, texture: :library_card do
       process "the motif twice in C; the third statement swaps ONE note for F sharp; the motif arrives in G; one F natural inside the G form; home"
 
       phrase :l7_planted_leading_tone, surface: :absolute do

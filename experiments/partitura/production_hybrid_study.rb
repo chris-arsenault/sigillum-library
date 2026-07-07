@@ -26,7 +26,7 @@ production_piece "Production Hybrid Surface Study" do
       phrase :late_answer_cell, pitch: :intervals do
         anchor "A4"
         intervals "0 -2 -1 -2 r | +7 -2 -1 r"
-        rhythm    ".5 1 .5 .5 1 | 1 .5 1 1"
+        rhythm    ".5 1 .5 .5 .5 | 1 .5 1 1"
       end
 
       phrase :pressure_line, surface: :split_pitch_rhythm do
@@ -35,8 +35,13 @@ production_piece "Production Hybrid Surface Study" do
       end
 
       phrase :bass_path, surface: :absolute do
-        pitch_bars  "F2 C3 F2 | Eb3 Bb2 C3 F2 | F2 C3 F2 E2 F2 C3 | F2 Bb2 C3 F2"
-        rhythm_bars "1.5 1 1 | 1 .5 .5 1.5 | 1 .5 .5 .5 .5 .5 | 1 .5 .5 1.5"
+        pitch_bars  "F2 C3 F2 | Eb3 Bb2 C3 F2 | F2 C3 F2 E2 F2 C3 | F2 Bb2 C3 F2 | F2 Bb2 C3 F2 r"
+        rhythm_bars "1.5 1 1 | 1 .5 .5 1.5 | 1 .5 .5 .5 .5 .5 | 1 .5 .5 1.5 | 1 .5 .5 1 .5"
+      end
+
+      phrase :pulse_pattern, surface: :absolute do
+        pitch_bars  "C3 r C3 C3 r C3 r | C3 r C3 C3 r C3 r | C3 r C3 C3 r C3 r | C3 r C3 C3 r C3 r"
+        rhythm_bars ".5 .5 .5 .5 .5 .5 .5 | .5 .5 .5 .5 .5 .5 .5 | .5 .5 .5 .5 .5 .5 .5 | .5 .5 .5 .5 .5 .5 .5"
       end
 
       placement :plain_call, part: :clarinet, at: "bar 1 beat 1" do
@@ -59,6 +64,11 @@ production_piece "Production Hybrid Surface Study" do
         realization "absolute register is part of orchestration"
       end
 
+      placement :pulse_pattern, part: :hand_drum, at: "bar 1 beat 1" do
+        role :pulse
+        realization "written-out eighth pulse under the call and answer"
+      end
+
       gesture :not_prose_only do
         idea "late answer fails to meet the opening call cleanly"
         mechanism "solo_violin enters at bar 3 beat 1.5 while cello is already moving through F2-C3-F2-E2"
@@ -67,14 +77,14 @@ production_piece "Production Hybrid Surface Study" do
 
       staff_bar 1 do
         check "opening vertical"
-        foreground "clarinet: C5 _ _ Bb4/A4 F#4 _ F4"
+        foreground "clarinet: C5 _ _ Bb4/A4 F#4 F4 _"
         bass "cello: F2 _ _ C3 _ F2 _"
         pulse "hand_drum: X . X X . X ."
       end
 
       staff_bar 3 do
         check "late answer is visibly displaced"
-        foreground "solo_violin: . A4 _ G4 F#4 E4 ."
+        foreground "solo_violin: . A4 G4 _ F#4 E4 ."
         bass "cello: F2 _ C3 F2 E2 F2 C3"
         pulse "hand_drum: X . X X . X ."
       end

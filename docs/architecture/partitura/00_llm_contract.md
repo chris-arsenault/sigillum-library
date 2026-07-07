@@ -17,9 +17,9 @@ directly. Optimize for agent comprehension, local retrieval, and self-correction
   inspectable or materialized.
 - Projections are reading tools, not pass/fail musical validations. SOUNDING projections
   (note-derived: adjacency_profile, recurrence_map, peak_axes, rhythm_profile, articulation_map,
-  breath_map, implied_harmony, ensemble_grid, exposed_clashes, composite_stalls,
-  bar_profile, figure_timeline, bar_probe, transport_metrics, melody_analysis, melody_report,
-  verticals, line, grid) are PRIMARY;
+  breath_map, implied_harmony, harmony_check, ensemble_grid, exposed_clashes, composite_stalls,
+  bar_profile, figure_timeline, range_check, bar_probe, transport_metrics, melody_analysis,
+  melody_report, verticals, line, grid) are PRIMARY;
   declared-intent projections (roles, harmony, foreground, material_map, gesture_map, ...) are
   secondary and only verify assertions against the sounding result.
 - Mechanical checks are allowed, but they are private compiler safety only.

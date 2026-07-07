@@ -39,7 +39,10 @@ end
   - `{slur(}` ... `{slur)}`, `{cresc(}` ... `{cresc)}`, `{dim(}` ... `{dim)}` — slur/wedge spanner pairs.
 - Reserve `{txt:...}` for words that really are text (vocal syllables, `txt:con_sord.`), never for a technique above.
 - Keep pitch and rhythm streams aligned by bar and event count.
-- Use `|` bar separators in both streams when the phrase spans bars.
+- Use `|` bar separators in both streams when the phrase spans bars. Markers are verified:
+  every `|` must land exactly on a barline at placement time, and one segment may hold at
+  most one bar of attacks. Sustained events and rests may cross barlines without a marker.
+- Placed material must end inside its span (compile error `phrase_exceeds_span`).
 - Do not use this as the default melody surface when key function matters.
 - Put shared dynamics, pedal spans, and tempo changes in `control` or `tempo`.
 - Events may cross barlines: notation renders them as tied per-bar segments automatically.

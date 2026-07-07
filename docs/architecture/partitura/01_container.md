@@ -28,6 +28,9 @@ production_piece "Title" do
     destination "answer is audible as displaced, not merely described"
 
     span bars: 1..8, texture: :melody_over_bass do
+      chords "b1:F b2:Bb b3:C7 b4:F"
+      harmony "raised 1 is melodic bite, not a modulation"
+
       phrase :call, pitch: :degrees do
         key_context "F4"
         degrees "5 4 3{ten} #1 1"
@@ -40,8 +43,8 @@ production_piece "Title" do
       end
 
       staff_bar 1 do
-        foreground "clarinet: C5 _ Bb4/A4 F#4 _ F4"
-        bass "cello: F2 _ C3 _ F2"
+        foreground "clarinet: C5 _ _ Bb4/A4 F#4 F4 _"
+        bass "cello: F2 _ _ C3 _ F2 _"
       end
 
       gesture :not_prose_only do
@@ -64,6 +67,14 @@ end
 - `piece`: movement/passage-level context.
 - `section`: form-level unit with bars and structural type.
 - `span`: local texture/composing unit.
+- `chords`: the span's declared per-bar chord track, `"b1:F b2:Bb b3-4:C7"`. Symbols are
+  letter chords (root, optional `#`/`b`, quality such as m/7/m7/maj7/dim/dim7/aug/m7b5/
+  6/m6/sus4/sus2, optional /bass). This is the machine-comparable harmony declaration:
+  `harmony_check` diffs it against the sounding `implied_harmony`, and
+  `harmony_with_melody` prints it per bar. Chords-first composing starts here: declare
+  the track, then write voices against it and close the loop with `harmony_check`.
+- `harmony`: free prose commentary about the harmony (a string entirely in `bN:Chord`
+  form is routed to the chord track automatically).
 - `phrase`: melodic, rhythmic, bass, or figural material.
 - `placement`: where a phrase enters.
 - `staff_bar`: local vertical checkpoint.
@@ -103,6 +114,10 @@ part :snare_drum, "Snare Drum", music21: "SnareDrum", family: :percussion
 
 The Ruby exporters do not infer instruments from part names. Missing or unknown `music21:` values
 are errors because the transport must preserve orchestration intent.
+
+A part may declare a playable range as `range: "E3-C6"`. A declared range is enforced: any placed
+note outside it is a compile error (`note_out_of_range`). Omit `range:` to skip enforcement for a
+part. The `range_check` projection reports each part's sounding span against its declaration.
 
 A multi-sound percussion staff declares its staff-position convention in the part description as
 `<pitch> <sound>` pairs:

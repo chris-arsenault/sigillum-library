@@ -1,5 +1,9 @@
 production_piece "Technique Card PH5_BENT_RUNS - PH5_BENT_RUNS" do
-  meter "4/4", beat_pattern: [1, 1, 1, 1]
+  meter "3/4", beat_pattern: [1, 1, 1]
+
+  meter do
+    change "4/4", at: "bar 8", beat_pattern: [1, 1, 1, 1]
+  end
   key "am"
 
   tempo do

@@ -27,7 +27,7 @@ module Partitura
           return "# Melody Report #{piece.title}#{scope_suffix}: too short to analyse" if notes.length < 4
 
           data = report_data
-          lines = [report_title]
+          lines = [report_title, report_framing]
           lines.concat(report_verdict_lines(data))
           lines << "implies:      #{data.fetch(:harmonic).fetch(:implied).join(' ')}"
           lines.join("\n")
@@ -37,7 +37,12 @@ module Partitura
 
         def report_title
           "# Melody Report #{piece.title}#{scope_suffix} " \
-            "(#{notes.length} notes, #{bar_count} bars; estimated key #{key_label})"
+            "(#{notes.length} notes, #{bar_count} bars; key #{key_label})"
+        end
+
+        def report_framing
+          "# observations for musical judgment, not pass/fail scores; heuristic attention " \
+            "pointers are marked \"judge:\" and may be correct music"
         end
 
         def report_data
@@ -61,13 +66,15 @@ module Partitura
         def report_verdict_lines(data)
           [
             motif_verdict_line(data.fetch(:restated), data.fetch(:figuration)),
-            "contour/apex  #{verdict(apex_ok?(data.fetch(:midis)), contour_summary(data.fetch(:midis)))}",
+            "contour/apex  #{observation(apex_ok?(data.fetch(:midis)), contour_summary(data.fetch(:midis)),
+                                         'is the apex placement/repetition the intended peak event?')}",
             range_verdict_line(data.fetch(:midis)),
             interval_verdict_line(data.fetch(:midis)),
             rhythm_verdict_line(data.fetch(:durations), data.fetch(:metric)),
             harmonic_verdict_line(data.fetch(:harmonic)),
             nct_verdict_line(data.fetch(:harmonic)),
-            "phrase/cad    #{verdict(cadence?, cadence_summary)}"
+            "phrase/cad    #{observation(cadence?, cadence_summary,
+                                         'is the non-tonic or unprepared ending a deliberate denial or suspension?')}"
           ]
         end
 
@@ -83,36 +90,42 @@ module Partitura
 
         def motif_verdict_line(restated, figuration)
           ok = restated.length.to_f / notes.length >= MIN_RESTATEMENT
-          "motif/hook    #{verdict(ok, motif_summary(restated, figuration))}"
+          "motif/hook    #{observation(ok, motif_summary(restated, figuration),
+                                       'does this line need a recurring cell, or is through-composition the point?')}"
         end
 
         def range_verdict_line(midis)
           ok = (MIN_RANGE..MAX_RANGE).cover?(segment.range_semitones)
-          "range         #{verdict(ok, range_summary(midis))}"
+          "range         #{observation(ok, range_summary(midis),
+                                       'is this span intended for the instrument and the role?')}"
         end
 
         def interval_verdict_line(midis)
           ok = unrecovered_leaps(midis).zero?
-          "intervals/VL  #{verdict(ok, interval_summary(midis))}"
+          "intervals/VL  #{observation(ok, interval_summary(midis),
+                                       'are the unrecovered or tritone/M7 leaps composed events?')}"
         end
 
         def rhythm_verdict_line(durations, metric)
-          "rhythm        #{verdict(rhythm_ok?(durations, metric), rhythm_summary(durations, metric))}"
+          "rhythm        #{observation(rhythm_ok?(durations, metric), rhythm_summary(durations, metric),
+                                       'is the rhythmic uniformity a declared engine (ostinato, ritual) or fatigue?')}"
         end
 
         def harmonic_verdict_line(harmonic)
           ok = harmonic.fetch(:strong_ct_rate) >= MIN_STRONGBEAT_CT &&
                harmonic.fetch(:root_rate) >= MIN_DOWNBEAT_ROOT
-          "harmony       #{verdict(ok, harmonic.fetch(:summary))}"
+          "harmony       #{observation(ok, harmonic.fetch(:summary),
+                                       'is the weak strong-beat chord-tone anchoring deliberate tension?')}"
         end
 
         def nct_verdict_line(harmonic)
           ok = (NCT_LO..NCT_HI).cover?(harmonic.fetch(:nct_rate))
-          "NCT/tension   #{verdict(ok, harmonic.fetch(:nct_summary))}"
+          "NCT/tension   #{observation(ok, harmonic.fetch(:nct_summary),
+                                       'is the NCT rate the intended tension level for this line?')}"
         end
 
         def analysis_header
-          "# Melody Analysis #{piece.title}#{scope_suffix} (#{notes.length} melody notes; estimated key #{key_label})"
+          "# Melody Analysis #{piece.title}#{scope_suffix} (#{notes.length} melody notes; key #{key_label})"
         end
 
         def motif_transforms
@@ -211,8 +224,10 @@ module Partitura
           ending.any? && ending.last == 1 && (ending.length < 2 || [2, 7, 5, 4].include?(ending[-2]))
         end
 
-        def verdict(ok, message)
-          "#{ok ? 'OK   ' : 'CHECK'} #{message}"
+        def observation(unremarkable, message, judge_prompt)
+          return message if unremarkable
+
+          "#{message}  -- judge: #{judge_prompt}"
         end
 
       end

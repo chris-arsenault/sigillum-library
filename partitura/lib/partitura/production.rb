@@ -2,8 +2,10 @@
 
 require "json"
 require_relative "production/formatting"
+require_relative "production/chords"
 require_relative "production/models"
 require_relative "production/parser"
+require_relative "production/lint"
 require_relative "production/builders"
 require_relative "production/sounding"
 require_relative "production/transport"

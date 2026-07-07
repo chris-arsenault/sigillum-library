@@ -60,22 +60,22 @@ production_piece "Technique Card OA1_CHOIR_ANTIPHONY - OA1_CHOIR_ANTIPHONY" do
       placement :bassoon_line, part: :bassoon, at: "bar 1 beat 1", role: :specimen, realization: "split_pitch_rhythm audition specimen"
 
       phrase :trumpet_line, surface: :split_pitch_rhythm do
-        pitch_bars  "r G4{f} | C5{f} E5 G5 F5 E5 G5 F5 r D5{f} | F5{f} A5 G5 F5 A5 G5 A5 r | G5{f} G5"
-        rhythm_bars "15/2 1/2 | 1/2 1/2 1/2 1/2 1/2 1/2 1/2 4 1/2 | 1/2 1/2 1/2 1/2 1/2 1/2 1/2 1/2 | 1 3"
+        pitch_bars  "r G4{f} | C5{f} E5 G5 F5 E5 G5 F5 r | r D5{f} | F5{f} A5 G5 F5 A5 G5 A5 r | G5{f} G5"
+        rhythm_bars "15/2 1/2 | 1/2 1/2 1/2 1/2 1/2 1/2 1/2 1/2 | 7/2 1/2 | 1/2 1/2 1/2 1/2 1/2 1/2 1/2 1/2 | 1 3"
       end
 
       placement :trumpet_line, part: :trumpet, at: "bar 1 beat 1", role: :specimen, realization: "split_pitch_rhythm audition specimen"
 
       phrase :horn_line, surface: :split_pitch_rhythm do
-        pitch_bars  "r E4{f} | E4{f} G4 C5 C5 G4 C5 C5 r F4{f} | A4{f} F4 F4 A4 F4 A4 F4 r | D5{f} E5"
-        rhythm_bars "15/2 1/2 | 1/2 1/2 1/2 1/2 1/2 1/2 1/2 4 1/2 | 1/2 1/2 1/2 1/2 1/2 1/2 1/2 1/2 | 1 3"
+        pitch_bars  "r E4{f} | E4{f} G4 C5 C5 G4 C5 C5 r | r F4{f} | A4{f} F4 F4 A4 F4 A4 F4 r | D5{f} E5"
+        rhythm_bars "15/2 1/2 | 1/2 1/2 1/2 1/2 1/2 1/2 1/2 1/2 | 7/2 1/2 | 1/2 1/2 1/2 1/2 1/2 1/2 1/2 1/2 | 1 3"
       end
 
       placement :horn_line, part: :horn, at: "bar 1 beat 1", role: :specimen, realization: "split_pitch_rhythm audition specimen"
 
       phrase :trombone_line, surface: :split_pitch_rhythm do
-        pitch_bars  "r C3{f} | C3{f} C3 G3 G3 G3 G3 C3 r D3{f} | D3{f} D3 D3 D3 G2 G2 G2 r | G2{f} C3"
-        rhythm_bars "15/2 1/2 | 1/2 1/2 1/2 1/2 1/2 1/2 1/2 4 1/2 | 1/2 1/2 1/2 1/2 1/2 1/2 1/2 1/2 | 1 3"
+        pitch_bars  "r C3{f} | C3{f} C3 G3 G3 G3 G3 C3 r | r D3{f} | D3{f} D3 D3 D3 G2 G2 G2 r | G2{f} C3"
+        rhythm_bars "15/2 1/2 | 1/2 1/2 1/2 1/2 1/2 1/2 1/2 1/2 | 7/2 1/2 | 1/2 1/2 1/2 1/2 1/2 1/2 1/2 1/2 | 1 3"
       end
 
       placement :trombone_line, part: :trombone, at: "bar 1 beat 1", role: :specimen, realization: "split_pitch_rhythm audition specimen"

@@ -23,8 +23,13 @@ end
 
 ## Rules
 
-- Grid symbols must be declared by the passage.
-- `_` means sustain; `.` means rest.
+- Every lane is `"<roster_part_id>: tokens"`; the tokens divide the bar into equal slots
+  (the token count chooses the resolution).
+- Tokens: a pitch is an attack, `A4/B4` is two attacks inside one slot in order, `_`
+  sustains, `.` is silence, `X` is an unpitched attack.
+- Checkpoints are verified, not decorative: at compile time every lane is re-derived from
+  the sounding timeline, and any divergence is a compile error (`checkpoint_mismatch`
+  naming bar, lane, and slot). A lane about music that does not exist will not compile.
 - Keep lanes by role, not only by instrument.
 - Prefer staff grid for checkpoints, not every long melodic phrase.
 

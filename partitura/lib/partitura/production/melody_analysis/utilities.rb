@@ -4,6 +4,8 @@ module Partitura
   module Production
     class MelodyAnalysis
       module Utilities
+        MAJOR_LIKE_MODES = %w[major ionian lydian mixolydian].freeze
+
         private
 
         def in_bars?(offset)
@@ -34,8 +36,32 @@ module Partitura
           bits.empty? ? "" : " [#{bits.join(', ')}]"
         end
 
+        # The declared piece key wins; the Krumhansl estimate stays as a cross-check.
+        def declared_key
+          return nil unless piece.respond_to?(:key_declared?) && piece.key_declared?
+
+          parsed = Production.parse_key_context(piece.key_value)
+          mode = MAJOR_LIKE_MODES.include?(parsed.fetch(:mode)) ? :major : :minor
+          [parsed.fetch(:tonic_midi) % 12, mode]
+        rescue CompileError
+          nil
+        end
+
         def key_label
-          "#{PC_NAMES[key[0]]} #{key[1]}"
+          label = "#{PC_NAMES[key[0]]} #{key[1]}"
+          return "#{label} (estimated - declare `key` to pin it)" unless declared_key
+          return "#{label} (declared)" if @estimated_key == key
+
+          "#{label} (declared; estimate hears #{estimated_key_label} - check accidentals or the key declaration)"
+        end
+
+        def declared_key_label
+          declared = declared_key
+          declared && "#{PC_NAMES[declared[0]]} #{declared[1]}"
+        end
+
+        def estimated_key_label
+          "#{PC_NAMES[@estimated_key[0]]} #{@estimated_key[1]}"
         end
 
         def midi_of(label)

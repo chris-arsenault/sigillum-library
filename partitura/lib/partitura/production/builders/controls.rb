@@ -70,6 +70,8 @@ module Partitura
       end
 
       def key_change(value, at:)
+        # Keys change at barlines: accept a bare "bar N" and pin it to beat 1.
+        at = "#{at} beat 1" if at.is_a?(String) && at.match?(/\Abar\s+\d+\z/)
         @piece.add_key_change(KeyChange.new(key: value.to_s, at: at))
       end
 

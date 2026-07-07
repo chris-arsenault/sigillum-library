@@ -131,7 +131,7 @@ class ProductionSurfaceCoreTest < Minitest::Test
 
     assert_includes readout, "# Harmony With Melody"
     assert_includes readout, "b1:1  clarinet  C5:1.5"
-    assert_includes readout, 'harmony="F home; raised 1 is melodic bite, not a modulation."'
+    assert_includes readout, "-- b1 (span harmony: F home; raised 1 is melodic bite, not a modulation.)"
     assert_includes readout, "bass=cello=F2"
     readout_with_answer = Partitura.production_readout(piece, :harmony_with_melody, bars: 3..3)
     assert_includes readout_with_answer, "b3:1.5  solo_violin  A4:.5"
