@@ -2,8 +2,9 @@
 
 Companion to `melody_theory_foundations.md` §3 and the `MELODY_CRAFT_DOCTRINE.md`
 "HARMONY IS PART OF THE LINE" lesson. These are real VGM melodies, analysed note-by-note
-(`python3 -m tools.analyze_score <mid>` — it labels each melody note with the chord it implies
-and whether it's a chord-tone `ct:` or non-chord-tone `nct:`). They demonstrate the craft we'd
+with `production_view SOURCE.rb melody_analysis --part PART` after importing or authoring the
+line in the DSL; it labels each melody note with the chord it implies and whether it is a
+chord-tone `ct:` or non-chord-tone `nct:`. They demonstrate the craft we'd
 been skipping: **the strong-beat / long notes spell a committed progression; the rest decorate.**
 Use the analyzer the same way to verify any line we write or rewrite.
 
@@ -74,5 +75,5 @@ All three lines were *written to a progression* — the strong beats are never a
 written harmony-pending has strong beats that don't reliably spell anything; that is the
 diagnosable cause of "flat." The fix (foundations §3, melody-first order): assign the theme the
 progression it should expose, then conform the strong-beat skeleton to it and decorate with NCTs.
-Verify with `tools.analyze_score` — the readout should show chord tones on the strong beats and
+Verify with `production_view SOURCE.rb melody_analysis --part PART` -- the readout should show chord tones on the strong beats and
 NCTs resolving on the weak parts, exactly like these exemplars.

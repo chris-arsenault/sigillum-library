@@ -84,8 +84,8 @@ For a new DSL composition, read in this order:
 Before authoring, also ask the runtime what the current DSL supports:
 
 ```bash
-framework/orchestral_dsl/ruby/bin/dsl_help production
-framework/orchestral_dsl/ruby/bin/dsl_help decision
+partitura/bin/dsl_help production
+partitura/bin/dsl_help decision
 ```
 
 If using an unfamiliar surface or export path, call the focused help topic before writing that part
@@ -390,9 +390,9 @@ Run:
 
 ```bash
 ruby -c SOURCE.rb
-framework/orchestral_dsl/ruby/bin/dsl_help production
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb compile
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb structure
+partitura/bin/dsl_help production
+partitura/bin/production_view SOURCE.rb compile
+partitura/bin/production_view SOURCE.rb structure
 ```
 
 ## Stage 4 - Compose Primary Materials First
@@ -421,9 +421,9 @@ For process-led pieces:
 Inspect and revise before continuing:
 
 ```bash
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb phrases
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb adjacency_profile
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb recurrence_map
+partitura/bin/production_view SOURCE.rb phrases
+partitura/bin/production_view SOURCE.rb adjacency_profile
+partitura/bin/production_view SOURCE.rb recurrence_map
 # secondary (declared intent): material_map, foreground
 ```
 
@@ -476,12 +476,12 @@ After each span or small section, run the loop:
 Use focused projections:
 
 ```bash
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb ensemble_grid --bars START-END
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb exposed_clashes --bars START-END
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb verticals --bars START-END
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb line --part PART_ID
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb breath_map --part PART_ID
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb controls
+partitura/bin/production_view SOURCE.rb ensemble_grid --bars START-END
+partitura/bin/production_view SOURCE.rb exposed_clashes --bars START-END
+partitura/bin/production_view SOURCE.rb verticals --bars START-END
+partitura/bin/production_view SOURCE.rb line --part PART_ID
+partitura/bin/production_view SOURCE.rb breath_map --part PART_ID
+partitura/bin/production_view SOURCE.rb controls
 # secondary (declared intent): roles --bars, harmony_with_melody --bars
 ```
 
@@ -576,8 +576,8 @@ DSL phrase/placement ids:
 Use:
 
 ```bash
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb recurrence_map
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb peak_axes
+partitura/bin/production_view SOURCE.rb recurrence_map
+partitura/bin/production_view SOURCE.rb peak_axes
 # secondary (declared intent): material_map, placements, foreground, harmony_with_melody
 ```
 
@@ -604,9 +604,9 @@ Inspect verticals as music:
 Use:
 
 ```bash
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb exposed_clashes --bars START-END
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb verticals --bars START-END
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb implied_harmony --bars START-END
+partitura/bin/production_view SOURCE.rb exposed_clashes --bars START-END
+partitura/bin/production_view SOURCE.rb verticals --bars START-END
+partitura/bin/production_view SOURCE.rb implied_harmony --bars START-END
 # secondary (declared intent): harmony_with_melody; raw data: transport
 ```
 
@@ -689,17 +689,16 @@ Run:
 
 ```bash
 ruby -c SOURCE.rb
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb compile
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb peak_axes
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb rhythm_profile
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb articulation_map
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb breath_map
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb exposed_clashes
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb controls
+partitura/bin/production_view SOURCE.rb compile
+partitura/bin/production_view SOURCE.rb peak_axes
+partitura/bin/production_view SOURCE.rb rhythm_profile
+partitura/bin/production_view SOURCE.rb articulation_map
+partitura/bin/production_view SOURCE.rb breath_map
+partitura/bin/production_view SOURCE.rb exposed_clashes
+partitura/bin/production_view SOURCE.rb controls
 # secondary (declared intent): structure, roles, material_map
-framework/orchestral_dsl/ruby/bin/production_export SOURCE.rb OUT_DIR --stem STEM
-python -m unittest tests.test_orchestral_dsl_transport
-ruby framework/orchestral_dsl/ruby/test/test_production_surface.rb
+partitura/bin/production_export SOURCE.rb OUT_DIR --stem STEM
+for test_file in partitura/test/test_*.rb; do ruby "$test_file" || exit $?; done
 git diff --check
 ```
 

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+for test_file in partitura/test/test_*.rb; do
+  ruby "$test_file"
+done

@@ -82,7 +82,7 @@ is not what these cards teach.
 ## The gate — run it, read the weak bars, fix them
 
 ```
-framework/orchestral_dsl/ruby/bin/production_view technique_library/dsl/cards/melody/mel2_desc_fifths.rb harmony_with_melody
+partitura/bin/production_view technique_library/dsl/cards/melody/mel2_desc_fifths.rb harmony_with_melody
 ```
 
 Read the line alone, the harmony readout, and the exported audition. **A card passes when the intended

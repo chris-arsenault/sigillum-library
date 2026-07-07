@@ -63,6 +63,6 @@ The production runtime supports:
 Inspect choices with:
 
 ```bash
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb phrases
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb material_map
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb phrases
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb material_map
 ```

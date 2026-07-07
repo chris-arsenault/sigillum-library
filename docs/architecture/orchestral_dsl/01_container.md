@@ -101,7 +101,7 @@ part :english_horn, "English Horn", music21: "EnglishHorn", family: :woodwind
 part :snare_drum, "Snare Drum", music21: "SnareDrum", family: :percussion
 ```
 
-The Python backend does not infer instruments from part names. Missing or unknown `music21:` values
+The Ruby exporters do not infer instruments from part names. Missing or unknown `music21:` values
 are errors because the transport must preserve orchestration intent.
 
 A multi-sound percussion staff declares its staff-position convention in the part description as

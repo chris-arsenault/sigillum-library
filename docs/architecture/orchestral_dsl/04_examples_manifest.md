@@ -20,11 +20,11 @@ Purpose: executable production authoring surface. Proves the supported productio
 Run:
 
 ```bash
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb compile
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb harmony_with_melody --bars 1-4
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb verticals --bars 1-4
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb line --part clarinet
-framework/orchestral_dsl/ruby/bin/production_export experiments/orchestral_dsl/production_hybrid_study.rb outputs/orchestral_dsl --stem production_hybrid_study
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb compile
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb harmony_with_melody --bars 1-4
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb verticals --bars 1-4
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb line --part clarinet
+partitura/bin/production_export experiments/orchestral_dsl/production_hybrid_study.rb --stem production_hybrid_study
 ```
 
 ## Baseline Prototype
@@ -55,9 +55,9 @@ production API.
 ## Example Commands
 
 ```bash
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb structure
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb transport
-framework/orchestral_dsl/ruby/bin/surface_view experiments/orchestral_dsl/surface_lab/hybrid_phrase_staff_32.rb structure
-framework/orchestral_dsl/ruby/bin/surface_view experiments/orchestral_dsl/surface_lab/staff_grid_32.rb bars
-framework/orchestral_dsl/ruby/bin/surface_view experiments/orchestral_dsl/surface_lab/phrase_placement_32.rb placements
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb structure
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb transport
+partitura/bin/surface_view experiments/orchestral_dsl/surface_lab/hybrid_phrase_staff_32.rb structure
+partitura/bin/surface_view experiments/orchestral_dsl/surface_lab/staff_grid_32.rb bars
+partitura/bin/surface_view experiments/orchestral_dsl/surface_lab/phrase_placement_32.rb placements
 ```

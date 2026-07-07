@@ -1,15 +1,14 @@
 # Musical Feature Extraction: architecture & decisions
 
-The durable record for `framework/analysis/` — the subsystem that turns a full multi-part score
+The durable record for `Sigillum::OrchestralDSL::Production::MelodyAnalysis` -- the subsystem that turns a full multi-part score
 into **per-melody-note musical features**, automatically and with no hand-labeling. It is the
 front-end for the planned neural (infilling-transformer) theme model: the representation the model
 trains on is built from these streams. The Markov generator (`generation/theme_gen/`) is unaffected.
 
 ## What it is
 
-A score (MIDI or music21) → a flat list of pitched note events (drums dropped) → the top-voice
-**melody** (skyline) annotated, note by note, with five feature tiers. Every tier is a windowed,
-tunable, fully-automatic extractor.
+A production DSL piece -> timed events -> the melody-carrying part's top line annotated, note by
+note, with five feature tiers. Every tier is a windowed, tunable, fully-automatic extractor.
 
 | Tier | Per-note output | Reliability |
 | ---- | --------------- | ----------- |
@@ -56,19 +55,20 @@ stream on the note under the extractor's name. **Adding a tier = a new module + 
 ## Module map
 
 ```
-framework/analysis/
-  events.py      NoteEvent; MIDI/music21 loaders; skyline melody
-  tonal.py       pitch-class energy, Krumhansl key, scale degrees, diatonic ordinals
-  harmony.py     chord vocabulary, windowed harmony, chord-position / NCT  (tier: harmony)
-  figuration.py  run/arp/trill/neighbor/... + sequence                      (tier: figuration)
-  motif.py       transformation detection vs earlier statements             (tier: motif)
-  basic.py       scale degree + metric position                             (tiers: tonal, metric)
-  core.py        Knobs, AnalysisContext, AnalyzedNote (types only)
-  pipeline.py    build_context + EXTRACTORS registry + analyze_*()
+partitura/lib/partitura/orchestral_dsl/production/melody_analysis.rb
+  MelodyAnalysis     DSL-native feature model over production timed events
+  melody_analysis    per-note readout replacing the old analyze_score script
+  melody_report      scorecard readout replacing the old melody_report script
 ```
 
-CLI: `python -m tools.analyze_score --m1 | --chorale bach/bwv66.6 | <song.mid>`.
-Tests: `tests/test_analysis.py`. Verify gate: `python -m unittest discover -s tests`.
+CLI:
+
+```bash
+partitura/bin/production_view SOURCE.rb melody_analysis --part PART
+partitura/bin/production_view SOURCE.rb melody_report --part PART
+```
+
+Tests: `partitura/test/test_production_surface.rb`.
 
 ## Validation done
 

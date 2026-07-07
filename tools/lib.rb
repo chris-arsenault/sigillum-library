@@ -106,9 +106,7 @@ end
 def search(term)
   cards = manifest
   normalized = term.downcase.strip
-  hits = cards.select do |card|
-    category_match?(normalized, card.fetch("category")) || facets_of(card).include?(normalized)
-  end
+  hits = matching_cards(cards, normalized)
 
   if hits.empty?
     puts "no cards for '#{term}'. valid terms:"
@@ -117,16 +115,26 @@ def search(term)
 
   puts "#{hits.length} card(s) for '#{term}':"
   puts
-  hits.each do |card|
-    facets = facets_of(card).sort.join(",")
-    behavior = card.fetch("behavior", "")
-    behavior = "#{behavior[0, 96]}..." if behavior.length > 96
-    surfaces = surfaces_of(card).join(",")
-    puts "  %-24s [%s] {%s}" % [card.fetch("name"), card.fetch("category"), facets]
-    puts "      #{dsl_ref(card)} -> #{dsl_path(card)}"
-    puts "      surfaces: #{surfaces}" unless surfaces.empty?
-    puts "      #{behavior}" unless behavior.empty?
+  hits.each { |card| print_search_hit(card) }
+end
+
+def matching_cards(cards, normalized)
+  cards.select do |card|
+    category_match?(normalized, card.fetch("category")) || facets_of(card).include?(normalized)
   end
+end
+
+def print_search_hit(card)
+  behavior = truncated_behavior(card.fetch("behavior", ""))
+  surfaces = surfaces_of(card).join(",")
+  puts "  %-24s [%s] {%s}" % [card.fetch("name"), card.fetch("category"), facets_of(card).sort.join(",")]
+  puts "      #{dsl_ref(card)} -> #{dsl_path(card)}"
+  puts "      surfaces: #{surfaces}" unless surfaces.empty?
+  puts "      #{behavior}" unless behavior.empty?
+end
+
+def truncated_behavior(behavior)
+  behavior.length > 96 ? "#{behavior[0, 96]}..." : behavior
 end
 
 def find_card(name)

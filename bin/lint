@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ruby tools/lint_structure.rb
+
+if command -v bundle >/dev/null 2>&1 && [ -f Gemfile.lock ]; then
+  bundle exec rubocop
+elif command -v rubocop >/dev/null 2>&1; then
+  rubocop
+else
+  echo "rubocop is not installed. Run: bundle install" >&2
+  exit 127
+fi

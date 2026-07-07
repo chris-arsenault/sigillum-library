@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+bin/lint
+bin/test
+git diff --check

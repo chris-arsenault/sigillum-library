@@ -9,13 +9,13 @@ Load this index first, then load only the files relevant to the current composin
 Use the production Ruby surface for new source:
 
 ```bash
-framework/orchestral_dsl/ruby/bin/dsl_help production
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb structure
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb harmony_with_melody --bars 1-4
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb verticals --bars 1-4
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb line --part clarinet
-framework/orchestral_dsl/ruby/bin/production_export experiments/orchestral_dsl/production_hybrid_study.rb outputs/orchestral_dsl --stem production_hybrid_study
-framework/orchestral_dsl/ruby/bin/sigillum_transport experiments/orchestral_dsl/production_hybrid_study.rb outputs/orchestral_dsl --stem production_hybrid_study
+partitura/bin/dsl_help production
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb structure
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb harmony_with_melody --bars 1-4
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb verticals --bars 1-4
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb line --part clarinet
+partitura/bin/production_export experiments/orchestral_dsl/production_hybrid_study.rb --stem production_hybrid_study
+partitura/bin/partitura_transport experiments/orchestral_dsl/production_hybrid_study.rb outputs/orchestral_dsl --stem production_hybrid_study
 ```
 
 Production entry points:
@@ -27,9 +27,9 @@ Production entry points:
 - CLI readouts: `structure`, `roles`, `phrases`, `placements`, `timed_events`, `verticals`,
   `staff_bars`, `foreground`, `bass_path`, `line`, `harmony`, `harmony_with_melody`,
   `controls`, `material_map`, `gesture_map`, `transport`, `compile`
-- CLI export: `production_export SOURCE.rb OUT_DIR --stem STEM`
-- Ruby framework transport build: `sigillum_transport SOURCE.rb OUT_DIR --stem STEM`
-- Ruby framework registry build: `sigillum_build REGISTRY.rb [movement|all]`
+- CLI export: `production_export SOURCE.rb --stem STEM`
+- Ruby framework transport build: `partitura_transport SOURCE.rb OUT_DIR --stem STEM`
+- Ruby framework registry build: `partitura_build REGISTRY.rb [movement|all]`
 
 ## Read Order
 
@@ -51,7 +51,7 @@ Production entry points:
 - `05_compile_api.md` - implemented LLM-native compiler, transport, and export contract.
 - `06_ruby_framework.md` - Ruby build/audit layer and Python writer boundary.
 - `07_hand_edit_import.md` - importing hand-edited MusicXML back into DSL
-  source with `tools/mxl_to_dsl.py` (convert + zero-diff verify gate).
+  source with `Production::MusicXMLImport` (convert + zero-diff verify gate).
 
 ## Composition Procedure
 
@@ -76,12 +76,12 @@ Use the project-neutral DSL procedure for new composition work:
 Use:
 
 ```bash
-framework/orchestral_dsl/ruby/bin/dsl_help index
-framework/orchestral_dsl/ruby/bin/dsl_help production
-framework/orchestral_dsl/ruby/bin/dsl_help decision
-framework/orchestral_dsl/ruby/bin/dsl_help controls
-framework/orchestral_dsl/ruby/bin/dsl_help hybrid
-framework/orchestral_dsl/ruby/bin/dsl_help transport_export
+partitura/bin/dsl_help index
+partitura/bin/dsl_help production
+partitura/bin/dsl_help decision
+partitura/bin/dsl_help controls
+partitura/bin/dsl_help hybrid
+partitura/bin/dsl_help transport_export
 ```
 
 The help response is intentionally short and names the next topics to request.

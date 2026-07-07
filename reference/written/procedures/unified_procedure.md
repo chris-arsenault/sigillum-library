@@ -49,7 +49,7 @@ THEMATIC CORE (the material to HOLD TO — guidance, freely reshaped to serve th
                                    grief/section): `ruby tools/lib.rb <term>` / `... show
                                    <NAME>` / `... terms`. Agents are handed a few terms and pull
                                    cards on demand (operational detail in orchestration_procedure/section_repair_procedure). Audition a
-                                   card with `framework/orchestral_dsl/ruby/bin/production_export`
+                                   card with `partitura/bin/production_export`
                                    on its `.rb` source.
 
 ACCOUNTABILITY (written during runs):
@@ -58,8 +58,11 @@ ACCOUNTABILITY (written during runs):
   texture_diagnosis     the texture-crisis evidence (cautionary reference)
 
 TOOLS: verification/verify.py (gates G1-G17 + manifests), verification/vertical_test.py +
-  vertical_allow.json, tools/narrative_dump.py (walk), tools/texture_diag.py +
-  tools/card_metrics.py (figuration metrics), tools/probe.py (per-bar who-sounds-what).
+  vertical_allow.json, tools/narrative_dump.py (walk), tools/texture_diag.py,
+  `production_view SOURCE.rb transport_metrics` (figuration metrics),
+  `production_view SOURCE.rb melody_analysis --part PART` (per-note melody features),
+  `production_view SOURCE.rb melody_report --part PART` (melody scorecard readout),
+  `production_view SOURCE.rb bar_probe --bars N-M` (per-bar who-sounds-what).
 
 CURRENT-SOURCE AUTHORITY:
   Runs are authored from the live tree only. Pre-rework material was removed (recoverable from git

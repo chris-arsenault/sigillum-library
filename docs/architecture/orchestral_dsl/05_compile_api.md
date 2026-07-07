@@ -15,7 +15,7 @@ next and which focused docs to load.
   "status": "ok",
   "source_model": "production_hybrid",
   "surface_summary": ["degrees", "intervals", "split_pitch_rhythm", "absolute"],
-  "available_projections": ["adjacency_profile", "recurrence_map", "peak_axes", "rhythm_profile", "articulation_map", "breath_map", "implied_harmony", "ensemble_grid", "exposed_clashes", "bar_profile", "figure_timeline", "line", "verticals", "grid", "timed_events", "controls", "transport"],
+  "available_projections": ["adjacency_profile", "recurrence_map", "peak_axes", "rhythm_profile", "articulation_map", "breath_map", "implied_harmony", "ensemble_grid", "exposed_clashes", "composite_stalls", "bar_profile", "figure_timeline", "bar_probe", "line", "verticals", "grid", "timed_events", "controls", "transport", "transport_metrics", "melody_analysis", "melody_report"],
   "secondary_declared_intent_projections": ["structure", "roles", "phrases", "placements", "staff_bars", "foreground", "bass_path", "harmony", "harmony_with_melody", "material_map", "gesture_map"],
   "projection_note": "available_projections are SOUNDING (note-derived) and primary; secondary views read authored assertions and only verify them against the music",
   "available_exports": ["transport_json", "musicxml", "midi"],
@@ -59,9 +59,9 @@ Sigillum::OrchestralDSL.production_transport_json(piece)
 CLI:
 
 ```bash
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb compile
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb transport
-framework/orchestral_dsl/ruby/bin/production_export experiments/orchestral_dsl/production_hybrid_study.rb outputs/orchestral_dsl --stem production_hybrid_study
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb compile
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb transport
+partitura/bin/production_export experiments/orchestral_dsl/production_hybrid_study.rb --stem production_hybrid_study
 ```
 
 ## Transport Shape
@@ -75,17 +75,17 @@ The transport JSON has:
 - backend-ready `timed_events` with part, role, phrase, `event_type`, `pitches`,
   `pitch_label`, local marks, offset, duration, and labels
 
-The Python backend is:
+The Ruby export path is:
 
 ```bash
-python -m framework.orchestral_dsl_transport TRANSPORT.json OUT_DIR --stem STEM
+partitura/bin/production_export SOURCE.rb --stem STEM
 ```
 
 It consumes timed events, fills only silent gaps, attaches span harmony text, attaches tempo/control
-markings, and writes MusicXML/MIDI through `framework.foundation.exports.write_score_pair`.
+markings, and writes MusicXML/MIDI directly from Ruby.
 
 ## Related JIT Help
 
 ```bash
-framework/orchestral_dsl/ruby/bin/dsl_help compile_api
+partitura/bin/dsl_help compile_api
 ```

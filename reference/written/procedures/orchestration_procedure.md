@@ -283,12 +283,11 @@ Project conventions, not musical content — the WHAT-this-movement-is lives in 
   (the single source — see CURRENT-SOURCE LAW); theme pitches from `symphony/materials/themes.py`. All of
   a run's artifacts (prose + Python) live under `symphony/`, per the FRAME SPINE / SECTION / ASSEMBLER
   items below.
-- **NOTE-LIST GRAMMAR** (the lingua franca every agent returns) is specified in
-  `framework/foundation/score.py` (module docstring + helpers `mk_part`/`mk_score`/`legato`/`tag`/`cresc`/
-  `dim`): `(pitch, ql, *marks)`, rest `(None, ql)`, chord `(["C3","G3"], ql)`; flats `"B-"`, sharps
-  `"F#"`; AUDIBLE dynamics are the dynamic marks (`pp`..`fff`); any unknown token renders as a text
-  marking (never silently dropped). Text markings are performer-facing only: techniques/instructions,
-  not narrative labels, theme names, output ids, audits, or provenance. Bar-sums must validate.
+- **NOTE-LIST GRAMMAR** (the lingua franca every agent returns) is the production DSL absolute-event
+  stream: note `C4:1`, rest `r:1`, chord `[C3,G3]:1`, marks `C4:1{mf,ten}`; flats use `Bb`, sharps
+  use `F#`; AUDIBLE dynamics are the dynamic marks (`pp`..`fff`). Text markings are performer-facing
+  only: techniques/instructions, not narrative labels, theme names, output ids, audits, or provenance.
+  Bar-sums must validate through `production_view SOURCE.rb compile`.
 - **FRAME SPINE** (A4's output) — `symphony/movements/<mvt>_spine.py` exposes: `ROSTER` /
   `ROSTER_NAMES` (the cast, score order, instrument classes), `SECTIONS` (the mid-level seams + per-section
   ql), `TEMPO_EVENTS`, `TOTAL`, `chord_map()`, `refs()`, the carry-forward cells, and the per-section LINES

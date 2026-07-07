@@ -5,17 +5,21 @@ Audience: LLM agents only.
 When the user hand-edits an exported score in a notation app (MuseScore etc.)
 and the hand file becomes the source of truth for a bar range, the DSL source
 must be rebuilt from it exactly - never re-derived from memory or approximated.
-`tools/mxl_to_dsl.py` makes that import deterministic and gives it a diff gate.
+`Sigillum::OrchestralDSL.production_musicxml_import` makes that import deterministic and
+`production_musicxml_import_verify` gives it a diff gate.
 
 ## Workflow
 
 1. **Convert** the hand-edited MusicXML into DSL event bodies:
 
-   ```bash
-   python -m tools.mxl_to_dsl convert "Flows from X/score.musicxml" \
-       --bars 1-84 \
-       --segments "bridge:41-44,ladder:45-52,gm_ground:53-68,gm_drive:69-84" \
-       --perc-map D3=C3
+   ```ruby
+   conversion = Sigillum::OrchestralDSL.production_musicxml_import(
+     "Flows from X/score.musicxml",
+     bars: 1..84,
+     segments: "bridge:41-44,ladder:45-52,gm_ground:53-68,gm_drive:69-84",
+     perc_map: { "D3" => "C3" }
+   )
+   puts conversion.render
    ```
 
    Output per part per segment is a paste-ready `events %q{ ... }` body, one
@@ -31,16 +35,22 @@ must be rebuilt from it exactly - never re-derived from memory or approximated.
 
 3. **Export and verify.** After the section files compile and export:
 
-   ```bash
-   framework/orchestral_dsl/ruby/bin/production_export SOURCE.rb
-   python -m tools.mxl_to_dsl verify "Flows from X/score.musicxml" \
-       outputs/.../piece.musicxml --bars 1-84 --perc-map D3=C3
+   ```ruby
+   verification = Sigillum::OrchestralDSL.production_musicxml_import_verify(
+     "Flows from X/score.musicxml",
+     "outputs/.../piece.musicxml",
+     bars: 1..84,
+     perc_map: { "D3" => "C3" }
+   )
+   puts verification.render
+   raise "MusicXML import mismatch" unless verification.ok?
    ```
 
    `verify` compares the two files bar by bar at **sounding pitch** with ties
    merged and reports differing bars per part. The import is done only when the
-   imported range reports `TOTAL differing bars: 0`. Non-zero exit on any diff,
-   so it can gate scripted passes.
+   imported range reports `TOTAL differing bars: 0`. The Ruby verification
+   result is structured (`ok?`, `total_differing_bars`, `to_h`) so the caller
+   gates the pass without a sidecar Python command.
 
 ## What the converter handles
 

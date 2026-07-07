@@ -202,9 +202,9 @@ return that span to its living identity and measure again.
 
 ## EXECUTION — the mechanics (file layout, render, diagnostics)
 
-- **Note-list grammar** — `framework/foundation/score.py`: `(pitch, ql, *marks)`, rest `(None, ql)`,
-  chord `(["E-3","G3"], ql)`; flats `"B-"`, sharps `"F#"`; audible dynamics `pp`..`fff`; any unknown
-  token renders as a text marking. Bar-sums validate.
+- **Note-list grammar** — production DSL absolute-event streams: note `C4:1`, rest `r:1`,
+  chord `[Eb3,G3]:1`, marks `C4:1{mf,ten}`; flats use `Bb`, sharps `F#`; audible dynamics `pp`..`fff`.
+  Bar-sums validate through `production_view SOURCE.rb compile`.
 - **Frame spine** — `symphony/movements/<mvt>_merged/spine.py` exposes `ROSTER`/`ROSTER_NAMES`,
   `SECTIONS`, `MOTION` (the per-section texture contract), `TEMPO_EVENTS`, `TOTAL`, `chord_map()`,
   the carry-forward cells, and `refs()`.

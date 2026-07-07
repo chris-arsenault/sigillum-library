@@ -5,7 +5,9 @@ build/
 exports/
 tmp/
 *.mid
+!tests/fixtures/export_parity/**/*.mid
 *.musicxml
+!tests/fixtures/export_parity/**/*.musicxml
 *.zip
 
 __pycache__/

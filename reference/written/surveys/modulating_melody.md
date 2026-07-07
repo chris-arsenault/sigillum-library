@@ -125,7 +125,7 @@ Order of operations for a single 8-bar line that audibly modulates **up a fifth 
    tonicization (§0).
 5. **Don't snap back.** A modulating line ENDS in the new key — the whole point is the relocation holds.
 
-**Verification (analyze_score):** the strong-beat skeleton of the first half spells the home progression
+**Verification (`production_view SOURCE.rb melody_analysis --part PART`):** the strong-beat skeleton of the first half spells the home progression
 with chord tones of the HOME key; after the hinge, the strong beats spell a progression whose roots are
 the NEW key's I/IV/V and whose chord tones are NEW-key tones; the single #4 reads as the new ^7 resolving
 to new ^1. The line begins on home-^1 and ends on **new-^1**.

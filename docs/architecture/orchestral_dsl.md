@@ -1,6 +1,6 @@
 # Orchestral DSL Design
 
-Status: production Ruby authoring surface, transport JSON, and music21 export implemented
+Status: production Ruby authoring surface, transport JSON, and Ruby MusicXML/MIDI export implemented
 
 This document tracks the design for an LLM-only orchestral DSL for Sigillum. The goal is not to make
 a prettier notation exporter. The goal is to give an LLM a source format where melody, harmony,
@@ -13,12 +13,12 @@ Use the modular documentation index for active work:
 Implemented production entry points:
 
 ```bash
-framework/orchestral_dsl/ruby/bin/dsl_help production
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb compile
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb harmony_with_melody --bars 1-4
-framework/orchestral_dsl/ruby/bin/production_export experiments/orchestral_dsl/production_hybrid_study.rb outputs/orchestral_dsl --stem production_hybrid_study
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb verticals --bars 1-4
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb line --part clarinet
+partitura/bin/dsl_help production
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb compile
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb harmony_with_melody --bars 1-4
+partitura/bin/production_export experiments/orchestral_dsl/production_hybrid_study.rb --stem production_hybrid_study
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb verticals --bars 1-4
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb line --part clarinet
 ```
 
 The current Python note-list source is good at rendering through music21, but it hides too much
@@ -78,9 +78,8 @@ starts writing generic blocks.
 Use Ruby as the authoring surface unless a concrete blocker appears. Ruby's block syntax is a good
 fit for nested musical spans, local roles, and readable declarations.
 
-Python/music21 is the rendering backend. The Ruby production model exports a versioned JSON
-transport consumed by `framework.orchestral_dsl_transport`, which writes MusicXML and MIDI through
-the existing `framework.foundation` score/export helpers.
+Ruby is the rendering backend. The Ruby production model exports a versioned JSON
+transport consumed by the Ruby MusicXML and MIDI exporters.
 
 The implemented shape is:
 
@@ -89,7 +88,7 @@ Ruby DSL source
   -> projections for composition
   -> Ruby production object model
   -> versioned transport JSON
-  -> Python renderer
+  -> Ruby MusicXML/MIDI renderers
   -> MusicXML / MIDI
 ```
 
@@ -196,6 +195,9 @@ Production projections are text-first and composer-facing.
 - `foreground`: continuous melody, including instrument handoffs.
 - `line(part)`: one complete part with phrase labels and role changes.
 - `verticals(bars:)`: beat-by-beat sonority, bass, foreground, active color, dissonance notes.
+- `ensemble_grid(bars:)`: 16th-resolution attack/sustain/silence grid for all parts.
+- `exposed_clashes(bars:)`: dissonant attack-point findings with preparation/resolution context.
+- `composite_stalls(bars:)`: ensemble-wide attack gaps of at least 1.25 quarter lengths.
 - `roles(bars:)`: who is foreground, bass, pulse, counterline, pad, color, tacet.
 - `bass_path`: the complete bass line and its relation to harmony.
 - `harmony`: span harmony text, scoped by bars.
@@ -208,13 +210,16 @@ These views do not decide whether the music is good. They make the music easier 
 Current Ruby implementation:
 
 ```bash
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb roles
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb foreground
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb harmony_with_melody --bars 1-4
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb verticals --bars 1-4
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb gesture_map
-framework/orchestral_dsl/ruby/bin/dsl_help production
-framework/orchestral_dsl/ruby/bin/dsl_help hybrid --json
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb roles
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb foreground
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb harmony_with_melody --bars 1-4
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb verticals --bars 1-4
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb ensemble_grid --bars 1-4
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb exposed_clashes --bars 1-4
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb composite_stalls --bars 1-4
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb gesture_map
+partitura/bin/dsl_help production
+partitura/bin/dsl_help hybrid --json
 ```
 
 ## Transport And Export
@@ -222,22 +227,22 @@ framework/orchestral_dsl/ruby/bin/dsl_help hybrid --json
 Inspect the versioned transport JSON without writing files:
 
 ```bash
-framework/orchestral_dsl/ruby/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb transport
+partitura/bin/production_view experiments/orchestral_dsl/production_hybrid_study.rb transport
 ```
 
 Write transport JSON, MusicXML, and MIDI:
 
 ```bash
-framework/orchestral_dsl/ruby/bin/production_export experiments/orchestral_dsl/production_hybrid_study.rb outputs/orchestral_dsl --stem production_hybrid_study
+partitura/bin/production_export experiments/orchestral_dsl/production_hybrid_study.rb --stem production_hybrid_study
 ```
 
 Write only transport JSON:
 
 ```bash
-framework/orchestral_dsl/ruby/bin/production_export experiments/orchestral_dsl/production_hybrid_study.rb outputs/orchestral_dsl --stem production_hybrid_study --transport-only
+partitura/bin/production_export experiments/orchestral_dsl/production_hybrid_study.rb --stem production_hybrid_study --transport-only
 ```
 
-The Python backend consumes already-authored timed events and fills only silent gaps between them.
+The Ruby exporters consume already-authored timed events and fill only silent gaps between them.
 It does not generate musical material.
 
 ## Surface Exploration
@@ -249,12 +254,12 @@ concrete and executable, but it is exploratory. New source should use the produc
 Run a comparison readout with:
 
 ```bash
-framework/orchestral_dsl/ruby/bin/surface_view experiments/orchestral_dsl/surface_lab/degree_key_32.rb structure
-framework/orchestral_dsl/ruby/bin/surface_view experiments/orchestral_dsl/surface_lab/relative_interval_32.rb structure
-framework/orchestral_dsl/ruby/bin/surface_view experiments/orchestral_dsl/surface_lab/split_pitch_rhythm_32.rb structure
-framework/orchestral_dsl/ruby/bin/surface_view experiments/orchestral_dsl/surface_lab/staff_grid_32.rb bars
-framework/orchestral_dsl/ruby/bin/surface_view experiments/orchestral_dsl/surface_lab/phrase_placement_32.rb placements
-framework/orchestral_dsl/ruby/bin/surface_view experiments/orchestral_dsl/surface_lab/hybrid_phrase_staff_32.rb structure
+partitura/bin/surface_view experiments/orchestral_dsl/surface_lab/degree_key_32.rb structure
+partitura/bin/surface_view experiments/orchestral_dsl/surface_lab/relative_interval_32.rb structure
+partitura/bin/surface_view experiments/orchestral_dsl/surface_lab/split_pitch_rhythm_32.rb structure
+partitura/bin/surface_view experiments/orchestral_dsl/surface_lab/staff_grid_32.rb bars
+partitura/bin/surface_view experiments/orchestral_dsl/surface_lab/phrase_placement_32.rb placements
+partitura/bin/surface_view experiments/orchestral_dsl/surface_lab/hybrid_phrase_staff_32.rb structure
 ```
 
 Current 32-bar surface examples:
@@ -339,7 +344,7 @@ Use this checklist to track implementation. Keep it updated as work proceeds.
   `timed_events`, `verticals`, `staff_bars`, `foreground`, `line`, `bass_path`, `harmony`,
   `harmony_with_melody`, `material_map`, `gesture_map`, `transport`, and `compile`.
 - [x] Implement versioned transport JSON from the Ruby production model.
-- [x] Implement Python/music21 export from transport JSON to MusicXML and MIDI.
+- [x] Implement Ruby export from transport JSON to MusicXML and MIDI.
 - [x] Author a production surface proof: `experiments/orchestral_dsl/production_hybrid_study.rb`.
 - [x] Add production tests for documented syntax, degree spelling, surface coverage, placements,
   verticals, line views, staff checkpoints, harmony/melody readouts, transport JSON,

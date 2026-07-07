@@ -1,0 +1,77 @@
+plugins:
+  - rubocop-minitest
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.4
+  SuggestExtensions: false
+  DisabledByDefault: true
+  Exclude:
+    - "outputs/**/*"
+
+Lint:
+  Enabled: true
+
+Layout/LineLength:
+  Enabled: true
+  Max: 120
+  AllowedPatterns:
+    - "\\A\\s*#"
+  Exclude:
+    - "technique_library/dsl/cards/**/*.rb"
+    - "experiments/**/*.rb"
+
+Metrics/AbcSize:
+  Enabled: true
+  Max: 42
+
+Metrics/BlockLength:
+  Enabled: true
+  Max: 45
+  Exclude:
+    - "partitura/test/**/*"
+    - "technique_library/dsl/cards/**/*.rb"
+    - "experiments/**/*.rb"
+
+Metrics/ClassLength:
+  Enabled: true
+  Max: 250
+
+Metrics/ModuleLength:
+  Enabled: true
+  Max: 380
+
+Metrics/MethodLength:
+  Enabled: true
+  Max: 30
+
+Metrics/CyclomaticComplexity:
+  Enabled: true
+  Max: 7
+
+Metrics/PerceivedComplexity:
+  Enabled: true
+  Max: 8
+
+Metrics/ParameterLists:
+  Enabled: true
+  Max: 5
+  CountKeywordArgs: false
+
+Minitest/MultipleAssertions:
+  Enabled: false
+
+Naming/PredicateMethod:
+  Enabled: true
+
+Security/Eval:
+  Enabled: true
+
+Style/MutableConstant:
+  Enabled: true
+
+Style/OpenStructUse:
+  Enabled: true
+
+Style/OptionalBooleanParameter:
+  Enabled: true

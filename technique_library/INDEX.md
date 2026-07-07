@@ -72,7 +72,7 @@ A card = a LOCKED 4-8 bar note-level specimen of one texture, composed at full c
 compose -> machine-measure -> PER-CARD AUDITION RENDER -> USER approves/rejects
 per card -> LOCK approved audition specimens in `technique_library/dsl/cards/`
 -> later work may compose from those models or escalate a new card for audition.
-Audition renders are PER CARD: use `framework/orchestral_dsl/ruby/bin/production_export` on the
+Audition renders are PER CARD: use `partitura/bin/production_export` on the
 card's `.rb` source to write MusicXML/MIDI. G17 (FIGURATION gate) is calibrated against the locked
 cards' numbers.
 

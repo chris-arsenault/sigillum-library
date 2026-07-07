@@ -6,20 +6,20 @@ loading the full documentation set.
 ## CLI
 
 ```bash
-framework/orchestral_dsl/ruby/bin/dsl_help index
-framework/orchestral_dsl/ruby/bin/dsl_help production
-framework/orchestral_dsl/ruby/bin/dsl_help decision
-framework/orchestral_dsl/ruby/bin/dsl_help degrees
-framework/orchestral_dsl/ruby/bin/dsl_help staff_grid
-framework/orchestral_dsl/ruby/bin/dsl_help controls
-framework/orchestral_dsl/ruby/bin/dsl_help hybrid --json
-framework/orchestral_dsl/ruby/bin/dsl_help transport_export
+partitura/bin/dsl_help index
+partitura/bin/dsl_help production
+partitura/bin/dsl_help decision
+partitura/bin/dsl_help degrees
+partitura/bin/dsl_help staff_grid
+partitura/bin/dsl_help controls
+partitura/bin/dsl_help hybrid --json
+partitura/bin/dsl_help transport_export
 ```
 
 ## Ruby API
 
 ```ruby
-require "sigillum/orchestral_dsl"
+require "partitura/orchestral_dsl"
 
 puts Sigillum::OrchestralDSL.help(:decision)
 data = Sigillum::OrchestralDSL.help_data(:hybrid)
@@ -48,13 +48,13 @@ Every help response includes:
 ## Production Readout API
 
 ```bash
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb phrases
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb harmony_with_melody --bars 1-4
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb verticals --bars 1-4
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb line --part clarinet
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb controls
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb transport
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb compile
+partitura/bin/production_view SOURCE.rb phrases
+partitura/bin/production_view SOURCE.rb harmony_with_melody --bars 1-4
+partitura/bin/production_view SOURCE.rb verticals --bars 1-4
+partitura/bin/production_view SOURCE.rb line --part clarinet
+partitura/bin/production_view SOURCE.rb controls
+partitura/bin/production_view SOURCE.rb transport
+partitura/bin/production_view SOURCE.rb compile
 ```
 
 Ruby:
@@ -68,7 +68,6 @@ json = Sigillum::OrchestralDSL.production_transport_json(piece)
 ## Production Export API
 
 ```bash
-framework/orchestral_dsl/ruby/bin/production_export SOURCE.rb outputs/orchestral_dsl --stem study
-framework/orchestral_dsl/ruby/bin/production_export SOURCE.rb outputs/orchestral_dsl --stem study --transport-only
-python -m framework.orchestral_dsl_transport outputs/orchestral_dsl/study.sigillum_transport.json outputs/orchestral_dsl --stem study
+partitura/bin/production_export SOURCE.rb --stem study
+partitura/bin/production_export SOURCE.rb --stem study --transport-only
 ```

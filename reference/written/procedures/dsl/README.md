@@ -27,13 +27,13 @@ This procedure assumes the production Ruby DSL documented in:
 Use the DSL runtime as a reading tool while composing:
 
 ```bash
-framework/orchestral_dsl/ruby/bin/dsl_help production
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb compile
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb structure
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb roles
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb verticals --bars 1-4
-framework/orchestral_dsl/ruby/bin/production_view SOURCE.rb harmony_with_melody --bars 1-4
-framework/orchestral_dsl/ruby/bin/production_export SOURCE.rb outputs/orchestral_dsl --stem STEM
+partitura/bin/dsl_help production
+partitura/bin/production_view SOURCE.rb compile
+partitura/bin/production_view SOURCE.rb structure
+partitura/bin/production_view SOURCE.rb roles
+partitura/bin/production_view SOURCE.rb verticals --bars 1-4
+partitura/bin/production_view SOURCE.rb harmony_with_melody --bars 1-4
+partitura/bin/production_export SOURCE.rb outputs/orchestral_dsl --stem STEM
 ```
 
 ## Technique Library Status
