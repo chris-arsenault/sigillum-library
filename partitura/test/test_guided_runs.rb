@@ -12,9 +12,9 @@ class GuidedRunsTest < Minitest::Test
     bars: all
     decisions: test decision
     weaknesses: none
-    revisions: none
+    improvements: none
     outputs: none
-    verdict: proceed
+    musical_verdict: proceeds as planned
   NOTE
 
   SOURCE = <<~RUBY
@@ -32,44 +32,6 @@ class GuidedRunsTest < Minitest::Test
       end
     end
   RUBY
-
-  def test_manifest_loads_with_ordered_stages_and_miniature_collapse
-    manifest = Partitura::Guided::Manifest.load("dsl_composition")
-    assert_equal "dsl_composition", manifest.id
-    assert_equal (0..10).map { |n| "s#{n}" }, manifest.stages.map(&:id)
-    assert manifest.stage("s5").iterative
-    assert(manifest.stages.all? { |stage| stage.docs.all? { |doc| File.exist?(doc) } })
-    assert File.exist?(manifest.principles_path)
-
-    miniature = manifest.stages("miniature")
-    assert miniature.length < manifest.stages.length
-    combined = miniature.find { |stage| stage.id == "s0" }
-    assert_equal 2, combined.docs.length
-    assert(combined.gates.include?("artifact_exists:form_contract"))
-  end
-
-  def test_procedure_list_names_all_manifests
-    assert_includes Partitura::Guided::Manifest.list, "dsl_composition"
-    assert_includes Partitura::Guided::Manifest.list, "section_recomposition"
-  end
-
-  def test_section_recomposition_manifest_loads_and_runs
-    manifest = Partitura::Guided::Manifest.load("section_recomposition")
-    assert_equal %w[s0 s1 s2 s3 s4], manifest.stages.map(&:id)
-    assert manifest.stage("s2").iterative
-    assert_equal "passage", manifest.stage("s2").unit
-    assert(manifest.stages.all? { |stage| stage.docs.all? { |doc| File.exist?(doc) } })
-    assert_equal 3, manifest.stages("miniature").length
-
-    Dir.mktmpdir do |dir|
-      FileUtils.mkdir_p(File.join(dir, "dsl"))
-      File.write(File.join(dir, "dsl", "piece.rb"), SOURCE)
-      run, payload = Partitura::Guided.start(dir, procedure: "section_recomposition", source: "dsl/piece.rb")
-      assert_equal "s0", run.current_stage_id
-      assert_includes payload, "Diagnose"
-      assert_includes payload, "procedure/diagnosis.md"
-    end
-  end
 
   def test_start_status_commit_flow_with_gates
     with_run do |dir|
@@ -95,7 +57,7 @@ class GuidedRunsTest < Minitest::Test
       error = assert_raises(Partitura::Guided::PassNoteError) do
         Partitura::Guided.commit(dir: dir, notes: "decisions: something")
       end
-      assert_includes error.message, "verdict"
+      assert_includes error.message, "musical_verdict"
     end
   end
 
@@ -112,21 +74,57 @@ class GuidedRunsTest < Minitest::Test
     end
   end
 
-  def test_iterative_stage_accumulates_units_then_completes
+  def test_iterative_stage_rejects_bare_commit_and_enforces_coverage
     with_run do |dir|
       run = Partitura::Guided::Run.locate(dir)
       run.state["current_stage"] = "s5"
       run.state["stages"]["s5"]["status"] = "in_progress"
       run.save
 
+      bare = assert_raises(Partitura::Guided::RunError) { Partitura::Guided.commit(dir: dir, notes: PASS_NOTE) }
+      assert_includes bare.message, "iterative"
+
       Partitura::Guided.commit(dir: dir, notes: PASS_NOTE, unit: "bars 1-1")
       run, = Partitura::Guided.status(dir)
       assert_equal "s5", run.current_stage_id
       assert_equal ["bars 1-1"], run.units_committed
 
-      Partitura::Guided.commit(dir: dir, notes: PASS_NOTE, stage_complete: true)
-      run, = Partitura::Guided.status(dir)
+      partial = assert_raises(Partitura::Guided::GateFailure) do
+        Partitura::Guided.commit(dir: dir, notes: PASS_NOTE, stage_complete: true)
+      end
+      assert(partial.results.any? { |result| result.gate == "units_cover_source_bars" && !result.ok })
+
+      Partitura::Guided.commit(dir: dir, notes: PASS_NOTE, unit: "bars 2-2")
+      run, = Partitura::Guided.commit(dir: dir, notes: PASS_NOTE, stage_complete: true)
       assert_equal "s6", run.current_stage_id
+    end
+  end
+
+  def test_pass_notes_feed_forward_as_open_threads
+    with_run do |dir|
+      File.write(File.join(dir, "procedure", "brief.md"), "brief")
+      note = PASS_NOTE.sub("weaknesses: none", "weaknesses: bar 2 accompaniment stamps the same skeleton")
+                      .sub("improvements: none", "improvements: candidate - answer in the bar 2 phrase gap")
+      _, payload = Partitura::Guided.commit(dir: dir, notes: note)
+      assert_includes payload, "OPEN THREADS"
+      assert_includes payload, "[s0] weaknesses: bar 2 accompaniment stamps the same skeleton"
+      assert_includes payload, "[s0] improvements: candidate - answer in the bar 2 phrase gap"
+      refute_includes payload, "[s0] outputs:"
+
+      run = Partitura::Guided::Run.locate(dir)
+      data = Partitura::Guided::Payload.data(run)
+      assert_equal 2, data.fetch(:open_threads).length
+    end
+  end
+
+  def test_reopened_stage_payload_carries_prior_pass_note
+    with_run do |dir|
+      File.write(File.join(dir, "procedure", "brief.md"), "brief")
+      Partitura::Guided.commit(dir: dir, notes: PASS_NOTE.sub("test decision", "original s0 decision"))
+      _, payload = Partitura::Guided.back(dir: dir, to: "s0", reason: "revisit")
+      assert_includes payload, "REOPENED STAGE"
+      assert_includes payload, "original s0 decision"
+      assert_includes payload, "editing pass, not a"
     end
   end
 

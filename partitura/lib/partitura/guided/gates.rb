@@ -18,7 +18,9 @@ module Partitura
         "lint_max" => ->(run:, argument:, **) { lint_max(run, argument) },
         "export_current" => ->(run:, **) { export_current(run) },
         "no_open_skips" => ->(run:, gate:, **) { no_flagged_stages(run, "skipped", gate) },
-        "no_stale_stages" => ->(run:, gate:, **) { no_flagged_stages(run, "stale", gate) }
+        "no_stale_stages" => ->(run:, gate:, **) { no_flagged_stages(run, "stale", gate) },
+        "min_units" => ->(run:, stage:, argument:, **) { min_units(run, stage, argument) },
+        "units_cover_source_bars" => ->(run:, stage:, gate:, **) { units_cover_source_bars(run, stage, gate) }
       }.freeze
 
       module_function
@@ -114,6 +116,44 @@ module Partitura
         stem = File.basename(source_abs, File.extname(source_abs))
         source_rel = source_abs.delete_prefix("#{repo_root}/")
         File.join(repo_root, "outputs", File.dirname(source_rel), stem, "#{stem}.partitura_transport.json")
+      end
+
+      def min_units(run, stage, argument)
+        needed = Integer(argument)
+        count = run.units_committed(stage.id).length
+        Result.new(gate: "min_units:#{argument}", ok: count >= needed,
+                   detail: count >= needed ? nil : "#{count} #{stage.unit} unit(s) committed; at least #{needed} " \
+                                                   "required before --stage-complete")
+      end
+
+      # Attention coverage, not a quality score: every bar of every section must belong
+      # to some committed unit before the stage may close.
+      def units_cover_source_bars(run, stage, gate)
+        source = run.source_path
+        return Result.new(gate: gate, ok: false, detail: "no source registered; rerun with --source PATH") unless
+          source && File.exist?(source)
+
+        needed = Partitura.load_production_file(source).sections.flat_map { |section| section.bars.to_a }.uniq
+        covered = run.units_committed(stage.id).flat_map { |label| unit_bar_numbers(label) }.uniq
+        missing = (needed - covered).sort
+        Result.new(gate: gate, ok: missing.empty?,
+                   detail: missing.empty? ? nil : "bars with no committed #{stage.unit} unit: " \
+                                                  "#{compress_bars(missing)}; commit units as --span A-B until " \
+                                                  "every bar has had its own pass")
+      rescue Partitura::Production::CompileError => e
+        Result.new(gate: gate, ok: false, detail: "compile error #{e.response[:code]}: #{e.response[:message]}")
+      end
+
+      def unit_bar_numbers(label)
+        label.to_s.scan(/(\d+)\s*-\s*(\d+)|(\d+)/).flat_map do |first, last, single|
+          single ? [Integer(single)] : (Integer(first)..Integer(last)).to_a
+        end
+      end
+
+      def compress_bars(numbers)
+        numbers.slice_when { |a, b| b > a + 1 }
+               .map { |group| group.length > 1 ? "#{group.first}-#{group.last}" : group.first.to_s }
+               .join(", ")
       end
 
       def no_flagged_stages(run, status, gate)

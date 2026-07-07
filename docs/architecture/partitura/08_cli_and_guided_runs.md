@@ -17,6 +17,16 @@ Status: IMPLEMENTED (2026-07-07) through milestone M3 plus the M4 doc rewiring.
   repair contract, iterative recompose, seams/adherence, closeout; its Diagnose stage
   deliberately omits the `source_compiles` gate because a piece that fails the
   notation gates is a primary reason to start that procedure.
+- Incentive hardening (2026-07-07, after the good-enough-lens review): pass-note content
+  now has consequences - `weaknesses`/`outputs`/`improvements` (non-"none") feed forward
+  into every later payload as OPEN THREADS, and reopened stages get their prior pass note
+  back with an editing-pass instruction. Iterative stages reject bare commits; span
+  stages require `units_cover_source_bars` (attention coverage, not a quality score) and
+  closeouts are iterative audit stages gated on `min_units:1` after export. `verdict`
+  became `musical_verdict`; the stage progress counter was dropped from payloads. The
+  principles now carry the improvement-not-remediation doctrine (EDITING mode vs AUDIT
+  mode, edit-means-improve-not-delete, drafting-lens decay traversal, feedback-is-
+  structural) with no dimension ranking installed.
 - Still open from M4: a real trial run in the consumer repo.
 
 Companion finding source: `docs/reviews/2026-07-07_partitura_llm_first_review.md`

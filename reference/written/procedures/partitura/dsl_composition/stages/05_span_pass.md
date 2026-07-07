@@ -73,8 +73,15 @@ Use this bar/beat failure-mode checklist during span review:
 - A seam is composed by pickup, tail-crossing, liquidation, sequence, harmonic acceleration, caesura,
   cut, or resonance wake. Abrupt reset is a special event, not the default way to change blocks.
 
-After composing that span, record the pass note before starting the next one. The pass note must say
-which planned phrase-grain events were realized, which outputs were produced, what changed from the
-contract, and what weakness was revised. A first write is not a span pass until it has been inspected
-and revised or given a concrete no-change musical verdict.
+After composing that span, commit it as one unit (`partitura commit --span A-B --notes -`) before
+starting the next. The pass note must say which planned phrase-grain events were realized, which
+outputs were produced, what changed from the contract, what weakness was revised, and what got
+compositionally better (`improvements`). A first write is not a span pass until it has been
+inspected and revised or given a concrete no-change musical verdict that names what you tried.
+
+Before drafting each span, notice which dimension is leading your attention; after drafting, read
+the same bars once more with the lenses you were not using - the neglected dimensions decay while
+you compose, and this traversal is where they are brought back up. The stage cannot close until
+every bar of every section belongs to some committed span unit (the `units_cover_source_bars` gate)
+- coverage of attention is enforced; the quality of that attention is yours to prove in the notes.
 

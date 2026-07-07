@@ -82,17 +82,20 @@ module Partitura
       private
 
       def build_stage(members)
-        head = members.first
         Stage.new(
-          id: head.fetch("id"),
+          id: members.first.fetch("id"),
           name: members.map { |member| member.fetch("name") }.join(" + "),
           docs: members.map { |member| doc_path(member.fetch("doc")) },
           artifacts: members.flat_map { |member| member.fetch("artifacts", []) },
-          gates: members.flat_map { |member| member.fetch("gates", []) }.uniq,
-          stage_complete_gates: members.flat_map { |member| member.fetch("stage_complete_gates", []) }.uniq,
+          gates: merged_gates(members, "gates"),
+          stage_complete_gates: merged_gates(members, "stage_complete_gates"),
           iterative: members.any? { |member| member["iterative"] },
-          unit: head["unit"]
+          unit: members.filter_map { |member| member["unit"] }.first
         )
+      end
+
+      def merged_gates(members, key)
+        members.flat_map { |member| member.fetch(key, []) }.uniq
       end
     end
   end

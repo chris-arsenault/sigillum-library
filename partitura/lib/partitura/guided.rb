@@ -41,6 +41,7 @@ module Partitura
 
       run.register_source(source) if source
       stage = run.current_stage
+      assert_unit_discipline!(stage, unit, stage_complete)
       note = PassNote.parse(notes, run.manifest.pass_note_fields)
       results = Gates.evaluate(gates_for(stage, stage_complete), run: run, stage: stage, note: note)
       raise GateFailure, results unless results.all?(&:ok)
@@ -52,6 +53,14 @@ module Partitura
     def gates_for(stage, stage_complete)
       closing = stage.iterative && stage_complete && stage.stage_complete_gates.any?
       closing ? stage.stage_complete_gates : stage.gates
+    end
+
+    def assert_unit_discipline!(stage, unit, stage_complete)
+      return unless stage.iterative && unit.nil? && !stage_complete
+
+      raise RunError, "stage #{stage.id} is iterative: commit one #{stage.unit} at a time " \
+                      "(--span A-B or --unit \"...\"), then close the stage with --stage-complete. " \
+                      "A bare commit does not skip the #{stage.unit} passes."
     end
 
     def skip(dir: nil, reason:)

@@ -170,7 +170,7 @@ Do not collapse the span pass and merge pass just because the source compiles. F
 written pass notes may be compact, but the passes still occur in order. A useful pass note names:
 
 ```text
-Pass | bars/spans | decisions made | weaknesses found | source revisions | outputs/divergences
+bars | decisions | weaknesses | improvements | outputs | musical_verdict
 ```
 
 The old multi-agent breakdown is intentionally not imported wholesale. The DSL needs enough fresh
@@ -260,3 +260,44 @@ If a card influences a new piece, read the card's `.rb` source, adapt its
 musical idea to the piece's own material, and write the adapted notes directly
 in the DSL.
 
+
+## Improvement, Not Remediation - Countering The Good-Enough Lens
+
+You carry a known bias: you generalize toward not doing work. Left alone, you read a
+passage as if it were good enough, hunt for hard errors to fix, and stop when nothing
+is broken. That lens produces mechanically valid, musically inert scores. Every review
+inside this procedure therefore runs in EDITING mode, not AUDIT mode: the default
+question per bar is "what would make this better," with keep as the justified
+exception - never "is it broken," with change as the exception.
+
+- There is always room for improvement. A "no change" musical_verdict is legal only
+  when it names what you tried to improve and why the music is better without the
+  change. "Nothing is broken" is not a verdict; it is the bias talking.
+- Edit means improve, not delete. Deletion feels safe because new notes can be wrong;
+  that safety is the tell. Every finding names music to COMPOSE - ornamented returns,
+  countermelodies, answers in phrase gaps, elaborated figures - never only what to
+  remove. A rest opened for breath is paired with music composed in the space it opens.
+- Projections and gates measure difference and validity, never quality. Apply "would a
+  listener notice this is BETTER" to every edit; bookkeeping shuffles that only a
+  spreadsheet can hear do not count as improvement.
+- The pass note's `improvements` field records what got compositionally better this
+  pass, or the best improvement candidate you found and why you did or did not take
+  it. It comes back to you in later stage payloads; write it as material to build on.
+
+## The Drafting Lens Decays The Other Dimensions
+
+Whichever dimension you led with while drafting a passage - whatever it was for that
+passage - comes out roughly sound; every dimension you were not attending to decays
+while you work. This is a known property of your composing, observed in both
+directions: line-first drafts with bad verticals, verticals-first drafts with dull
+lines. Do not install a fixed ranking of dimensions to compensate - the crown itself
+is the bug. Instead:
+
+- After drafting any span, name what your drafting lens actually was.
+- Then run deliberate editing traversals of the same bars with the neglected lenses -
+  total coverage, every bar gets read, projections as the reading tool but never the
+  scope-setter - and make edits: alignment between layers, whether the bed breathes or
+  stamps the same skeleton, masked entrances, spacing, seams.
+- Revisiting music with an eye for improvement is not optional polish; it is the only
+  mechanism that brings the neglected dimensions up to the quality of the led one.
+  The span verdict loop, the merge pass, and the closeout audits exist for this.

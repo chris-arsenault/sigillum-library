@@ -268,7 +268,8 @@ when "log"
     else
       entries.each do |entry|
         detail = entry.reject { |key, _| %w[ts event pass_note gates].include?(key) }
-        note = entry["pass_note"] && " verdict=#{entry.dig('pass_note', 'verdict').to_s.lines.first&.strip}"
+        verdict = entry.dig("pass_note", "musical_verdict") || entry.dig("pass_note", "verdict")
+        note = verdict && " musical_verdict=#{verdict.to_s.lines.first&.strip}"
         puts "#{entry['ts']}  #{entry['event']}  #{detail.map { |k, v| "#{k}=#{v}" }.join(' ')}#{note}"
       end
     end

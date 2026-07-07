@@ -170,6 +170,24 @@ module Partitura
         File.readlines(path).map { |line| JSON.parse(line) }
       end
 
+      # Every committed pass note so far, in order: [stage_id, unit_or_nil, note_hash].
+      def committed_notes
+        log_entries.filter_map do |entry|
+          next unless %w[stage_committed unit_committed].include?(entry["event"])
+
+          [entry["stage"], entry["unit"], entry["pass_note"] || {}]
+        end
+      end
+
+      # The most recent full-stage commit note for a stage (present when the stage was
+      # committed earlier and has been reopened).
+      def last_commit_note(stage_id)
+        entry = log_entries.reverse.find do |candidate|
+          candidate["event"] == "stage_committed" && candidate["stage"] == stage_id.to_s
+        end
+        entry && entry["pass_note"]
+      end
+
       def append_log(event, **payload)
         entry = { "ts" => Time.now.utc.iso8601, "event" => event }.merge(payload.compact)
         File.open(File.join(dir, STATE_DIR, LOG_FILE), "a") { |file| file.puts(JSON.generate(entry)) }

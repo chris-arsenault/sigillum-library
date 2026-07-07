@@ -1,23 +1,46 @@
 {
   "id": "section_recomposition",
-  "version": 1,
+  "version": 2,
   "title": "Section recomposition (surgical repair of an existing piece)",
   "principles": "principles.md",
-  "pass_note_fields": ["bars", "decisions", "weaknesses", "revisions", "outputs", "verdict"],
+  "pass_note_fields": [
+    "bars",
+    "decisions",
+    "weaknesses",
+    "improvements",
+    "outputs",
+    "musical_verdict"
+  ],
   "stages": [
     {
       "id": "s0",
       "name": "Diagnose",
       "doc": "stages/00_diagnose.md",
-      "artifacts": [{ "id": "diagnosis", "path": "procedure/diagnosis.md" }],
-      "gates": ["artifact_exists:diagnosis", "pass_note_complete"]
+      "artifacts": [
+        {
+          "id": "diagnosis",
+          "path": "procedure/diagnosis.md"
+        }
+      ],
+      "gates": [
+        "artifact_exists:diagnosis",
+        "pass_note_complete"
+      ]
     },
     {
       "id": "s1",
       "name": "Repair Contract",
       "doc": "stages/01_repair_contract.md",
-      "artifacts": [{ "id": "repair_contract", "path": "procedure/repair_contract.md" }],
-      "gates": ["artifact_exists:repair_contract", "pass_note_complete"]
+      "artifacts": [
+        {
+          "id": "repair_contract",
+          "path": "procedure/repair_contract.md"
+        }
+      ],
+      "gates": [
+        "artifact_exists:repair_contract",
+        "pass_note_complete"
+      ]
     },
     {
       "id": "s2",
@@ -25,24 +48,58 @@
       "doc": "stages/02_recompose.md",
       "iterative": true,
       "unit": "passage",
-      "gates": ["source_compiles", "pass_note_complete"],
-      "stage_complete_gates": ["source_compiles", "lint_max:error", "pass_note_complete"]
+      "gates": [
+        "source_compiles",
+        "pass_note_complete"
+      ],
+      "stage_complete_gates": [
+        "source_compiles",
+        "lint_max:error",
+        "min_units:1",
+        "pass_note_complete"
+      ]
     },
     {
       "id": "s3",
       "name": "Seams And Plan Adherence",
       "doc": "stages/03_seams_adherence.md",
-      "gates": ["source_compiles", "pass_note_complete"]
+      "gates": [
+        "source_compiles",
+        "pass_note_complete"
+      ]
     },
     {
       "id": "s4",
       "name": "Export, Audition, And Close",
       "doc": "stages/04_export_audition_close.md",
-      "gates": ["source_compiles", "export_current", "no_open_skips", "no_stale_stages", "pass_note_complete"]
+      "gates": [
+        "source_compiles",
+        "export_current",
+        "pass_note_complete"
+      ],
+      "iterative": true,
+      "unit": "audit",
+      "stage_complete_gates": [
+        "source_compiles",
+        "export_current",
+        "min_units:1",
+        "no_open_skips",
+        "no_stale_stages",
+        "pass_note_complete"
+      ]
     }
   ],
   "miniature": {
-    "collapse": [["s0", "s1"], ["s3", "s4"]],
+    "collapse": [
+      [
+        "s0",
+        "s1"
+      ],
+      [
+        "s3",
+        "s4"
+      ]
+    ],
     "note": "for a small local fix: diagnose+contract in one pass, seams+closeout in one pass"
   }
 }

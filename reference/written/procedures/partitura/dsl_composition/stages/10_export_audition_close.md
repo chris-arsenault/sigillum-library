@@ -22,18 +22,26 @@ project. Listen/read for weak spans, inert accompaniment, bad pacing, unreadable
 unidiomatic writing, unclear returns, accidental artifacts, and over-mechanical interleaving. If any
 appear, return to the relevant stage and revise the source.
 
-The first successful export never closes the procedure by itself. Complete at least one post-export
-revision cycle:
+The first successful export never closes the procedure by itself. This stage is iterative: each
+post-export improvement cycle is one committed unit
+(`partitura commit --unit "audit: <focus>" --notes -`), and the stage cannot close without at
+least one. An audit unit is an EDITING pass, not a defect scan:
 
 1. Inspect the exported score/playback and focused projections as music, not only as data.
-2. Record concrete findings by bar, part, and musical problem.
-3. Revise the DSL source itself.
-4. Re-run compile, focused projections, export, and any affected tests.
-5. Repeat while the audit still finds material weaknesses.
+2. Name what the drafting lens of each substantial span was, and read those bars again with the
+   lenses that were neglected while drafting - that is where the decay lives.
+3. Record findings as improvements to COMPOSE, by bar and part: not "is anything broken" but
+   "what would make this passage better" - ornamented returns, answers in phrase gaps,
+   countermelodies, elaborated figures, sharper seams. Deletion-only findings are the
+   good-enough lens talking; pair every opened space with music composed into it.
+4. Revise the DSL source itself, re-export, and commit the unit with the pass note recording
+   what improved (the `improvements` field) and the open threads addressed.
+5. Repeat while the auditions still find room - there is always room; stop when the remaining
+   candidates are genuinely worse than the music they would replace, and say so.
 
-If the post-export audit finds no change needed, document why in musical terms, tied to specific
-sections and roles. Do not use "no obvious compiler issue" or "mechanically valid" as a musical
-verdict.
+A "no change" audit unit is legal only when its pass note names what you tried to improve and
+why the music is better without the change, tied to specific sections and roles. "No obvious
+compiler issue" or "mechanically valid" is not a musical verdict.
 
 Clean up only what belongs to this new composition: scratch transport JSON, temporary analysis files,
 draft render artifacts, and outdated local status notes. Keep research and brief material that helps
@@ -70,7 +78,10 @@ The new composition pass is complete only when:
 - The idiom and performability audit for every force has either passed or caused source revisions.
 - The verdict loops and whole-piece revision pass musical judgment, not only compiler checks.
 - Exported score/playback has been auditioned after the first successful export.
-- At least one post-export musical audit and revision/no-change cycle has been completed and recorded.
+- At least one post-export audit unit has been committed (the stage gate enforces this), and its
+  findings were improvements to compose, not only defects to remove.
+- Every open thread fed forward from earlier pass notes (weaknesses, outputs, improvement
+  candidates) has been addressed, built on, or consciously carried with a reason.
 - Any discovered weaknesses were revised in source and re-exported.
 - The DSL source compiles and exports.
 

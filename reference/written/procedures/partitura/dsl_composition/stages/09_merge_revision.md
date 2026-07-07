@@ -65,3 +65,10 @@ late starts, cross-seam tails, one-bar cuts, role swaps, selective doubling, reg
 spends, resonance wakes, or sudden clearings. Add only incidents that improve form, pacing, or role
 clarity; remove decorative events that do not.
 
+
+Run the whole merge pass in EDITING mode, not AUDIT mode: for each span, first name what its
+drafting lens was (from the span pass notes), then walk its bars with the neglected lenses and ask
+"what would make this better," keeping only as the justified exception. The payload's OPEN THREADS
+list is this pass's worklist: every weakness, output, and improvement candidate recorded by earlier
+passes is addressed, built on, or consciously carried with a reason - nothing lapses silently.
+Findings name music to compose, not only material to remove.

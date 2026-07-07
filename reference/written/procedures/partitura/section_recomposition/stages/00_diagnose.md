@@ -24,6 +24,10 @@ partitura/bin/partitura view SOURCE.rb line --part PART --bars A-B
   **notation-only** (the sounding music is right; re-mark it: add `|` at barlines,
   correct checkpoint lanes, fix mark spellings) or **musical** (the notes themselves
   are the defect).
+- **The structural cause, not just the symptom.** For each defect ask "what structural
+  or process failure produced this?" and state the defect at that altitude. A symptom
+  list (a clash here, a stall there) never sets the repair's scope; the cause does. If
+  ten bars show the same disease, the defect is the scheme that produced them.
 - **The spine to preserve**: the lead line, the bass line, and the declared
   harmony/chord track across the span - quote them (from `line`, `bass_path`,
   `harmony`/`harmony_check` readouts), because they are the material the repair holds
