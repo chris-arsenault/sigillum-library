@@ -42,7 +42,7 @@ A "no change" audit unit is legal only when its pass note names what you tried t
 why the music is better without the change, tied to specific sections and roles. "No obvious
 compiler issue" or "mechanically valid" is not a musical verdict.
 
-Clean up only what belongs to this new composition: scratch transport JSON, temporary analysis files,
+Clean up only what belongs to this new composition: scratch MusicXML/MIDI, temporary analysis files,
 draft render artifacts, and outdated local status notes. Keep research and brief material that helps
 future work continue.
 

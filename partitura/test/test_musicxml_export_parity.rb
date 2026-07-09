@@ -19,7 +19,6 @@ class MusicXMLExportParityTest < Minitest::Test
   CASES = {
     "banner_recursion_canonical" => {
       title: "The Banner Recursion",
-      transport_parts: 9,
       xml_score_parts: 10,
       midi_tracks: 11,
       meter: "2/4",
@@ -29,7 +28,6 @@ class MusicXMLExportParityTest < Minitest::Test
     },
     "basin_aria" => {
       title: "Basin Aria",
-      transport_parts: 7,
       xml_score_parts: 6,
       midi_tracks: 8,
       meter: "6/8",
@@ -39,7 +37,6 @@ class MusicXMLExportParityTest < Minitest::Test
     },
     "hammer_gate_toccata" => {
       title: "Hammer Gate Toccata",
-      transport_parts: 3,
       xml_score_parts: 2,
       midi_tracks: 4,
       meter: "4/4",
@@ -49,7 +46,6 @@ class MusicXMLExportParityTest < Minitest::Test
     },
     "quarry_rounds" => {
       title: "The Quarry Rounds",
-      transport_parts: 5,
       xml_score_parts: 6,
       midi_tracks: 7,
       meter: "12/8",
@@ -59,27 +55,16 @@ class MusicXMLExportParityTest < Minitest::Test
     }
   }.freeze
 
-  def test_exploration_baselines_are_parseable_musicxml_and_transport
+  def test_exploration_baselines_are_parseable_musicxml
     CASES.each do |stem, facts|
       xml_path = baseline_xml(stem)
-      transport_path = baseline_transport(stem)
-
       assert File.exist?(xml_path), "missing #{xml_path}"
-      assert File.exist?(transport_path), "missing #{transport_path}"
 
       document = REXML::Document.new(File.read(xml_path))
       assert_equal "score-partwise", document.root.name
       assert_equal "4.0", document.root.attributes["version"]
       assert_equal facts.fetch(:title), REXML::XPath.first(document, "/score-partwise/work/work-title").text
-      assert_equal facts.fetch(:xml_score_parts), 
-REXML::XPath.match(document, "/score-partwise/part-list/score-part").length
-
-      transport = JSON.parse(File.read(transport_path))
-      assert_equal "partitura.transport", transport.fetch("schema")
-      assert_equal facts.fetch(:title), transport.fetch("title")
-      assert_equal facts.fetch(:transport_parts), transport.fetch("parts").length
-      assert_equal facts.fetch(:meter), transport.fetch("meter")
-      assert_equal facts.fetch(:key), transport.fetch("key")
+      assert_equal facts.fetch(:xml_score_parts), REXML::XPath.match(document, "/score-partwise/part-list/score-part").length
     end
   end
 
@@ -97,77 +82,13 @@ REXML::XPath.match(document, "/score-partwise/part-list/score-part").length
     end
   end
 
-  def test_ruby_exporters_render_all_exploration_transports
-    CASES.each do |stem, facts|
-      transport = JSON.parse(File.read(baseline_transport(stem)))
 
-      xml = Partitura::Export::MusicXML.render(transport)
-      document = REXML::Document.new(xml)
-      assert_equal "score-partwise", document.root.name
-      assert_equal facts.fetch(:xml_score_parts), xml.scan(/<score-part\b/).length
 
-      midi = Partitura::Export::MIDI.render(transport)
-      assert_equal "MThd", midi.byteslice(0, 4)
-      assert_equal facts.fetch(:midi_tracks), midi.byteslice(10, 2).unpack1("n")
-    end
-  end
-
-  def test_ruby_musicxml_export_matches_exploration_baselines
-    CASES.each do |stem, facts|
-      expected_xml = normalize_musicxml(File.read(baseline_xml(stem)))
-      transport = JSON.parse(File.read(baseline_transport(stem)))
-      actual_xml = normalize_musicxml(Partitura::Export::MusicXML.render(transport))
-
-      expected_profile = musicxml_profile(expected_xml)
-      actual_profile = musicxml_profile(actual_xml)
-      assert_equal expected_profile.fetch(:part_names), actual_profile.fetch(:part_names), "#{stem} part names changed"
-      assert_equal expected_profile.fetch(:measure_counts), actual_profile.fetch(:measure_counts), 
-"#{stem} measure layout changed"
-      assert_equal expected_profile.fetch(:word_counts), actual_profile.fetch(:word_counts), 
-"#{stem} text direction profile changed"
-      assert_equal expected_profile.fetch(:tie_counts), actual_profile.fetch(:tie_counts), "#{stem} tie profile changed"
-      assert_equal expected_profile.fetch(:tied_counts), actual_profile.fetch(:tied_counts), 
-"#{stem} tied-notation profile changed"
-      assert_equal expected_profile.fetch(:pedal_count), actual_profile.fetch(:pedal_count), 
-"#{stem} pedal profile changed"
-      assert_equal expected_tempo_sound_count(transport), actual_profile.fetch(:tempo_sound_count),
-        "#{stem} Ruby MusicXML tempo playback no longer follows transport tempo events"
-
-      similarity = token_similarity(expected_xml, actual_xml)
-      assert_operator similarity, :>=, facts.fetch(:musicxml_similarity),
-        "#{stem} normalized MusicXML token similarity #{similarity.round(4)} fell below parity floor"
-    end
-  end
-
-  def test_ruby_midi_export_matches_exploration_baselines
-    CASES.each do |stem, facts|
-      expected = File.binread(baseline_midi(stem))
-      transport = JSON.parse(File.read(baseline_transport(stem)))
-      actual = Partitura::Export::MIDI.render(transport)
-      expected_profile = midi_profile(expected)
-      actual_profile = midi_profile(actual)
-
-      assert_equal expected_profile.values_at(:format, :tracks, :division, :names),
-        actual_profile.values_at(:format, :tracks, :division, :names),
-        "#{stem} MIDI header/track profile changed"
-      assert_equal expected_profile.fetch(:note_on), expected_profile.fetch(:note_off), 
-"#{stem} baseline MIDI note balance invalid"
-      assert_equal actual_profile.fetch(:note_on), actual_profile.fetch(:note_off), 
-"#{stem} Ruby MIDI note balance invalid"
-      assert_operator actual_profile.fetch(:note_on), :>=,
-        (expected_profile.fetch(:note_on) * facts.fetch(:midi_note_floor)).floor,
-        "#{stem} Ruby MIDI note event count fell below parity floor"
-    end
-  end
 
   private
 
   def baseline_xml(stem)
     File.join(FIXTURE_ROOT, stem, "#{stem}.musicxml")
-  end
-
-  def baseline_transport(stem)
-    File.join(FIXTURE_ROOT, stem, "#{stem}.partitura_transport.json")
   end
 
   def baseline_midi(stem)
@@ -223,19 +144,5 @@ REXML::XPath.match(document, "/score-partwise/part-list/score-part").length
     values.each_with_object(Hash.new(0)) { |value, counts| counts[value] += 1 }.sort.to_h
   end
 
-  def expected_tempo_sound_count(transport)
-    Array(transport["tempo_events"]).sum do |event|
-      kind = event["kind"]
-      if kind.nil? || kind == "mark"
-        event["bpm"] ? 1 : 0
-      elsif %w[ritardando accelerando].include?(kind)
-        from = Rational(event.fetch("from_offset_ql").to_s)
-        to = Rational(event.fetch("to_offset_ql").to_s)
-        [(to - from).round, 1].max
-      else
-        0
-      end
-    end
-  end
 
 end

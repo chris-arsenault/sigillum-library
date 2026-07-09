@@ -113,7 +113,7 @@ part :snare_drum, "Snare Drum", music21: "SnareDrum", family: :percussion
 ```
 
 The Ruby exporters do not infer instruments from part names. Missing or unknown `music21:` values
-are errors because the transport must preserve orchestration intent.
+are errors because export must preserve orchestration intent.
 
 A part may declare a playable range as `range: "E3-C6"`. A declared range is enforced: any placed
 note outside it is a compile error (`note_out_of_range`). Omit `range:` to skip enforcement for a
@@ -140,7 +140,7 @@ Do not invent unrelated top-level structures for a passage. Add local notation s
 container instead.
 
 Meter changes must land on bar boundaries, e.g. `change "3/4", at: "bar 5"`. Bar/beat placement,
-section offsets, and transport offsets are resolved against the meter timeline.
+section offsets, and export offsets are resolved against the meter timeline.
 
 ## Implemented API
 

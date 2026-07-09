@@ -16,8 +16,6 @@ module Partitura
   module Export
     module MusicXML
       DIVISIONS = 10_080
-      SCHEMA = "partitura.transport"
-      SUPPORTED_SCHEMA_VERSION = 3
       NOTES_PART_ID = "__notes__"
       MAX_HAIRPIN_BARS = 2
       TEMPO_RAMP_STEP_QL = Rational(1)
@@ -82,8 +80,8 @@ module Partitura
 
       module_function
 
-      def render(transport_hash)
-        Renderer.new(transport_hash).render
+      def render(piece)
+        Renderer.new(piece).render
       end
 
       def parity_ready?
@@ -100,9 +98,8 @@ module Partitura
         include Values
         include VoiceLayout
 
-        def initialize(transport_hash)
-          @data = deep_stringify(transport_hash)
-          validate!
+        def initialize(piece)
+          @data = deep_stringify(Production.export_data(piece))
         end
 
         def render

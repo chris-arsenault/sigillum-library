@@ -1,7 +1,0 @@
-#!/usr/bin/env ruby
-# frozen_string_literal: true
-
-# Shim: this command is consolidated into the `partitura` CLI (see
-# docs/architecture/partitura/08_cli_and_guided_runs.md). Equivalent call:
-#   partitura transport ...
-exec File.expand_path("partitura", __dir__), "transport", *ARGV

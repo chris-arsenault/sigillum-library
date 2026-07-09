@@ -22,6 +22,7 @@ ALLOWED_DYNAMIC_DISPATCH = {
   "partitura/lib/partitura/production/builders/piece.rb" => ["instance_eval"],
   "partitura/lib/partitura/production/builders/sections.rb" => ["instance_eval"],
   "partitura/lib/partitura/production/builders/tempo_meter.rb" => ["instance_eval"],
+  "partitura/lib/partitura/production/builders/textures.rb" => ["instance_eval"],
   "partitura/lib/partitura/surface_lab.rb" => ["instance_eval", "method_missing"]
 }.freeze
 

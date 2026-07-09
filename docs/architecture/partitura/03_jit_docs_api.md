@@ -13,7 +13,7 @@ partitura/bin/partitura_help degrees
 partitura/bin/partitura_help staff_grid
 partitura/bin/partitura_help controls
 partitura/bin/partitura_help hybrid --json
-partitura/bin/partitura_help transport_export
+partitura/bin/partitura_help export
 ```
 
 ## Ruby API
@@ -53,7 +53,7 @@ partitura/bin/production_view SOURCE.rb harmony_with_melody --bars 1-4
 partitura/bin/production_view SOURCE.rb verticals --bars 1-4
 partitura/bin/production_view SOURCE.rb line --part clarinet
 partitura/bin/production_view SOURCE.rb controls
-partitura/bin/production_view SOURCE.rb transport
+partitura/bin/production_view SOURCE.rb compile
 partitura/bin/production_view SOURCE.rb compile
 ```
 
@@ -62,12 +62,12 @@ Ruby:
 ```ruby
 piece = Partitura.load_production_file("SOURCE.rb")
 puts Partitura.production_readout(piece, :foreground, bars: 1..8)
-json = Partitura.production_transport_json(piece)
+xml = Partitura.production_musicxml(piece)
 ```
 
 ## Production Export API
 
 ```bash
 partitura/bin/production_export SOURCE.rb --stem study
-partitura/bin/production_export SOURCE.rb --stem study --transport-only
+partitura/bin/production_export SOURCE.rb --stem study
 ```

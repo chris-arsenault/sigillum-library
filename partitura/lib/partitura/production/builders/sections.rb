@@ -3,7 +3,8 @@
 module Partitura
   module Production
     class SectionBuilder
-      def initialize(section, default_key: nil)
+      def initialize(piece, section, default_key: nil)
+        @piece = piece
         @section = section
         @default_key = default_key
         @key_explicit = false
@@ -30,7 +31,8 @@ module Partitura
 
       def span(bars:, texture: nil, &block)
         span = Span.new(bars: bars, texture: texture)
-        SpanBuilder.new(span, default_key: @default_key, default_key_explicit: @key_explicit).build(&block)
+        SpanBuilder.new(@piece, span, default_key: @default_key,
+                                      default_key_explicit: @key_explicit).build(&block)
         @section.add_span(span)
       rescue CompileError => e
         raise e.with_context(section: @section.id, span_bars: "#{bars.begin}-#{bars.end}")
@@ -43,7 +45,8 @@ module Partitura
     end
 
     class SpanBuilder
-      def initialize(span, default_key: nil, default_key_explicit: false)
+      def initialize(piece, span, default_key: nil, default_key_explicit: false)
+        @piece = piece
         @span = span
         @default_key = default_key
         @key_explicit = default_key_explicit
@@ -110,6 +113,13 @@ module Partitura
         staff_bar = StaffBar.new(number)
         StaffBarBuilder.new(staff_bar).build(&block)
         @span.add_staff_bar(staff_bar)
+      end
+
+      def texture(id, bars: @span.bars, type: nil, &block)
+        TextureBuilder.new(
+          @piece, @span, id, bars: bars, type: type, default_key: @default_key,
+                            default_key_explicit: @key_explicit
+        ).build(&block)
       end
 
       def gesture(id, &block)

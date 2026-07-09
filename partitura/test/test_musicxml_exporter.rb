@@ -8,7 +8,7 @@ $LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
 require "partitura"
 
 class MusicXMLExporterTest < Minitest::Test
-  def test_renders_single_staff_transport_to_musicxml
+  def test_renders_single_staff_piece_to_musicxml
     piece = Partitura::Production.piece("Ruby Export Core") do
       meter "4/4"
       key "C"
@@ -88,39 +88,6 @@ class MusicXMLExporterTest < Minitest::Test
     assert_equal(%w[start stop], REXML::XPath.match(document, "//tie").map { |element| element.attributes["type"] })
     assert_equal(%w[start stop], REXML::XPath.match(document, "//tied").map { |element| element.attributes["type"] })
     assert_empty REXML::XPath.match(document, "//words[text()='tie(' or text()='tie)']")
-  end
-
-  def test_rejects_unsupported_transport_schema
-    error = assert_raises(Partitura::Export::Error) do
-      Partitura::Export::MusicXML.render(
-        "schema" => "partitura.transport",
-        "schema_version" => 2
-      )
-    end
-
-    assert_includes error.message, "unsupported Partitura transport"
-  end
-
-  def test_rejects_unsupported_event_pitch_inside_valid_transport
-    transport = Partitura.production_transport_hash(grand_staff_piece)
-    transport.fetch(:timed_events).first[:pitches] = ["H4"]
-
-    error = assert_raises(Partitura::Export::Error) do
-      Partitura::Export::MusicXML.render(transport)
-    end
-
-    assert_includes error.message, 'unsupported pitch "H4"'
-  end
-
-  def test_rejects_wrong_transport_schema_name
-    error = assert_raises(Partitura::Export::Error) do
-      Partitura::Export::MusicXML.render(
-        "schema" => "old.transport",
-        "schema_version" => 3
-      )
-    end
-
-    assert_includes error.message, 'unsupported Partitura transport "old.transport" version 3'
   end
 
   def test_top_level_production_musicxml_helper_accepts_piece
@@ -208,8 +175,7 @@ REXML::XPath.match(document, "/score-partwise/part-list/score-part/part-name").m
   end
 
   def render_document(piece)
-    transport = Partitura.production_transport_hash(piece)
-    REXML::Document.new(Partitura::Export::MusicXML.render(transport))
+    REXML::Document.new(Partitura::Export::MusicXML.render(piece))
   end
 
   def text_at(document, path)

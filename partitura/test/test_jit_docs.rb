@@ -33,7 +33,7 @@ class JITDocsTest < Minitest::Test
 
     assert_equal :production, data[:topic]
     assert_includes data[:rules], "Use `production_piece` in source files loaded by `load_production_file`."
-    assert_includes data[:rules], "Use `production_export` for transport JSON, MusicXML, and MIDI."
+    assert_includes data[:rules], "Use `production_export` for MusicXML and MIDI."
     assert_includes data[:example], "production_piece"
     assert_includes data[:example], "meter do"
     assert_includes data[:example], "change \"4/4\", at: \"bar 9\""
@@ -73,13 +73,13 @@ class JITDocsTest < Minitest::Test
     assert_includes data[:docs], "docs/architecture/partitura/05_compile_api.md"
   end
 
-  def test_transport_export_topic_locks_runtime_export_commands
-    data = Partitura.help_data(:transport_export)
+  def test_export_topic_locks_runtime_export_commands
+    data = Partitura.help_data(:export)
 
-    assert_equal :transport_export, data[:topic]
-    assert_includes data[:rules], "Transport JSON is the canonical Ruby export handoff."
-    assert_includes data[:rules], "Use `production_export SOURCE.rb --stem STEM` when writing JSON, MusicXML, and MIDI."
-    assert_includes data[:example], "production_view"
+    assert_equal :export, data[:topic]
+    assert_includes data[:rules], "Exporters consume the compiled model directly; there is no serialized handoff."
+    assert_includes data[:rules], "Use `production_export SOURCE.rb --stem STEM` when writing MusicXML and MIDI."
+    assert_includes data[:example], "production_export"
     assert_includes data[:example], "production_export"
   end
 

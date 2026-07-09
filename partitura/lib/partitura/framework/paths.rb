@@ -30,8 +30,12 @@ module Partitura
         ensure_dir(MOVEMENT_OUTPUTS.join(stem.to_s))
       end
 
-      def transport_path(out_dir, stem)
-        Pathname.new(out_dir.to_s).join("#{stem}.partitura_transport.json")
+      def musicxml_path(out_dir, stem)
+        Pathname.new(out_dir.to_s).join("#{stem}.musicxml")
+      end
+
+      def midi_path(out_dir, stem)
+        Pathname.new(out_dir.to_s).join("#{stem}.mid")
       end
     end
   end

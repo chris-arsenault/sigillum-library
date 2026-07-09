@@ -52,17 +52,14 @@ module Partitura
         next_topics: %i[production harmony projections marks],
         docs: ["reference/written/procedures/partitura/dsl_composition/principles.md"]
       },
-      transport_export: {
-        use_when: "Export production DSL source to versioned transport JSON, MusicXML, and MIDI.",
+      export: {
+        use_when: "Export production DSL source to MusicXML and MIDI.",
         rules: [
-          "Transport JSON is the canonical Ruby export handoff.",
-          "The Ruby exporter consumes timed events and fills only silent gaps; it does not compose material.",
-          "Use `production_view SOURCE.rb transport` when inspecting the JSON without writing files.",
-          "Use `production_export SOURCE.rb --stem STEM` when writing JSON, MusicXML, and MIDI.",
-          "Use `--transport-only` when MusicXML/MIDI rendering is not needed."
+          "Exporters consume the compiled model directly; there is no serialized handoff.",
+          "The Ruby exporter fills only silent gaps; it does not compose material.",
+          "Use `production_export SOURCE.rb --stem STEM` when writing MusicXML and MIDI."
         ],
         example: <<~BASH.strip,
-            partitura/bin/production_view experiments/partitura/production_hybrid_study.rb transport
             partitura/bin/production_export experiments/partitura/production_hybrid_study.rb --stem production_hybrid_study
           BASH
         next_topics: %i[compile_api projections],
@@ -84,7 +81,7 @@ module Partitura
               "help_topic": "split_pitch_rhythm"
             }
           JSON
-        next_topics: %i[index decision projections transport_export],
+        next_topics: %i[index decision projections export],
         docs: ["docs/architecture/partitura/05_compile_api.md"]
       }
     }.freeze

@@ -53,14 +53,11 @@ class ProductionSurfaceExportCliTest < Minitest::Test
       _stdout, stderr, status = Open3.capture3(
         "ruby",
         File.expand_path("../bin/production_export", __dir__),
-        source,
-        out_dir,
-        "--transport-only"
+        source
       )
 
       refute status.success?
       assert_includes stderr, "duplicate_phrase_id"
-      refute File.exist?(File.join(out_dir, "bad_source.partitura_transport.json"))
     end
   end
 
@@ -80,7 +77,6 @@ class ProductionSurfaceExportCliTest < Minitest::Test
 
       assert status.success?, stderr
       result = JSON.parse(stdout)
-      assert File.exist?(result.fetch("transport"))
       assert File.exist?(result.fetch("musicxml"))
       assert File.exist?(result.fetch("midi"))
       assert_includes File.read(result.fetch("musicxml")), "<work-title>Ruby Backend Export</work-title>"

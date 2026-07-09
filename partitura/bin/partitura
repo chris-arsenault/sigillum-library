@@ -5,7 +5,7 @@
 #   compose    start | status | commit | next | back | log | abandon | runs
 #   author     compile | lint | view | help
 #   library    cards
-#   output     export | transport | build
+#   output     export | build
 
 require "json"
 require "optparse"
@@ -35,8 +35,7 @@ def usage
                  view SOURCE [view] [--part ID] [--bars A-B]
                  help [topic] [--json]
       library    cards <query terms> | cards show <ID> | cards terms
-      output     export SOURCE [--stem STEM] [--transport-only]
-                 transport SOURCE OUT_DIR [--stem STEM]
+      output     export SOURCE [--stem STEM]
                  build REGISTRY.rb [movement|all]
 
     Start here: `partitura help index`. Composing a piece end-to-end: `partitura start <dir>`.
@@ -141,47 +140,26 @@ when "compile", "lint"
 
 when "export"
   require_partitura
-  options = { stem: nil, transport_only: false }
-  OptionParser.new do |opts|
-    opts.on("--stem STEM") { |value| options[:stem] = value }
-    opts.on("--transport-only") { options[:transport_only] = true }
-  end.parse!
-  source = ARGV.shift or (warn "usage: partitura export SOURCE.rb [--stem STEM] [--transport-only]"; exit 2)
+  options = { stem: nil }
+  OptionParser.new { |opts| opts.on("--stem STEM") { |value| options[:stem] = value } }.parse!
+  source = ARGV.shift or (warn "usage: partitura export SOURCE.rb [--stem STEM]"; exit 2)
   stem = options[:stem] || File.basename(source, File.extname(source))
   repo_root = `git -C #{File.dirname(File.expand_path(source))} rev-parse --show-toplevel`.chomp
   source_rel = File.expand_path(source).delete_prefix("#{repo_root}/")
   out_dir = File.join(repo_root, "outputs", File.dirname(source_rel), stem)
   FileUtils.mkdir_p(out_dir)
   begin
-    transport = Partitura.production_transport_hash(Partitura.load_production_file(source))
+    piece = Partitura.load_production_file(source)
+    piece.validate!
+    File.write(File.join(out_dir, "#{stem}.musicxml"), Partitura.production_musicxml(piece))
+    File.binwrite(File.join(out_dir, "#{stem}.mid"), Partitura.production_midi(piece))
   rescue Partitura::Production::CompileError => e
     emit_error(e.response)
   end
-  emit_error(transport) if transport[:status] == "error"
-  transport_path = File.join(out_dir, "#{stem}.partitura_transport.json")
-  File.write(transport_path, JSON.pretty_generate(transport))
-  result = { transport: transport_path }
-  unless options[:transport_only]
-    File.write(File.join(out_dir, "#{stem}.musicxml"), Partitura.production_musicxml(transport))
-    File.binwrite(File.join(out_dir, "#{stem}.mid"), Partitura.production_midi(transport))
-    result[:musicxml] = File.join(out_dir, "#{stem}.musicxml")
-    result[:midi] = File.join(out_dir, "#{stem}.mid")
-  end
-  puts JSON.pretty_generate(result)
-
-when "transport"
-  require_relative "../lib/partitura/framework"
-  options = { stem: nil }
-  OptionParser.new { |opts| opts.on("--stem STEM") { |value| options[:stem] = value } }.parse!
-  source, out_dir = ARGV.shift(2)
-  (warn "usage: partitura transport SOURCE.rb OUT_DIR [--stem STEM]"; exit 2) unless source && out_dir
-  stem = options[:stem] || File.basename(source, File.extname(source))
-  begin
-    path = Partitura::Framework::Transport.write(source, out_dir, stem: stem)
-    puts JSON.pretty_generate(transport: path.to_s)
-  rescue Partitura::Production::CompileError => e
-    emit_error(e.response)
-  end
+  puts JSON.pretty_generate(
+    musicxml: File.join(out_dir, "#{stem}.musicxml"),
+    midi: File.join(out_dir, "#{stem}.mid")
+  )
 
 when "build"
   require_relative "../lib/partitura/framework"
@@ -189,7 +167,7 @@ when "build"
   movement = ARGV.shift || "all"
   begin
     registry = Partitura::Framework::Registry.load_file(registry_path)
-    puts JSON.pretty_generate(transports: registry.write_transport(movement).map(&:to_s))
+    puts JSON.pretty_generate(exports: registry.export(movement))
   rescue Partitura::Production::CompileError => e
     emit_error(e.response)
   end

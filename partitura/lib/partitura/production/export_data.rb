@@ -4,21 +4,20 @@ module Partitura
   module Production
     module_function
 
-    def transport_hash(piece)
+    # In-memory structured view of a compiled piece, consumed directly by the
+    # MusicXML/MIDI exporters and analysis. This is not a serialized format and
+    # has no schema: it is a private adapter between the model and the exporters.
+    def export_data(piece)
       piece.validate!
-      transport_header(piece).merge(
-        transport_timeline(piece),
-        transport_content(piece),
-        transport_projection(piece)
+      export_header(piece).merge(
+        export_timeline(piece),
+        export_content(piece),
+        export_projection(piece)
       )
-    rescue CompileError => e
-      e.response
     end
 
-    def transport_header(piece)
+    def export_header(piece)
       {
-        schema: "partitura.transport",
-        schema_version: 3,
         source_model: "production_hybrid",
         title: piece.title,
         meter: piece.meter_value,
@@ -27,41 +26,37 @@ module Partitura
       }
     end
 
-    def transport_timeline(piece)
+    def export_timeline(piece)
       {
-        meter_events: piece.meter_timeline.map { |event| transport_meter_event(piece, event) },
+        meter_events: piece.meter_timeline.map { |event| export_meter_event(piece, event) },
         key: piece.key_value,
-        key_changes: piece.key_changes.map { |kc| transport_key_change(piece, kc) },
+        key_changes: piece.key_changes.map { |kc| export_key_change(piece, kc) },
         tempo_marks: piece.tempo_marks,
-        tempo_events: piece.tempo_events.map { |event| transport_tempo_event(piece, event) },
-        anchors: piece.anchors.values.map { |anchor| transport_anchor(piece, anchor) },
-        controls: piece.controls.map { |control| transport_control(piece, control) },
+        tempo_events: piece.tempo_events.map { |event| export_tempo_event(piece, event) },
+        anchors: piece.anchors.values.map { |anchor| export_anchor(piece, anchor) },
+        controls: piece.controls.map { |control| export_control(piece, control) },
         total_duration_ql: rational_number(piece.total_duration)
       }
     end
 
-    def transport_content(piece)
+    def export_content(piece)
       {
-        parts: piece.parts.values.map { |part| transport_part(part) },
-        sections: piece.sections.map { |section| transport_section(section, piece) },
-        phrases: piece.phrases.values.map { |phrase| transport_phrase(phrase) },
-        placements: transport_placements(piece),
-        timed_events: piece.timed_events(include_rests: true).map { |event| transport_timed_event(piece, event) }
+        parts: piece.parts.values.map { |part| export_part(part) },
+        sections: piece.sections.map { |section| export_section(section, piece) },
+        phrases: piece.phrases.values.map { |phrase| export_phrase(phrase) },
+        placements: export_placements(piece),
+        timed_events: piece.timed_events(include_rests: true).map { |event| export_timed_event(piece, event) }
       }
     end
 
-    def transport_projection(piece)
+    def export_projection(piece)
       {
-        staff_bars: transport_staff_bars(piece),
-        gestures: transport_gestures(piece)
+        staff_bars: export_staff_bars(piece),
+        gestures: export_gestures(piece)
       }
     end
 
-    def transport_json(piece)
-      JSON.pretty_generate(transport_hash(piece))
-    end
-
-    def transport_part(part)
+        def export_part(part)
       {
         id: part.id.to_s,
         name: part.name,
@@ -74,7 +69,7 @@ module Partitura
       }.compact
     end
 
-    def transport_meter_event(piece, event)
+    def export_meter_event(piece, event)
       offset = piece.offset_for(event.bar, 1)
       {
         bar: event.bar,
@@ -86,37 +81,37 @@ module Partitura
       }.compact
     end
 
-    def transport_section(section, piece)
+    def export_section(section, piece)
       {
         id: section.id.to_s,
         name: section.name,
         type: section.type&.to_s,
-        bars: range_transport(section.bars),
+        bars: range_data(section.bars),
         start_offset_ql: rational_number(piece.offset_for(section.bars.begin, 1)),
         end_offset_ql: rational_number(piece.offset_for(section.bars.end + 1, 1)),
         journey: section.journey_texts,
         destination: section.destination_texts,
-        spans: section.spans.map { |span| transport_span(span, piece) },
-        gestures: section.gestures.map { |gesture| transport_gesture(gesture, section: section.id) }
+        spans: section.spans.map { |span| export_span(span, piece) },
+        gestures: section.gestures.map { |gesture| export_gesture(gesture, section: section.id) }
       }.compact
     end
 
-    def transport_span(span, piece)
+    def export_span(span, piece)
       {
-        bars: range_transport(span.bars),
+        bars: range_data(span.bars),
         start_offset_ql: rational_number(piece.offset_for(span.bars.begin, 1)),
         end_offset_ql: rational_number(piece.offset_for(span.bars.end + 1, 1)),
         texture: span.texture&.to_s,
         harmony: span.harmony_texts,
         process: span.process_texts,
         phrases: span.phrases.keys.map(&:to_s),
-        placements: span.placements.map { |placement| transport_placement(piece, placement) },
-        staff_bars: span.staff_bars.map { |bar| transport_staff_bar(bar) },
-        gestures: span.gestures.map { |gesture| transport_gesture(gesture) }
+        placements: span.placements.map { |placement| export_placement(piece, placement) },
+        staff_bars: span.staff_bars.map { |bar| export_staff_bar(bar) },
+        gestures: span.gestures.map { |gesture| export_gesture(gesture) }
       }.compact
     end
 
-    def transport_phrase(phrase)
+    def export_phrase(phrase)
       {
         id: phrase.id.to_s,
         surface: phrase.surface.to_s,
@@ -137,20 +132,20 @@ module Partitura
       }
     end
 
-    def transport_placements(piece)
+    def export_placements(piece)
       piece.sections.flat_map do |section|
         section.spans.flat_map do |span|
           span.placements.map do |placement|
-            transport_placement(piece, placement).merge(
+            export_placement(piece, placement).merge(
               section: section.id.to_s,
-              span_bars: range_transport(span.bars)
+              span_bars: range_data(span.bars)
             )
           end
         end
       end
     end
 
-    def transport_placement(piece, placement)
+    def export_placement(piece, placement)
       offset = piece.offset_for(placement.bar, placement.beat)
       {
         phrase_id: placement.phrase_id.to_s,
@@ -165,7 +160,7 @@ module Partitura
       }.compact
     end
 
-    def transport_timed_event(piece, event)
+    def export_timed_event(piece, event)
       {
         part: event.part.to_s,
         role: event.role.to_s,
@@ -186,7 +181,7 @@ module Partitura
       }.compact
     end
 
-    def transport_anchor(piece, anchor)
+    def export_anchor(piece, anchor)
       offset = piece.offset_for_reference(anchor.at)
       {
         id: anchor.id.to_s,
@@ -196,7 +191,7 @@ module Partitura
       }
     end
 
-    def transport_key_change(piece, kc)
+    def export_key_change(piece, kc)
       offset = piece.offset_for_reference(kc.at)
       {
         key: kc.key,
@@ -206,11 +201,11 @@ module Partitura
       }
     end
 
-    def transport_control(piece, control)
+    def export_control(piece, control)
       base = {
         kind: control.kind.to_s,
         value: control.value,
-        target: transport_target(control.target)
+        target: export_target(control.target)
       }.compact
       if control.at
         offset = piece.offset_for_reference(control.at)
@@ -233,7 +228,7 @@ module Partitura
       end
     end
 
-    def transport_tempo_event(piece, event)
+    def export_tempo_event(piece, event)
       base = {
         kind: event.kind.to_s,
         text: event.text,
@@ -260,7 +255,7 @@ module Partitura
       end
     end
 
-    def transport_target(target)
+    def export_target(target)
       case target
       when Array
         { type: "list", selectors: target.map(&:to_s) }
@@ -271,17 +266,17 @@ module Partitura
       end
     end
 
-    def transport_staff_bars(piece)
+    def export_staff_bars(piece)
       piece.sections.flat_map do |section|
         section.spans.flat_map do |span|
           span.staff_bars.map do |bar|
-            transport_staff_bar(bar).merge(section: section.id.to_s, span_bars: range_transport(span.bars))
+            export_staff_bar(bar).merge(section: section.id.to_s, span_bars: range_data(span.bars))
           end
         end
       end
     end
 
-    def transport_staff_bar(bar)
+    def export_staff_bar(bar)
       {
         number: bar.number,
         checks: bar.checks,
@@ -295,18 +290,18 @@ module Partitura
       }
     end
 
-    def transport_gestures(piece)
+    def export_gestures(piece)
       piece.sections.flat_map do |section|
-        section.gestures.map { |gesture| transport_gesture(gesture, section: section.id) } +
+        section.gestures.map { |gesture| export_gesture(gesture, section: section.id) } +
           section.spans.flat_map do |span|
             span.gestures.map do |gesture|
-              transport_gesture(gesture, section: section.id, span_bars: range_transport(span.bars))
+              export_gesture(gesture, section: section.id, span_bars: range_data(span.bars))
             end
           end
       end
     end
 
-    def transport_gesture(gesture, section: nil, span_bars: nil)
+    def export_gesture(gesture, section: nil, span_bars: nil)
       {
         id: gesture.id.to_s,
         section: section&.to_s,
@@ -323,7 +318,7 @@ module Partitura
       }.compact
     end
 
-    def range_transport(range)
+    def range_data(range)
       { first: range.begin, last: range.end }
     end
 

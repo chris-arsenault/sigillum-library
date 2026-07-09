@@ -14,7 +14,7 @@ module Partitura
           "Use `decision` before choosing a pitch/rhythm surface."
         ],
         example: "partitura_help production",
-        next_topics: %i[production decision container hybrid projections transport_export],
+        next_topics: %i[production decision container hybrid projections export],
         docs: ["docs/architecture/partitura/INDEX.md"]
       },
       production: {
@@ -30,7 +30,7 @@ module Partitura
           "Use `production_view` projections after authoring each passage.",
           "Check `production_view SOURCE.rb lint`: warn lints prompt a judgment; error lints block compile.",
           "Lint thresholds are configurable: `lint do rule :phrase_length, warn: 8, error: 24 end`.",
-          "Use `production_export` for transport JSON, MusicXML, and MIDI."
+          "Use `production_export` for MusicXML and MIDI."
         ],
         example: <<~RUBY.strip,
             production_piece "Study" do
@@ -64,7 +64,7 @@ module Partitura
               end
             end
           RUBY
-        next_topics: %i[decision degrees controls hybrid projections transport_export compile_api],
+        next_topics: %i[decision degrees controls hybrid projections export compile_api],
         docs: ["docs/architecture/partitura/01_container.md"]
       },
       decision: {
@@ -250,7 +250,7 @@ module Partitura
               pedal :down, at: "bar 9 beat 1", for: :keyboard
             end
           RUBY
-        next_topics: %i[marks absolute split_pitch_rhythm phrase_placement projections transport_export],
+        next_topics: %i[marks absolute split_pitch_rhythm phrase_placement projections export],
         docs: ["docs/architecture/partitura/surfaces/controls.md"]
       },
       staff_grid: {
@@ -344,7 +344,7 @@ module Partitura
             partitura/bin/production_view experiments/partitura/production_hybrid_study.rb melody_analysis --part clarinet
             partitura/bin/production_view experiments/partitura/production_hybrid_study.rb line --part clarinet
           BASH
-        next_topics: %i[hybrid staff_grid controls phrase_placement transport_export],
+        next_topics: %i[hybrid staff_grid controls phrase_placement export],
         docs: ["docs/architecture/partitura/04_examples_manifest.md"]
       }
     }.freeze

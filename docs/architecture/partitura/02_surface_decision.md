@@ -19,7 +19,8 @@ Use:
 | Motivic cell identity | `intervals + rhythm` | Shows contour and transformation. |
 | Long line revision | `split pitch/rhythm` | Lets pitch and rhythm be edited independently. |
 | Bass with register as orchestration | `absolute` pitch stream | Register is part of the musical object. |
-| Dense vertical moment | `staff_grid` | Shows simultaneity and collisions directly. |
+| Dense vertical source / ostinato | `texture` + `score` grid | Creates sounding vertical material directly. |
+| Dense vertical checkpoint | `staff_grid` | Verifies simultaneity and collisions after composition. |
 | Reusing/transformed material | `phrase_placement` | Shows what enters where. Must expose realization. |
 | Mixed orchestral passage | `hybrid` | Phrases carry line; staff checkpoints carry verticals. |
 
@@ -58,6 +59,7 @@ The production runtime supports:
 - `phrase ..., surface: :split_pitch_rhythm`
 - `phrase ..., surface: :absolute`
 - `placement ... do role ... realization ... end`
+- `texture ... do score grid: ...; line ... end`
 - `staff_bar ... do foreground "part: tokens" ... end`
 
 Inspect choices with:

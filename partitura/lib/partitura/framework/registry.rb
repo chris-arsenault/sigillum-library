@@ -25,8 +25,14 @@ module Partitura
         Paths.movement_dir(stem)
       end
 
-      def write_transport(base_dir: Paths::ROOT)
-        Transport.write(source_path(base_dir: base_dir), output_dir, stem: stem)
+      def export(base_dir: Paths::ROOT)
+        piece = Partitura.load_production_file(source_path(base_dir: base_dir))
+        piece.validate!
+        xml_path = Paths.musicxml_path(output_dir, stem)
+        midi_path = Paths.midi_path(output_dir, stem)
+        xml_path.write(Partitura.production_musicxml(piece))
+        midi_path.binwrite(Partitura.production_midi(piece))
+        { musicxml: xml_path, midi: midi_path }
       end
     end
 
@@ -48,9 +54,9 @@ module Partitura
           raise(KeyError, "unknown movement: #{value}")
       end
 
-      def write_transport(selection = "all")
+      def export(selection = "all")
         selected = selection.to_s == "all" ? @movements : [find(selection)]
-        selected.map { |movement| movement.write_transport(base_dir: @base_dir) }
+        selected.map { |movement| movement.export(base_dir: @base_dir) }
       end
 
       def self.load_file(path)

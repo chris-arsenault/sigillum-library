@@ -19,34 +19,11 @@ class MIDIExporterTest < Minitest::Test
     assert_includes midi.bytes, 0x80
   end
 
-  def test_rejects_unsupported_transport_schema
-    error = assert_raises(Partitura::Export::Error) do
-      Partitura::Export::MIDI.render(
-        "schema" => "partitura.transport",
-        "schema_version" => 2
-      )
-    end
-
-    assert_includes error.message, "unsupported Partitura transport"
-  end
-
-  def test_rejects_unsupported_event_pitch_inside_valid_transport
-    transport = Partitura.production_transport_hash(simple_piece)
-    transport.fetch(:timed_events).first[:pitches] = ["H4"]
-
-    error = assert_raises(Partitura::Export::Error) do
-      Partitura::Export::MIDI.render(transport)
-    end
-
-    assert_includes error.message, 'unsupported pitch "H4"'
-  end
-
-  def test_top_level_midi_helper_accepts_transport_hash
-    transport = Partitura.production_transport_hash(simple_piece)
-    midi = Partitura.production_midi(transport)
+  def test_export_renderer_accepts_piece_only
+    midi = Partitura::Export::MIDI.render(simple_piece)
 
     assert_equal "MThd", midi.byteslice(0, 4)
-    assert_equal transport.fetch(:parts).length + 1, midi.byteslice(10, 2).unpack1("n")
+    assert_equal simple_piece.parts.length + 1, midi.byteslice(10, 2).unpack1("n")
   end
 
   private

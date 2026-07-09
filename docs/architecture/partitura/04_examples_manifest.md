@@ -14,8 +14,8 @@ Purpose: executable production authoring surface. Proves the supported productio
 - staff checkpoints
 - mechanism-backed gesture prose
 - readouts: `phrases`, `timed_events`, `verticals`, `roles`, `line`, `harmony_with_melody`,
-  `material_map`, `gesture_map`, `transport`, `compile`
-- export: transport JSON, MusicXML, and MIDI through `production_export`
+  `material_map`, `gesture_map`, `compile`
+- export: MusicXML and MIDI through `production_export`
 
 Run:
 
@@ -56,7 +56,7 @@ production API.
 
 ```bash
 partitura/bin/production_view experiments/partitura/production_hybrid_study.rb structure
-partitura/bin/production_view experiments/partitura/production_hybrid_study.rb transport
+partitura/bin/production_view experiments/partitura/production_hybrid_study.rb compile
 partitura/bin/surface_view experiments/partitura/surface_lab/hybrid_phrase_staff_32.rb structure
 partitura/bin/surface_view experiments/partitura/surface_lab/staff_grid_32.rb bars
 partitura/bin/surface_view experiments/partitura/surface_lab/phrase_placement_32.rb placements

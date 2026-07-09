@@ -15,14 +15,14 @@ class ProductionSurfaceControlsExportTest < Minitest::Test
   def test_controls_anchors_and_tempo_timeline_export_with_offsets
     piece = control_surface_piece
 
-    transport = Partitura.production_transport_hash(piece)
-    chord = transport.fetch(:timed_events).find { |event| event.fetch(:event_type) == "chord" }
+    data = Partitura::Production.export_data(piece)
+    chord = data.fetch(:timed_events).find { |event| event.fetch(:event_type) == "chord" }
     assert_equal %w[C4 E4 G4], chord.fetch(:pitches)
     assert_equal %w[mf], chord.fetch(:local_marks)
-    assert_equal 1, transport.fetch(:anchors).length
-    assert_equal 3, transport.fetch(:controls).length
-    assert_equal 3, transport.fetch(:tempo_events).length
-    assert_equal 5.0, transport.fetch(:tempo_events).find { |event|
+    assert_equal 1, data.fetch(:anchors).length
+    assert_equal 3, data.fetch(:controls).length
+    assert_equal 3, data.fetch(:tempo_events).length
+    assert_equal 5.0, data.fetch(:tempo_events).find { |event|
  event.fetch(:kind) == "ritardando" }.fetch(:to_offset_ql)
 
     controls = Partitura.production_readout(piece, :controls)
@@ -56,7 +56,7 @@ class ProductionSurfaceControlsExportTest < Minitest::Test
       end
     end
 
-    parts = Partitura.production_transport_hash(piece).fetch(:parts)
+    parts = Partitura::Production.export_data(piece).fetch(:parts)
     assert_equal "piano", parts[0].fetch(:notation_group)
     assert_equal "Piano", parts[0].fetch(:music21_instrument)
     assert_equal "1", parts[0].fetch(:notation_staff)
@@ -75,18 +75,18 @@ class ProductionSurfaceControlsExportTest < Minitest::Test
     assert_includes error.response.fetch(:repair_instruction), "music21"
   end
 
-  def test_meter_and_tempo_changes_affect_offsets_and_transport
+  def test_meter_and_tempo_changes_affect_offsets_and_data
     piece = meter_changes_piece
 
     assert_equal 11.0, Partitura::Production.rational_number(piece.offset_for(4, 1))
     assert_equal "b4:1", piece.format_offset(piece.offset_for(4, 1))
 
-    transport = Partitura.production_transport_hash(piece)
-    assert_equal 16.5, transport.fetch(:total_duration_ql)
-    assert_equal(["4/4", "3/4", "5/8"], transport.fetch(:meter_events).map { |event| event.fetch(:meter) })
-    assert_equal([0.0, 8.0, 14.0], transport.fetch(:meter_events).map { |event| event.fetch(:offset_ql) })
-    assert_equal([0.0, 8.0], transport.fetch(:tempo_events).map { |event| event.fetch(:offset_ql) })
-    assert_equal 11.0, transport.fetch(:timed_events).find { |event|
+    data = Partitura::Production.export_data(piece)
+    assert_equal 16.5, data.fetch(:total_duration_ql)
+    assert_equal(["4/4", "3/4", "5/8"], data.fetch(:meter_events).map { |event| event.fetch(:meter) })
+    assert_equal([0.0, 8.0, 14.0], data.fetch(:meter_events).map { |event| event.fetch(:offset_ql) })
+    assert_equal([0.0, 8.0], data.fetch(:tempo_events).map { |event| event.fetch(:offset_ql) })
+    assert_equal 11.0, data.fetch(:timed_events).find { |event|
  event.fetch(:phrase_id) == "call" }.fetch(:offset_ql)
 
     controls = Partitura.production_readout(piece, :controls)

@@ -56,7 +56,7 @@ module Partitura
 
       def section(id, name, bars:, type: nil, &block)
         section = Section.new(id: id, name: name, bars: bars, type: type)
-        SectionBuilder.new(section, default_key: @piece.key_value).build(&block)
+        SectionBuilder.new(@piece, section, default_key: @piece.key_value).build(&block)
         @piece.add_section(section)
       end
     end

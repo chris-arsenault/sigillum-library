@@ -15,8 +15,8 @@ module Partitura
           lines.join("\n")
         end
 
-        def transport_metrics
-          TransportMetrics.for_piece(@piece).render
+        def metrics
+          Metrics.for_piece(@piece).render
         end
 
         def melody_analysis(part: nil, bars: nil)

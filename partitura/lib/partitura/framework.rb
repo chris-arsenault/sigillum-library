@@ -2,7 +2,6 @@
 
 require_relative "../partitura"
 require_relative "framework/paths"
-require_relative "framework/transport"
 require_relative "framework/registry"
 require_relative "framework/audit"
 

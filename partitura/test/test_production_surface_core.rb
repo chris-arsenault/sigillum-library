@@ -39,7 +39,7 @@ class ProductionSurfaceCoreTest < Minitest::Test
     assert_includes compile.fetch(:available_projections), "controls"
     assert_includes compile.fetch(:secondary_declared_intent_projections), "gesture_map"
     assert_includes compile.fetch(:secondary_declared_intent_projections), "harmony_with_melody"
-    assert_includes compile.fetch(:available_exports), "transport_json"
+    assert_equal %w[musicxml midi], compile.fetch(:available_exports)
     assert_includes compile.fetch(:available_exports), "musicxml"
   end
 

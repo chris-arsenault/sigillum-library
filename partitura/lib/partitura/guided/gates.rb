@@ -91,7 +91,7 @@ module Partitura
       end
 
       # Mirrors production_export's output derivation: outputs/<source-dir-rel>/<stem>/
-      # under the source's git root. Requires the transport JSON to exist and be newer
+      # under the source's git root. Requires the MusicXML export to exist and be newer
       # than the source.
       def export_current(run)
         gate = "export_current"
@@ -99,23 +99,23 @@ module Partitura
         return Result.new(gate: gate, ok: false, detail: "no source registered; rerun with --source PATH") unless
           source && File.exist?(source)
 
-        transport = export_transport_path(source)
+        export_path = export_musicxml_path(source)
         return Result.new(gate: gate, ok: false,
-                          detail: "no export found at #{transport}; run `partitura export #{source}`") unless
-          File.exist?(transport)
+                          detail: "no export found at #{export_path}; run `partitura export #{source}`") unless
+          File.exist?(export_path)
 
-        ok = File.mtime(transport) >= File.mtime(source)
+        ok = File.mtime(export_path) >= File.mtime(source)
         Result.new(gate: gate, ok: ok,
-                   detail: ok ? nil : "export at #{transport} is older than the source; re-export")
+                   detail: ok ? nil : "export at #{export_path} is older than the source; re-export")
       end
 
-      def export_transport_path(source)
+      def export_musicxml_path(source)
         source_abs = File.expand_path(source)
         repo_root = `git -C #{File.dirname(source_abs)} rev-parse --show-toplevel 2>/dev/null`.chomp
         repo_root = File.dirname(source_abs) if repo_root.empty?
         stem = File.basename(source_abs, File.extname(source_abs))
         source_rel = source_abs.delete_prefix("#{repo_root}/")
-        File.join(repo_root, "outputs", File.dirname(source_rel), stem, "#{stem}.partitura_transport.json")
+        File.join(repo_root, "outputs", File.dirname(source_rel), stem, "#{stem}.musicxml")
       end
 
       def min_units(run, stage, argument)

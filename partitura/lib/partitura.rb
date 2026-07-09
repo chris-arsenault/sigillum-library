@@ -58,20 +58,8 @@ module Partitura
     Production.readout(piece, view, **options)
   end
 
-  def production_transport_hash(piece)
-    Production.transport_hash(piece)
-  end
-
-  def production_transport_json(piece)
-    Production.transport_json(piece)
-  end
-
-  def production_transport_metrics(piece_or_transport)
-    if piece_or_transport.is_a?(Hash)
-      Production::TransportMetrics.new(piece_or_transport).to_h
-    else
-      Production::TransportMetrics.for_piece(piece_or_transport).to_h
-    end
+  def production_metrics(piece)
+    Production::Metrics.for_piece(piece).to_h
   end
 
   def production_melody_analysis(piece, **options)
@@ -86,13 +74,11 @@ module Partitura
     Production::MusicXMLImport.verify(hand_path, export_path, **options)
   end
 
-  def production_musicxml(piece_or_transport)
-    transport = piece_or_transport.is_a?(Hash) ? piece_or_transport : production_transport_hash(piece_or_transport)
-    Export::MusicXML.render(transport)
+  def production_musicxml(piece)
+    Export::MusicXML.render(piece)
   end
 
-  def production_midi(piece_or_transport)
-    transport = piece_or_transport.is_a?(Hash) ? piece_or_transport : production_transport_hash(piece_or_transport)
-    Export::MIDI.render(transport)
+  def production_midi(piece)
+    Export::MIDI.render(piece)
   end
 end

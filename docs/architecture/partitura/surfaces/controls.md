@@ -53,5 +53,5 @@ end
 
 ## Projection Needed
 
-Use `controls` to inspect anchors, tempo events, and scoped controls. Use `transport` before export
+Use `controls` to inspect anchors, tempo events, and scoped controls. Use `compile` before export
 when checking exact offsets and target selectors.

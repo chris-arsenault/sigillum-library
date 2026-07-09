@@ -8,8 +8,6 @@ module Partitura
   module Export
     module MIDI
       DIVISIONS = 10_080
-      SCHEMA = "partitura.transport"
-      SUPPORTED_SCHEMA_VERSION = 3
 
       PROGRAMS = {
         "BassClarinet" => 71,
@@ -43,8 +41,8 @@ module Partitura
 
       module_function
 
-      def render(transport_hash)
-        Renderer.new(transport_hash).render
+      def render(piece)
+        Renderer.new(piece).render
       end
 
       def parity_ready?
@@ -56,9 +54,8 @@ module Partitura
         include Tracks
         include Values
 
-        def initialize(transport_hash)
-          @data = deep_stringify(transport_hash)
-          validate!
+        def initialize(piece)
+          @data = deep_stringify(Production.export_data(piece))
         end
 
         def render
@@ -67,16 +64,6 @@ module Partitura
           tracks << notes_track while tracks.length < desired_track_count
           header = "MThd".b + [6, 1, tracks.length, DIVISIONS].pack("Nnnn")
           header + tracks.join.b
-        end
-
-        private
-
-        def validate!
-          schema = @data["schema"]
-          version = @data["schema_version"]
-          return if schema == SCHEMA && version == SUPPORTED_SCHEMA_VERSION
-
-          raise Error, "unsupported Partitura transport #{schema.inspect} version #{version.inspect}"
         end
       end
     end

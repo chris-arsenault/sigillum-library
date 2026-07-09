@@ -24,8 +24,8 @@ class ProductionSurfaceHarpControlsTest < Minitest::Test
       end
     end
 
-    transport = Partitura.production_transport_hash(piece)
-    pedal_controls = transport.fetch(:controls).select { |control| control.fetch(:kind) == "harp_pedals" }
+    data = Partitura::Production.export_data(piece)
+    pedal_controls = data.fetch(:controls).select { |control| control.fetch(:kind) == "harp_pedals" }
     assert_equal(["D,C,B,E,F,G,A", "D#,C#,B#,E#,F#,G#,A#"], pedal_controls.map { |control| control.fetch(:value) })
     assert_equal([0.0, 4.0], pedal_controls.map { |control| control.fetch(:offset_ql) })
   end

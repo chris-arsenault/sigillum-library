@@ -17,8 +17,8 @@ module Partitura
           secondary_declared_intent_projections: secondary_projection_names,
           projection_note: "available_projections are SOUNDING (note-derived) and primary; " \
                            "secondary views read authored assertions and only verify them against the music",
-          available_exports: %w[transport_json musicxml midi],
-          next_help_topics: %w[projections hybrid controls transport_export],
+          available_exports: %w[musicxml midi],
+          next_help_topics: %w[projections hybrid controls],
           docs: ["docs/architecture/partitura/INDEX.md"]
         }
       rescue CompileError => e
@@ -49,7 +49,7 @@ module Partitura
           adjacency_profile recurrence_map peak_axes rhythm_profile articulation_map
           breath_map implied_harmony harmony_check ensemble_grid exposed_clashes composite_stalls
           bar_profile figure_timeline range_check bar_probe line verticals grid timed_events controls
-          lint transport transport_metrics melody_analysis melody_report
+          lint metrics melody_analysis melody_report
         ]
       end
 

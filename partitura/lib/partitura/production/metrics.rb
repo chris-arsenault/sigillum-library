@@ -2,18 +2,18 @@
 
 module Partitura
   module Production
-    class TransportMetrics
+    class Metrics
       attr_reader :name, :category, :surfaces, :parts
 
       def self.for_piece(piece)
-        new(Production.transport_hash(piece))
+        new(Production.export_data(piece))
       end
 
       def self.for_manifest_entry(entry, root:)
         path = File.expand_path(fetch_value(entry, :path), root)
         piece = Production.load_file(path)
         new(
-          Production.transport_hash(piece),
+          Production.export_data(piece),
           name: fetch_value(entry, :name),
           category: fetch_value(entry, :category),
           surfaces: Array(fetch_value(entry, :parts)).filter_map { |part|
@@ -21,9 +21,9 @@ module Partitura
         )
       end
 
-      def initialize(transport, name: nil, category: nil, surfaces: nil)
-        @transport = transport
-        @name = name || fetch_value(transport, :title)
+      def initialize(data, name: nil, category: nil, surfaces: nil)
+        @data = data
+        @name = name || fetch_value(data, :title)
         @category = category
         @surfaces = Array(surfaces).map(&:to_s).sort
         @parts = build_part_stats
@@ -39,7 +39,7 @@ module Partitura
       end
 
       def render
-        header = "# Transport Metrics"
+        header = "# Model Metrics"
         header += " #{category}/#{name}" if category
         header += " #{name}" unless category
         header += " surfaces=#{surfaces.join(',')}" unless surfaces.empty?
@@ -93,7 +93,7 @@ module Partitura
       end
 
       def sounding_events
-        Array(fetch_value(@transport, :timed_events)).reject { |event| fetch_value(event, :rest, required: false) }
+        Array(fetch_value(@data, :timed_events)).reject { |event| fetch_value(event, :rest, required: false) }
       end
 
       def quantized_quarter(value)

@@ -2,45 +2,43 @@
 
 require_relative "support/production_surface_helpers"
 
-class ProductionSurfaceTransportAnalysisTest < Minitest::Test
+class ProductionSurfaceModelAnalysisTest < Minitest::Test
   include ProductionSurfaceHelpers
 
-  def test_transport_hash_is_versioned_and_backend_ready
+  def test_model_export_data_is_backend_ready
     piece = load_piece
-    transport = Partitura.production_transport_hash(piece)
+    data = Partitura::Production.export_data(piece)
 
-    assert_transport_header(transport)
-    assert_transport_parts(transport)
-    assert_transport_events(transport)
+    assert_model_data_header(data)
+    assert_model_data_parts(data)
+    assert_model_data_events(data)
   end
 
-  def assert_transport_header(transport)
-    assert_equal "partitura.transport", transport.fetch(:schema)
-    assert_equal 3, transport.fetch(:schema_version)
-    assert_equal "Production Hybrid Surface Study", transport.fetch(:title)
-    assert_equal "7/8", transport.fetch(:meter)
-    assert_equal 28.0, transport.fetch(:total_duration_ql)
+  def assert_model_data_header(data)
+    assert_equal "Production Hybrid Surface Study", data.fetch(:title)
+    assert_equal "7/8", data.fetch(:meter)
+    assert_equal 28.0, data.fetch(:total_duration_ql)
   end
 
-  def assert_transport_parts(transport)
-    assert_equal(%w[clarinet solo_violin cello hand_drum], transport.fetch(:parts).map { |part| part.fetch(:id) })
-    assert_equal(%w[Clarinet Violin Violoncello Percussion], transport.fetch(:parts).map { |part|
+  def assert_model_data_parts(data)
+    assert_equal(%w[clarinet solo_violin cello hand_drum], data.fetch(:parts).map { |part| part.fetch(:id) })
+    assert_equal(%w[Clarinet Violin Violoncello Percussion], data.fetch(:parts).map { |part|
  part.fetch(:music21_instrument) })
   end
 
-  def assert_transport_events(transport)
-    assert_includes transport.fetch(:phrases).map { |phrase| phrase.fetch(:id) }, "plain_call"
-    assert(transport.fetch(:timed_events).any? { |event|
+  def assert_model_data_events(data)
+    assert_includes data.fetch(:phrases).map { |phrase| phrase.fetch(:id) }, "plain_call"
+    assert(data.fetch(:timed_events).any? { |event|
  event.fetch(:offset_label) == "b1:1" && event.fetch(:pitch) == "C5" })
-    assert(transport.fetch(:timed_events).all? { |event|
+    assert(data.fetch(:timed_events).all? { |event|
  event.key?(:event_type) && event.key?(:pitches) && event.key?(:pitch_label) })
-    assert_equal "not_prose_only", transport.fetch(:gestures).first.fetch(:id)
+    assert_equal "not_prose_only", data.fetch(:gestures).first.fetch(:id)
   end
 
-  def test_transport_metrics_replace_card_metrics_script_as_dsl_model
-    piece = transport_metrics_piece
+  def test_model_metrics_replace_card_metrics_script_as_dsl_model
+    piece = metrics_piece
 
-    metrics = Partitura.production_transport_metrics(piece)
+    metrics = Partitura.production_metrics(piece)
     assert_equal "Metric model", metrics.fetch(:name)
     assert_equal(
       { attacks: 3, onset_vocab: 3, duration_vocab: 2, pitch_vocab: 2 },
@@ -51,10 +49,10 @@ class ProductionSurfaceTransportAnalysisTest < Minitest::Test
       metrics.fetch(:parts).fetch("cello")
     )
 
-    readout = Partitura.production_readout(piece, :transport_metrics)
-    assert_includes readout, "# Transport Metrics Metric model"
+    readout = Partitura.production_readout(piece, :metrics)
+    assert_includes readout, "# Model Metrics Metric model"
     assert_includes readout, "flute                attacks   3 onsets  3 durations  2 pitches   2"
-    assert_includes piece.compile_response.fetch(:available_projections), "transport_metrics"
+    assert_includes piece.compile_response.fetch(:available_projections), "metrics"
   end
 
   def test_melody_analysis_replaces_python_analysis_scripts_as_dsl_model
@@ -123,7 +121,7 @@ class ProductionSurfaceTransportAnalysisTest < Minitest::Test
 
   private
 
-  def transport_metrics_piece
+  def metrics_piece
     Partitura::Production.piece("Metric model") do
       meter "4/4"; key "C"
       roster {

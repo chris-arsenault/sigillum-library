@@ -15,7 +15,6 @@ partitura/bin/production_view experiments/partitura/production_hybrid_study.rb h
 partitura/bin/production_view experiments/partitura/production_hybrid_study.rb verticals --bars 1-4
 partitura/bin/production_view experiments/partitura/production_hybrid_study.rb line --part clarinet
 partitura/bin/production_export experiments/partitura/production_hybrid_study.rb --stem production_hybrid_study
-partitura/bin/partitura_transport experiments/partitura/production_hybrid_study.rb outputs/partitura --stem production_hybrid_study
 ```
 
 Production entry points:
@@ -23,13 +22,11 @@ Production entry points:
 - source file top-level: `production_piece "Title" do ... end`
 - Ruby load API: `Partitura.load_production_file(path)`
 - Ruby readout API: `Partitura.production_readout(piece, :verticals, bars: 1..4)`
-- Ruby transport API: `Partitura.production_transport_hash(piece)`
 - CLI readouts: `structure`, `roles`, `phrases`, `placements`, `timed_events`, `verticals`,
   `staff_bars`, `foreground`, `bass_path`, `line`, `harmony`, `harmony_with_melody`,
   `harmony_check`, `range_check`, `lint`, `controls`, `material_map`, `gesture_map`,
-  `transport`, `compile` (run `production_view` with no arguments for the full view list)
+  `compile` (run `production_view` with no arguments for the full view list)
 - CLI export: `production_export SOURCE.rb --stem STEM`
-- Ruby framework transport build: `partitura_transport SOURCE.rb OUT_DIR --stem STEM`
 - Ruby framework registry build: `partitura_build REGISTRY.rb [movement|all]`
 
 ## Read Order
@@ -49,7 +46,7 @@ Production entry points:
 - `02_surface_decision.md` - how to choose the local notation surface.
 - `03_jit_docs_api.md` - JIT documentation call/response contract.
 - `04_examples_manifest.md` - executable examples and what each proves.
-- `05_compile_api.md` - implemented LLM-native compiler, transport, and export contract.
+- `05_compile_api.md` - implemented LLM-native compiler and export contract.
 - `06_ruby_framework.md` - Ruby build/audit layer and Python writer boundary.
 - `07_hand_edit_import.md` - importing hand-edited MusicXML back into DSL
   source with `Production::MusicXMLImport` (convert + zero-diff verify gate).
@@ -75,7 +72,8 @@ partitura/bin/partitura commit --notes -
 - `surfaces/intervals.md` - anchor plus relative intervals.
 - `surfaces/split_pitch_rhythm.md` - independent pitch and rhythm streams.
 - `surfaces/absolute.md` - absolute pitch stream plus rhythm.
-- `surfaces/staff_grid.md` - bar-local vertical/staff-grid lanes.
+- `surfaces/staff_grid.md` - bar-local verified vertical/staff-grid checkpoints.
+- `surfaces/texture.md` - sounding texture container plus vertical score grid.
 - `surfaces/phrase_placement.md` - phrase definitions placed into bar/beat locations.
 - `surfaces/controls.md` - anchors, dynamics, hairpins, pedals, text, and tempo timeline.
 - `surfaces/hybrid.md` - recommended default: phrase layer plus staff checkpoints.
@@ -92,7 +90,7 @@ partitura/bin/partitura cards <term>       # technique-card search
 ```
 
 The old per-command bins (`partitura_help`, `production_view`, `production_export`,
-`partitura_transport`, `partitura_build`) remain as shims. The help response is
+`partitura_build`) remain as shims. The help response is
 intentionally short and names the next topics to request.
 
 ## Exploratory Material

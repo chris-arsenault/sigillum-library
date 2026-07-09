@@ -80,14 +80,11 @@ class ProductionSurfaceValidationErrorsTest < Minitest::Test
     assert_includes response.fetch(:docs), "docs/architecture/partitura/surfaces/phrase_placement.md"
   end
 
-  def test_transport_readout_returns_json
+  def test_metrics_readout_returns_model_metrics
     piece = load_piece
-    parsed = JSON.parse(Partitura.production_readout(piece, :transport))
+    readout = Partitura.production_readout(piece, :metrics)
 
-    assert_equal "partitura.transport", parsed.fetch("schema")
-    assert_equal "production_hybrid", parsed.fetch("source_model")
-    assert_equal "C5", parsed.fetch("timed_events").find { |event|
- event.fetch("offset_label") == "b1:1" && event.fetch("part") == "clarinet" }.fetch("pitch")
+    assert_includes readout, "# Model Metrics"
   end
 
   def test_mismatched_streams_return_structured_repair_data

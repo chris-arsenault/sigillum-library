@@ -6,14 +6,6 @@ module Partitura
       module ScoreStructure
         private
 
-        def validate!
-          schema = @data["schema"]
-          version = @data["schema_version"]
-          return if schema == SCHEMA && version == SUPPORTED_SCHEMA_VERSION
-
-          raise Error, "unsupported Partitura transport #{schema.inspect} version #{version.inspect}"
-        end
-
         def render_header(xml)
           xml.open("work")
           xml.element("work-title", title)

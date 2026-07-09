@@ -9,23 +9,7 @@ $LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
 require "partitura/framework"
 
 class FrameworkTest < Minitest::Test
-  def test_transport_writer_stops_at_json_transport
-    Dir.mktmpdir do |dir|
-      source = File.join(dir, "writer_source.rb")
-      out_dir = File.join(dir, "out")
-      File.write(source, simple_source("Transport Writer"))
-
-      path = Partitura::Framework::Transport.write(source, out_dir, stem: "writer")
-      parsed = JSON.parse(File.read(path))
-
-      assert_equal "partitura.transport", parsed.fetch("schema")
-      assert File.exist?(File.join(out_dir, "writer.partitura_transport.json"))
-      refute File.exist?(File.join(out_dir, "writer.musicxml"))
-      refute File.exist?(File.join(out_dir, "writer.mid"))
-    end
-  end
-
-  def test_registry_builds_selected_movement_transport
+  def test_registry_builds_selected_movement_exports
     movement_output_dir = Partitura::Framework::Paths::MOVEMENT_OUTPUTS.join("mvt1_registry")
     FileUtils.rm_rf(movement_output_dir)
 
@@ -43,11 +27,11 @@ class FrameworkTest < Minitest::Test
           status: :draft
       RUBY
 
-      paths = Partitura::Framework::Registry.load_file(registry).write_transport(:mvt1)
+      exports = Partitura::Framework::Registry.load_file(registry).export(:mvt1)
 
-      assert_equal [movement_output_dir.join("mvt1_registry.partitura_transport.json")], paths
-      assert File.exist?(paths.first)
-      assert_equal "Registry Movement", JSON.parse(File.read(paths.first)).fetch("title")
+      assert File.exist?(exports.first.fetch(:musicxml))
+      assert File.exist?(exports.first.fetch(:midi))
+      assert_includes File.read(exports.first.fetch(:musicxml)), "Registry Movement"
     end
   ensure
     FileUtils.rm_rf(movement_output_dir)
@@ -65,7 +49,7 @@ class FrameworkTest < Minitest::Test
       status: :draft
     )
 
-    error = assert_raises(KeyError) { registry.write_transport(:missing) }
+    error = assert_raises(KeyError) { registry.export(:missing) }
     assert_includes error.message, "unknown movement: missing"
   end
 
@@ -77,20 +61,20 @@ class FrameworkTest < Minitest::Test
     assert_equal Pathname.new("/tmp/source.rb"), absolute.source_path(base_dir: "/ignored")
   end
 
-  def test_transport_hash_for_raises_structured_compile_error_for_invalid_piece
-    bad_piece = Partitura::Production.piece("Bad transport") do
+  def test_export_raises_structured_compile_error_for_invalid_piece
+    bad_piece = Partitura::Production.piece("Bad export") do
       control { dynamic :mf, at: "bar 1 beat 1", for: :all }
     end
 
     error = assert_raises(Partitura::Production::CompileError) do
-      Partitura::Framework::Transport.hash_for(bad_piece)
+      Partitura.production_musicxml(bad_piece)
     end
 
     assert_equal "unknown_control_target", error.response.fetch(:code)
     assert_includes error.response.fetch(:repair_instruction), "existing part"
   end
 
-  def test_dynamic_tempo_audit_reads_transport_facts
+  def test_dynamic_tempo_audit_reads_model_facts
     piece = dynamic_tempo_audit_piece
 
     findings = Partitura::Framework::Audit.dynamic_tempo(piece)
@@ -102,7 +86,7 @@ class FrameworkTest < Minitest::Test
     assert_empty findings.fetch("unresolved_tempo")
     refute(findings.fetch("missing_entrances").any? { |entry| entry.fetch("part") == "cello" })
     assert(findings.fetch("missing_entrances").any? { |entry| entry.fetch("part") == "flute" })
-    assert_includes formatted, "## Dynamics + tempo audit (Ruby transport-measured)"
+    assert_includes formatted, "## Dynamics + tempo audit (Ruby model-measured)"
   end
 
   private

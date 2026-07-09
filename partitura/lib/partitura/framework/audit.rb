@@ -8,9 +8,9 @@ module Partitura
       DYNAMIC_MARKS = %w[ppp pp p mp mf f ff fff sf sfz fp].freeze
       TEMPO_MOTION_KINDS = %w[ritardando accelerando].freeze
 
-      def dynamic_tempo(source_or_transport)
-        transport = source_or_transport.is_a?(Hash) ? source_or_transport : Transport.hash_for(source_or_transport)
-        context = dynamic_audit_context(transport)
+      def dynamic_tempo(source_or_data)
+        data = source_or_data.is_a?(Hash) ? source_or_data : Production.export_data(piece_from(source_or_data))
+        context = dynamic_audit_context(data)
         motions = tempo_motion_events(context.fetch(:tempo_events))
         atempos = atempo_events(context.fetch(:tempo_events))
 
@@ -20,12 +20,12 @@ module Partitura
           "decels" => motions.map { |event| tempo_finding(event) },
           "atempos" => atempos.map { |event| tempo_finding(event) },
           "unresolved_tempo" => unresolved_tempo(motions, atempos),
-          "total_bars" => total_bars(transport)
+          "total_bars" => total_bars(data)
         }
       end
 
       def format_dynamic_tempo(findings)
-        lines = ["## Dynamics + tempo audit (Ruby transport-measured)", ""]
+        lines = ["## Dynamics + tempo audit (Ruby model-measured)", ""]
         lines << "Dynamics: #{histogram_text(findings.fetch('hist', {}))}"
         lines << "Missing entrances: #{missing_entrance_text(findings)}"
         lines << "Tempo motion: #{finding_labels(findings.fetch('decels'))}"
@@ -35,23 +35,30 @@ module Partitura
         lines.join("\n")
       end
 
-      def dynamic_audit_context(transport)
-        dynamic_controls = dynamic_controls_for(transport)
+
+      def piece_from(source_or_piece)
+        return source_or_piece if source_or_piece.respond_to?(:compile_response)
+
+        Partitura.load_production_file(source_or_piece)
+      end
+
+      def dynamic_audit_context(data)
+        dynamic_controls = dynamic_controls_for(data)
         {
-          parts: part_index(transport),
-          timed_events: sorted_timed_events(transport),
-          tempo_events: array_value(transport, :tempo_events),
+          parts: part_index(data),
+          timed_events: sorted_timed_events(data),
+          tempo_events: array_value(data, :tempo_events),
           dynamic_controls: dynamic_controls,
           hist: dynamic_histogram(dynamic_controls)
         }
       end
 
-      def dynamic_controls_for(transport)
-        array_value(transport, :controls).select { |control| value(control, :kind).to_s == "dynamic" }
+      def dynamic_controls_for(data)
+        array_value(data, :controls).select { |control| value(control, :kind).to_s == "dynamic" }
       end
 
-      def sorted_timed_events(transport)
-        array_value(transport, :timed_events).sort_by { |event| number_value(event, :offset_ql) }
+      def sorted_timed_events(data)
+        array_value(data, :timed_events).sort_by { |event| number_value(event, :offset_ql) }
       end
 
       def dynamic_histogram(dynamic_controls)
@@ -208,18 +215,18 @@ module Partitura
           value(event, :from)
       end
 
-      def part_index(transport)
-        array_value(transport, :parts).to_h { |part| [value(part, :id).to_s, part] }
+      def part_index(data)
+        array_value(data, :parts).to_h { |part| [value(part, :id).to_s, part] }
       end
 
-      def total_bars(transport)
-        sections = array_value(transport, :sections)
+      def total_bars(data)
+        sections = array_value(data, :sections)
         return sections.map { |section| value(value(section, :bars), :last).to_i }.max if sections.any?
 
-        bar_length = number_value(transport, :bar_length_ql)
+        bar_length = number_value(data, :bar_length_ql)
         return 0 if bar_length.zero?
 
-        (number_value(transport, :total_duration_ql) / bar_length).ceil
+        (number_value(data, :total_duration_ql) / bar_length).ceil
       end
 
       def control_offset(control)

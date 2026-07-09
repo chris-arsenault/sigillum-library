@@ -92,7 +92,7 @@ usage: partitura <command> [args]
   compose    start | status | commit | next | back | log | abandon | runs
   author     compile | lint | view | help
   library    cards <query> | cards show <ID>
-  output     export | transport | build
+  output     export | build
 ```
 
 Verb map:
@@ -103,8 +103,7 @@ Verb map:
 | `partitura view SOURCE [view] [--bars A-B] [--part id]` | `production_view` | bare/unknown view lists all views (primary + secondary, matching the compile response) |
 | `partitura compile SOURCE` | `production_view SOURCE compile` | promoted to a verb; response includes `lints:` |
 | `partitura lint SOURCE [--json]` | (new) | lint pass alone; see review Area 1 |
-| `partitura export SOURCE [--stem S] [--transport-only]` | `production_export` | |
-| `partitura transport SOURCE OUT [--stem S]` | `partitura_transport` | |
+| `partitura export SOURCE [--stem S]` | `production_export` | |
 | `partitura build REGISTRY [movement\|all]` | `partitura_build` | |
 | `partitura cards QUERY` / `cards show ID` | `ruby tools/lib.rb` | with the Area-5 search fixes (facet-keyword routing, substring over ids/behavior text, ranked shortlist) |
 | `partitura start/status/commit/...` | (new) | Part B |
