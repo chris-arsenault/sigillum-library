@@ -117,7 +117,57 @@ module Partitura
         def timed_events_for(part_id)
           Array(@data["timed_events"]).select { |event| event["part"] == part_id }.sort_by do |event|
             [rational(event.fetch("offset_ql")), rational(event.fetch("duration_ql"))]
+          end.then { |events| coalesce_authored_ties(events) }
+        end
+
+        # Authored ties (`tie(` / `tie)`) split one sustained note into tied
+        # noteheads for notation. MIDI must play them as a single held note, so
+        # tie chains are merged back into the head event's duration.
+        def coalesce_authored_ties(events)
+          consumed = {}
+          events.each_with_index.filter_map do |event, index|
+            next if consumed[index]
+            next event unless authored_tie_start?(event)
+
+            coalesce_tie_chain(events, index, consumed)
           end
+        end
+
+        def coalesce_tie_chain(events, index, consumed)
+          head = events[index]
+          total = rational(head.fetch("duration_ql"))
+          current = head
+          cursor = index
+          while authored_tie_start?(current)
+            cursor = tie_continuation_index(events, cursor, current)
+            break unless cursor
+
+            consumed[cursor] = true
+            current = events[cursor]
+            total += rational(current.fetch("duration_ql"))
+          end
+          head.merge("duration_ql" => total)
+        end
+
+        def tie_continuation_index(events, index, current)
+          end_offset = rational(current.fetch("offset_ql")) + rational(current.fetch("duration_ql"))
+          pitches = event_pitches(current)
+          ((index + 1)...events.length).find do |candidate|
+            continuation_matches?(events[candidate], pitches, end_offset)
+          end
+        end
+
+        def continuation_matches?(event, pitches, end_offset)
+          tie_close?(event) && event_pitches(event) == pitches &&
+            rational(event.fetch("offset_ql")) == end_offset
+        end
+
+        def authored_tie_start?(event)
+          Array(event["local_marks"]).include?("tie(")
+        end
+
+        def tie_close?(event)
+          Array(event["local_marks"]).include?("tie)")
         end
 
         def event_pitches(event)
