@@ -3,9 +3,9 @@
 Run the mechanical floor:
 
 ```bash
-partitura/bin/partitura compile SOURCE.rb
-partitura/bin/partitura lint SOURCE.rb
-partitura/bin/partitura export SOURCE.rb
+partitura compile SOURCE.rb
+partitura lint SOURCE.rb
+partitura export SOURCE.rb
 ```
 
 Then audition the result by score, MIDI, audio, or the strongest available substitute

@@ -16,8 +16,8 @@ DSL phrase/placement ids:
 Use:
 
 ```bash
-partitura/bin/production_view SOURCE.rb recurrence_map
-partitura/bin/production_view SOURCE.rb peak_axes
+partitura view SOURCE.rb recurrence_map
+partitura view SOURCE.rb peak_axes
 # secondary (declared intent): material_map, placements, foreground, harmony_with_melody
 ```
 

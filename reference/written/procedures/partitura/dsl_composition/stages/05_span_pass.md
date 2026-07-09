@@ -38,12 +38,12 @@ After each span or small section, run the loop:
 Use focused projections:
 
 ```bash
-partitura/bin/production_view SOURCE.rb ensemble_grid --bars START-END
-partitura/bin/production_view SOURCE.rb exposed_clashes --bars START-END
-partitura/bin/production_view SOURCE.rb verticals --bars START-END
-partitura/bin/production_view SOURCE.rb line --part PART_ID
-partitura/bin/production_view SOURCE.rb breath_map --part PART_ID
-partitura/bin/production_view SOURCE.rb controls
+partitura view SOURCE.rb ensemble_grid --bars START-END
+partitura view SOURCE.rb exposed_clashes --bars START-END
+partitura view SOURCE.rb verticals --bars START-END
+partitura view SOURCE.rb line --part PART_ID
+partitura view SOURCE.rb breath_map --part PART_ID
+partitura view SOURCE.rb controls
 # secondary (declared intent): roles --bars, harmony_with_melody --bars
 ```
 

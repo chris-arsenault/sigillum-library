@@ -10,8 +10,11 @@ module Partitura
 
       THREAD_FIELDS = %w[weaknesses outputs improvements].freeze
       THREAD_LIMIT = 240
+      THREAD_DISPLAY_CAP = 24
 
-      def render(run)
+      # work: false renders the compact between-units payload (an iterative stage's
+      # instructions do not change between unit commits).
+      def render(run, work: true)
         return closed_text(run) if run.closed?
 
         stage = run.current_stage
@@ -22,9 +25,13 @@ module Partitura
         lines.concat(input_lines(run, stage))
         lines.concat(contract_lines(run, stage))
         lines << ""
-        lines << "## Work"
-        lines << ""
-        stage.docs.each { |doc| lines << File.read(doc).strip << "" }
+        if work
+          lines << "## Work"
+          lines << ""
+          stage.docs.each { |doc| lines << File.read(doc).strip << "" }
+        else
+          lines << "(work instructions unchanged since stage entry - `partitura status` reprints them)"
+        end
         lines.join("\n")
       end
 
@@ -46,7 +53,8 @@ module Partitura
           gates: stage.gates,
           pass_note_fields: run.manifest.pass_note_fields,
           open_flags: open_flags(run),
-          open_threads: open_threads(run).map { |origin, field, value| { origin: origin, field: field, value: value } },
+          open_threads: open_threads(run, stage.threads_fields)
+            .map { |origin, field, value| { origin: origin, field: field, value: value } },
           next_command: next_command(stage),
           docs: stage.docs + [run.manifest.principles_path].compact
         }
@@ -59,7 +67,8 @@ module Partitura
           "",
           "run: #{run.manifest.id} v#{run.manifest.version} (mode: #{run.mode})",
           "piece: #{run.dir}",
-          "source: #{run.state['source'] || '(none registered - pass --source on commit)'}"
+          "source: #{run.state['source'] || '(none registered - pass --source on commit)'}",
+          "cli: #{cli_path} (commands below assume it is on PATH; otherwise use this full path)"
         ]
       end
 
@@ -79,20 +88,29 @@ module Partitura
       end
 
       # Pass-note content has consequences: what earlier passes recorded as weaknesses,
-      # outputs, and improvement candidates comes back to every later stage until it is
-      # addressed, built on, or consciously carried.
+      # outputs, and improvement candidates comes back to later stages until it is
+      # addressed, built on, or consciously carried. Which fields chase a given stage
+      # comes from the manifest (outputs only where commitments are checked).
       def thread_lines(run)
-        threads = open_threads(run)
+        stage = run.current_stage
+        threads = open_threads(run, stage.threads_fields)
         return [] if threads.empty?
 
+        shown = threads
+        overflow = []
+        if stage.threads_fields == Manifest::DEFAULT_THREAD_FIELDS && threads.length > THREAD_DISPLAY_CAP
+          shown = threads.last(THREAD_DISPLAY_CAP)
+          overflow = ["  (+#{threads.length - THREAD_DISPLAY_CAP} earlier threads - `partitura status --json` " \
+                      "lists all; every one is due at the merge/closeout stages)"]
+        end
         ["", "OPEN THREADS (from your own pass notes - address, build on, or consciously carry each):"] +
-          threads.map { |origin, field, value| "- [#{origin}] #{field}: #{value}" }
+          shown.map { |origin, field, value| "- [#{origin}] #{field}: #{value}" } + overflow
       end
 
-      def open_threads(run)
+      def open_threads(run, fields = THREAD_FIELDS)
         run.committed_notes.flat_map do |stage_id, unit, note|
           origin = unit ? "#{stage_id} #{unit}" : stage_id
-          THREAD_FIELDS.filter_map do |field|
+          fields.filter_map do |field|
             value = note[field].to_s.strip
             next if value.empty? || value.match?(/\Anone\b/i)
 
@@ -104,6 +122,10 @@ module Partitura
       def squeeze(value)
         text = value.to_s.gsub(/\s+/, " ").strip
         text.length > THREAD_LIMIT ? "#{text[0, THREAD_LIMIT]}..." : text
+      end
+
+      def cli_path
+        File.join(Manifest::LIBRARY_ROOT, "partitura", "bin", "partitura")
       end
 
       def flag_lines(run)
@@ -144,6 +166,8 @@ module Partitura
         lines = [
           "",
           "pass_note_schema: #{run.manifest.pass_note_fields.join(' | ')}",
+          "  (weaknesses/outputs/improvements feed forward to later stages as OPEN THREADS - " \
+          "write them as material to build on, not as form-filling)",
           "gates: #{stage.gates.join(', ')}"
         ]
         lines << "stage_complete_gates: #{stage.stage_complete_gates.join(', ')}" if stage.iterative &&

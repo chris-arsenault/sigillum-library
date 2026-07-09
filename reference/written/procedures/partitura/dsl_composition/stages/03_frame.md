@@ -23,8 +23,8 @@ Run:
 
 ```bash
 ruby -c SOURCE.rb
-partitura/bin/partitura_help production
-partitura/bin/production_view SOURCE.rb compile
-partitura/bin/production_view SOURCE.rb structure
+partitura help production
+partitura view SOURCE.rb compile
+partitura view SOURCE.rb structure
 ```
 

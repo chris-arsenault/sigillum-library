@@ -9,14 +9,14 @@ Gather (into `procedure/diagnosis.md`):
 - **The defect, named musically**, by bar and part, with the evidence attached:
 
 ```bash
-partitura/bin/partitura compile SOURCE.rb                     # notation defects arrive as errors
-partitura/bin/partitura view SOURCE.rb ensemble_grid --bars A-B
-partitura/bin/partitura view SOURCE.rb exposed_clashes --bars A-B
-partitura/bin/partitura view SOURCE.rb figure_timeline --part PART
-partitura/bin/partitura view SOURCE.rb bar_profile --part PART --bars A-B
-partitura/bin/partitura view SOURCE.rb harmony_check --bars A-B
-partitura/bin/partitura view SOURCE.rb range_check
-partitura/bin/partitura view SOURCE.rb line --part PART --bars A-B
+partitura compile SOURCE.rb                     # notation defects arrive as errors
+partitura view SOURCE.rb ensemble_grid --bars A-B
+partitura view SOURCE.rb exposed_clashes --bars A-B
+partitura view SOURCE.rb figure_timeline --part PART
+partitura view SOURCE.rb bar_profile --part PART --bars A-B
+partitura view SOURCE.rb harmony_check --bars A-B
+partitura view SOURCE.rb range_check
+partitura view SOURCE.rb line --part PART --bars A-B
 ```
 
   A piece that no longer compiles under the notation gates is a valid starting state:

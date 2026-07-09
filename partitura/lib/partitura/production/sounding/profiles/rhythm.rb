@@ -4,8 +4,6 @@ module Partitura
   module Production
     module SoundingReadout
       module RhythmProfile
-        private
-
         def rhythm_profile(part: nil, bars: nil)
           lines = ["# Rhythm Profile (sounding; durations are true/tie-merged event lengths)"]
           sounding_parts(part).each do |pname, evs|
@@ -13,6 +11,8 @@ module Partitura
           end
           lines.join("\n")
         end
+
+        private
 
         def rhythm_part_lines(pname, events)
           return ["#{pname}: (no notes)"] if events.empty?

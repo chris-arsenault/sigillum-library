@@ -42,6 +42,12 @@ module Partitura
       end
 
       def render(piece)
+        compile = piece.compile_response
+        if compile[:status] != "ok" && compile[:code] != "lint_error"
+          return "# Lint\nSOURCE DOES NOT COMPILE (#{compile[:code]}): #{compile[:message]}\n" \
+                 "Fix the compile error first; lint results are only meaningful for a compiling source."
+        end
+
         lints = run(piece)
         return "# Lint\n(clean)" if lints.empty?
 

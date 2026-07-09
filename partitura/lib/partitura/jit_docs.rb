@@ -3,9 +3,11 @@
 require "json"
 require_relative "marks"
 require_relative "jit_docs/topics"
+require_relative "jit_docs/workflow_topics"
 
 module Partitura
   module JITDocs
+    TOPICS = SURFACE_TOPICS.merge(WORKFLOW_TOPICS).freeze
 
     module_function
 
@@ -46,8 +48,11 @@ module Partitura
       TOPICS.keys
     end
 
+    ALIASES = { chords: :harmony, harmony_check: :harmony, run: :guided, workflow: :guided }.freeze
+
     def normalize(topic)
-      topic.to_s.tr("-", "_").to_sym
+      key = topic.to_s.tr("-", "_").to_sym
+      ALIASES.fetch(key, key)
     end
 
     def unknown_response(topic)

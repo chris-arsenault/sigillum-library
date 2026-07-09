@@ -21,8 +21,8 @@ Decide the surgery's exact boundary before composing. Write `procedure/repair_co
   name the candidates:
 
 ```bash
-partitura/bin/partitura cards <defect-shaped terms>   # e.g. "walking bass", "counterline", "comp"
-partitura/bin/partitura cards show <NAME>
+partitura cards <defect-shaped terms>   # e.g. "walking bass", "counterline", "comp"
+partitura cards show <NAME>
 ```
 
   A card influences the repair only after its idea is adapted into this piece's own

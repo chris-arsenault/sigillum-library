@@ -28,11 +28,11 @@ The loop, per passage:
 2. Project it - together with the frozen spine and the seam bars, not in isolation:
 
 ```bash
-partitura/bin/partitura view SOURCE.rb ensemble_grid --bars A-B
-partitura/bin/partitura view SOURCE.rb exposed_clashes --bars A-B
-partitura/bin/partitura view SOURCE.rb harmony_check --bars A-B
-partitura/bin/partitura view SOURCE.rb line --part PART --bars A-B
-partitura/bin/partitura view SOURCE.rb lint SOURCE.rb
+partitura view SOURCE.rb ensemble_grid --bars A-B
+partitura view SOURCE.rb exposed_clashes --bars A-B
+partitura view SOURCE.rb harmony_check --bars A-B
+partitura view SOURCE.rb line --part PART --bars A-B
+partitura lint SOURCE.rb
 ```
 
 3. State the musical verdict in one or two sentences against the contract's per-bar

@@ -125,7 +125,9 @@ module Partitura
           message: "Phrase #{phrase.id} placed at #{placement_location(placement)}: " \
                    "bar marker #{marker_index + 1} lands at #{format_offset(offset)}, not on a barline.",
           repair_instruction: "Adjust the durations so the segment before this `|` ends exactly at the barline " \
-                              "(watch the meter and any pickup offset), or move the `|`.",
+                              "(watch the meter and any pickup offset), or move the `|`. To hold a pitch across " \
+                              "the barline as tied noteheads, split it into two events around the `|` marked " \
+                              "{tie(} / {tie)}; a single long event with no `|` also crosses legally.",
           help_topic: phrase.surface.to_s,
           docs: ["docs/architecture/partitura/surfaces/#{phrase.surface}.md"],
           extra: { phrase: phrase.id, part: placement.part, bar: bar }
@@ -142,7 +144,9 @@ module Partitura
             message: "Phrase #{phrase.id} placed at #{placement_location(placement)}: one `|` segment " \
                      "has attacks in bar #{onset_bar} and bar #{bar}.",
             repair_instruction: "Add a `|` at each barline so every segment holds one bar of attacks. Only a " \
-                                "sustained event may cross a barline without a marker.",
+                                "sustained event may cross a barline without a marker; for a suspension written " \
+                                "as tied noteheads, split the pitch into two events around the `|` marked " \
+                                "{tie(} / {tie)}.",
             help_topic: phrase.surface.to_s,
             docs: ["docs/architecture/partitura/surfaces/#{phrase.surface}.md"],
             extra: { phrase: phrase.id, part: placement.part, bar: bar }

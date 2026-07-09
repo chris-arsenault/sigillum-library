@@ -81,6 +81,8 @@ module Partitura
           "  interval histogram (semitones:count): #{hist.join(' ')}"
         end
 
+        CROSS_PART_MIN_EVENTS = 3
+
         def recurrence_map_sounding(part: nil, bars: nil)
           lines = [
             "# Recurrence Map (sounding; bars keyed by attack bar; events crossing barlines count in their attack bar)"
@@ -91,7 +93,40 @@ module Partitura
             lines << "#{pname}:"
             lines.concat(recurrence_summary_lines(signatures, by_bar))
           end
+          lines.concat(cross_part_recurrence_lines(bars)) unless part
           lines.join("\n")
+        end
+
+        # Material that migrates between parts (a ground moving cello -> violin) is a
+        # return; per-part maps cannot see it.
+        def cross_part_recurrence_lines(bars)
+          hits = cross_part_signature_hits(bars).select { |_, locations| locations.map(&:first).uniq.length > 1 }
+          header = "cross-part recurrences (same contour+rhythm, >=#{CROSS_PART_MIN_EVENTS} events, " \
+                   "in different parts):"
+          return [header + " (none)"] if hits.empty?
+
+          [header] + hits.map { |_, locations| "  #{locations.map { |pname, bar| "#{pname}@b#{bar}" }.join(' = ')}" }
+        end
+
+        def cross_part_signature_hits(bars)
+          global = Hash.new { |hash, key| hash[key] = [] }
+          sounding_parts(nil).each do |pname, evs|
+            evs.group_by { |e| bar_of(e.offset) }.each do |bar, events|
+              signature = cross_part_bar_signature(bar, events, bars)
+              global[signature] << [pname, bar] if signature
+            end
+          end
+          global
+        end
+
+        def cross_part_bar_signature(bar, events, bars)
+          return nil unless in_bar_number?(bar, bars)
+
+          seq = events.sort_by(&:offset)
+          return nil if seq.length < CROSS_PART_MIN_EVENTS
+
+          midis = seq.map { |event| event.pitches.map { |pitch| midi_of(pitch) }.sort }
+          [relative_chords(midis), seq.map(&:duration)]
         end
 
         def recurrence_signatures(by_bar, bars)
@@ -108,13 +143,18 @@ module Partitura
           return unless in_bar_number?(bar, bars)
 
           seq = events.sort_by(&:offset)
-          midis = seq.map { |event| midi_of(event.pitches.first) }
-          durations = seq.map(&:duration)
+          midis = seq.map { |event| event.pitches.map { |pitch| midi_of(pitch) }.sort }
           return if midis.empty?
 
+          durations = seq.map(&:duration)
           signatures.fetch(:exact)[[midis, durations]] << bar
-          signatures.fetch(:transposed)[[midis.map { |midi| midi - midis.first }, durations]] << bar
+          signatures.fetch(:transposed)[[relative_chords(midis), durations]] << bar
           signatures.fetch(:rhythm)[durations] << bar
+        end
+
+        def relative_chords(midis)
+          base = midis.first.first
+          midis.map { |chord| chord.map { |midi| midi - base } }
         end
 
         def recurrence_summary_lines(signatures, by_bar)

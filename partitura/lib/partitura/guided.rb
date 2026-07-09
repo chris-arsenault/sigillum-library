@@ -47,7 +47,8 @@ module Partitura
       raise GateFailure, results unless results.all?(&:ok)
 
       run.commit(note: note, gate_results: results, unit: unit, stage_complete: stage_complete)
-      [run, Payload.render(run)]
+      same_stage = !run.closed? && run.current_stage_id == stage.id
+      [run, Payload.render(run, work: !same_stage)]
     end
 
     def gates_for(stage, stage_complete)

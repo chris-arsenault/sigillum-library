@@ -4,7 +4,7 @@ require_relative "../marks"
 
 module Partitura
   module JITDocs
-    TOPICS = {
+    SURFACE_TOPICS = {
       index: {
         use_when: "Start here before authoring or when unsure which focused topic to request.",
         rules: [
@@ -119,7 +119,8 @@ module Partitura
           "Modes: major minor harmonic_minor melodic_minor dorian phrygian lydian mixolydian aeolian ionian " \
           "locrian.",
           "Degrees are diatonic to the declared scale: in \"c4\" a plain 3 is Eb; write #7 for the leading tone.",
-          "A phrase without key_context inherits span `key`, then section `key`, then the piece `key`.",
+          "A phrase without key_context inherits span `key`, then section `key`, then the piece `key`; " \
+          "a key with no octave (\"c\", \"F\") pins the tonic to octave 4.",
           "After a key_change control, inheritance must be explicit: declare span/section `key` or key_context.",
           "Keep degrees and rhythm separate.",
           "Use explicit accidentals like #1 or b6 for inflections outside the scale.",
@@ -345,41 +346,6 @@ module Partitura
           BASH
         next_topics: %i[hybrid staff_grid controls phrase_placement transport_export],
         docs: ["docs/architecture/partitura/04_examples_manifest.md"]
-      },
-      transport_export: {
-        use_when: "Export production DSL source to versioned transport JSON, MusicXML, and MIDI.",
-        rules: [
-          "Transport JSON is the canonical Ruby export handoff.",
-          "The Ruby exporter consumes timed events and fills only silent gaps; it does not compose material.",
-          "Use `production_view SOURCE.rb transport` when inspecting the JSON without writing files.",
-          "Use `production_export SOURCE.rb --stem STEM` when writing JSON, MusicXML, and MIDI.",
-          "Use `--transport-only` when MusicXML/MIDI rendering is not needed."
-        ],
-        example: <<~BASH.strip,
-            partitura/bin/production_view experiments/partitura/production_hybrid_study.rb transport
-            partitura/bin/production_export experiments/partitura/production_hybrid_study.rb --stem production_hybrid_study
-          BASH
-        next_topics: %i[compile_api projections],
-        docs: ["docs/architecture/partitura/05_compile_api.md"]
-      },
-      compile_api: {
-        use_when: "Consume production authoring compile responses and error repairs.",
-        rules: [
-          "Every compiler response must name relevant next help topics.",
-          "Every error includes a repair instruction and focused docs.",
-          "Compiler checks stay mechanical, not musical-quality judgments.",
-          "Responses are structured for LLM action, not human explanation."
-        ],
-        example: <<~JSON.strip,
-            {
-              "status": "error",
-              "code": "surface_event_count_mismatch",
-              "repair_instruction": "Make the two streams align event-by-event.",
-              "help_topic": "split_pitch_rhythm"
-            }
-          JSON
-        next_topics: %i[index decision projections transport_export],
-        docs: ["docs/architecture/partitura/05_compile_api.md"]
       }
     }.freeze
   end

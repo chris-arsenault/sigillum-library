@@ -8,10 +8,10 @@ tails crossing the boundary, dynamic continuity, register handoff, momentum. Pro
 the boundary windows, not just the span:
 
 ```bash
-partitura/bin/partitura view SOURCE.rb ensemble_grid --bars (A-2)-(A+2)
-partitura/bin/partitura view SOURCE.rb ensemble_grid --bars (B-2)-(B+2)
-partitura/bin/partitura view SOURCE.rb verticals --bars (A-2)-(A+2)
-partitura/bin/partitura view SOURCE.rb breath_map --part PART
+partitura view SOURCE.rb ensemble_grid --bars (A-2)-(A+2)
+partitura view SOURCE.rb ensemble_grid --bars (B-2)-(B+2)
+partitura view SOURCE.rb verticals --bars (A-2)-(A+2)
+partitura view SOURCE.rb breath_map --part PART
 ```
 
 **Identity.** Does the recomposed material carry the piece's material identity - the
@@ -19,9 +19,9 @@ cells, rhythmic sentences, and engine logic of its neighbours - or does it read 
 different composer's insert? Check returns and recurrences still hold:
 
 ```bash
-partitura/bin/partitura view SOURCE.rb recurrence_map
-partitura/bin/partitura view SOURCE.rb peak_axes
-partitura/bin/partitura view SOURCE.rb figure_timeline --part PART
+partitura view SOURCE.rb recurrence_map
+partitura view SOURCE.rb peak_axes
+partitura view SOURCE.rb figure_timeline --part PART
 ```
 
 `peak_axes` matters especially: a repair must not accidentally relocate the piece's
@@ -40,6 +40,13 @@ in the prose.
 Fix what these readings expose, then commit. If a fix requires touching frozen
 material, that is an escalation: record it, return to Stage 1, and widen the contract
 deliberately.
+
+Escalation mechanics: run `partitura back --to s1 --reason "..."` from wherever you
+are (no commit of the current stage first - `back` reopens s1 directly and marks later
+committed stages `stale`). Widen the contract, re-execute the affected passages in s2,
+and re-commit each stale stage on the way back out; the closeout gate refuses while
+any stage is stale. Re-closing a stale stage is an editing pass against what changed -
+its payload carries your original pass note for exactly that comparison.
 
 Run this whole stage in EDITING mode. Name what the drafting lens of the recomposed material was,
 then walk the span and its seam windows again with the lenses that were neglected while composing -

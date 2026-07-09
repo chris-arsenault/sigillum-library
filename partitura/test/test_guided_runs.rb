@@ -94,9 +94,13 @@ class GuidedRunsTest < Minitest::Test
       end
       assert(partial.results.any? { |result| result.gate == "units_cover_source_bars" && !result.ok })
 
-      Partitura::Guided.commit(dir: dir, notes: PASS_NOTE, unit: "bars 2-2")
-      run, = Partitura::Guided.commit(dir: dir, notes: PASS_NOTE, stage_complete: true)
+      _, unit_payload = Partitura::Guided.commit(dir: dir, notes: PASS_NOTE, unit: "bars 2-2")
+      assert_includes unit_payload, "work instructions unchanged"
+      refute_includes unit_payload, "## Work"
+
+      run, complete_payload = Partitura::Guided.commit(dir: dir, notes: PASS_NOTE, stage_complete: true)
       assert_equal "s6", run.current_stage_id
+      assert_includes complete_payload, "## Work"
     end
   end
 

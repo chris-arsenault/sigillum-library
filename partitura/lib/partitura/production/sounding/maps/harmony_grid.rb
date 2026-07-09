@@ -16,7 +16,8 @@ module Partitura
         def harmony_check(bars: nil)
           chords = @piece.declared_chords
           lines = ["# Harmony Check (declared chord track vs sounding pitch classes - where they disagree, " \
-                   "either the notes or the declaration is wrong)"]
+                   "either the notes or the declaration is wrong, or the bar is deliberately linear/" \
+                   "contrapuntal - a standing MISMATCH is legal when your audit says so by bar)"]
           if chords.empty?
             lines << "(no chord track declared; declare per-bar chords in a span: chords \"b1:F b2:Bb\")"
             return lines.join("\n")

@@ -22,7 +22,9 @@ module Partitura
           docs: ["docs/architecture/partitura/INDEX.md"]
         }
       rescue CompileError => e
-        e.response
+        e.response.merge(
+          error_scope: "first blocking error only - fix it and recompile to surface any further errors"
+        )
       end
 
       private

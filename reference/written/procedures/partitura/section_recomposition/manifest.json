@@ -66,7 +66,8 @@
       "gates": [
         "source_compiles",
         "pass_note_complete"
-      ]
+      ],
+      "threads": "all"
     },
     {
       "id": "s4",
@@ -86,7 +87,8 @@
         "no_open_skips",
         "no_stale_stages",
         "pass_note_complete"
-      ]
+      ],
+      "threads": "all"
     }
   ],
   "miniature": {

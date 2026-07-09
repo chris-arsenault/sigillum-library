@@ -13,10 +13,10 @@ Inspect verticals as music:
 Use:
 
 ```bash
-partitura/bin/production_view SOURCE.rb exposed_clashes --bars START-END
-partitura/bin/production_view SOURCE.rb verticals --bars START-END
-partitura/bin/production_view SOURCE.rb implied_harmony --bars START-END
-partitura/bin/production_view SOURCE.rb harmony_check --bars START-END
+partitura view SOURCE.rb exposed_clashes --bars START-END
+partitura view SOURCE.rb verticals --bars START-END
+partitura view SOURCE.rb implied_harmony --bars START-END
+partitura view SOURCE.rb harmony_check --bars START-END
 # secondary (declared intent): harmony_with_melody; raw data: transport
 ```
 

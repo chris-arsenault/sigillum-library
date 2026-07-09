@@ -15,7 +15,13 @@ module Partitura
       PROCEDURES_DIR = File.join(LIBRARY_ROOT, "reference", "written", "procedures", "partitura")
 
       Stage = Struct.new(:id, :name, :docs, :artifacts, :gates, :stage_complete_gates,
-                         :iterative, :unit, keyword_init: true)
+                         :iterative, :unit, :threads_fields, keyword_init: true)
+
+      # Weaknesses and improvement candidates chase every stage; recorded outputs are
+      # commitments that only need to surface where they are checked (merge/closeout
+      # stages declare "threads": "all").
+      DEFAULT_THREAD_FIELDS = %w[weaknesses improvements].freeze
+      ALL_THREAD_FIELDS = %w[weaknesses outputs improvements].freeze
 
       attr_reader :id, :version, :title, :principles_path, :pass_note_fields
 
@@ -90,12 +96,17 @@ module Partitura
           gates: merged_gates(members, "gates"),
           stage_complete_gates: merged_gates(members, "stage_complete_gates"),
           iterative: members.any? { |member| member["iterative"] },
-          unit: members.filter_map { |member| member["unit"] }.first
+          unit: members.filter_map { |member| member["unit"] }.first,
+          threads_fields: threads_fields_for(members)
         )
       end
 
       def merged_gates(members, key)
         members.flat_map { |member| member.fetch(key, []) }.uniq
+      end
+
+      def threads_fields_for(members)
+        members.any? { |member| member["threads"] == "all" } ? ALL_THREAD_FIELDS : DEFAULT_THREAD_FIELDS
       end
     end
   end

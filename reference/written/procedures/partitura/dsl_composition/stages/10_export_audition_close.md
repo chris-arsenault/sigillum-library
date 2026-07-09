@@ -4,17 +4,16 @@ Run:
 
 ```bash
 ruby -c SOURCE.rb
-partitura/bin/production_view SOURCE.rb compile
-partitura/bin/production_view SOURCE.rb peak_axes
-partitura/bin/production_view SOURCE.rb rhythm_profile
-partitura/bin/production_view SOURCE.rb articulation_map
-partitura/bin/production_view SOURCE.rb breath_map
-partitura/bin/production_view SOURCE.rb exposed_clashes
-partitura/bin/production_view SOURCE.rb controls
+partitura view SOURCE.rb compile
+partitura view SOURCE.rb peak_axes
+partitura view SOURCE.rb rhythm_profile
+partitura view SOURCE.rb articulation_map
+partitura view SOURCE.rb breath_map
+partitura view SOURCE.rb exposed_clashes
+partitura view SOURCE.rb controls
 # secondary (declared intent): structure, roles, material_map
-partitura/bin/production_export SOURCE.rb OUT_DIR --stem STEM
-for test_file in partitura/test/test_*.rb; do ruby "$test_file" || exit $?; done
-git diff --check
+partitura lint SOURCE.rb
+partitura export SOURCE.rb
 ```
 
 After export, audition the result by score, MIDI, audio, or the best available rendering for the

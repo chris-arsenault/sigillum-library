@@ -24,9 +24,9 @@ For process-led pieces:
 Inspect and revise before continuing:
 
 ```bash
-partitura/bin/production_view SOURCE.rb phrases
-partitura/bin/production_view SOURCE.rb adjacency_profile
-partitura/bin/production_view SOURCE.rb recurrence_map
+partitura view SOURCE.rb phrases
+partitura view SOURCE.rb adjacency_profile
+partitura view SOURCE.rb recurrence_map
 # secondary (declared intent): material_map, foreground
 ```
 

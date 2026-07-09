@@ -4,6 +4,24 @@ module Partitura
   module Export
     module MusicXML
       module Values
+        # Includes theoretical majors (G#, D#, A#) so modal/minor offsets on sharp tonics
+        # land before the -7..7 clamp.
+        MAJOR_FIFTHS = {
+          "Cb" => -7, "Gb" => -6, "Db" => -5, "Ab" => -4, "Eb" => -3, "Bb" => -2, "F" => -1,
+          "C" => 0, "G" => 1, "D" => 2, "A" => 3, "E" => 4, "B" => 5, "F#" => 6, "C#" => 7,
+          "G#" => 8, "D#" => 9, "A#" => 10
+        }.freeze
+        # Fifths offset of each mode's diatonic collection relative to the major scale
+        # on the same tonic (D dorian = C major collection = fifths(D major) - 2).
+        MODE_FIFTHS_OFFSET = {
+          "major" => 0, "ionian" => 0, "mixolydian" => -1, "dorian" => -2, "minor" => -3,
+          "aeolian" => -3, "harmonic_minor" => -3, "melodic_minor" => -3, "phrygian" => -4,
+          "locrian" => -5, "lydian" => 1
+        }.freeze
+        # MusicXML <mode> vocabulary; the notated signature for harmonic/melodic minor is minor.
+        MUSICXML_MODES = MODE_FIFTHS_OFFSET.keys.to_h { |mode| [mode, mode] }
+                                           .merge("harmonic_minor" => "minor", "melodic_minor" => "minor").freeze
+
         private
 
         def normalize_pedal_state(value)
@@ -33,27 +51,29 @@ module Partitura
         end
 
         def key_fifths(value)
-          key = value.to_s
-          minor_mode = minor_key?(key)
-          tonic = key.end_with?("m") && key.length > 1 ? key.delete_suffix("m") : key
-          tonic = tonic[0].upcase + tonic[1..] if tonic.match?(/\A[a-g]/)
-          major_keys = {
-            "Cb" => -7, "Gb" => -6, "Db" => -5, "Ab" => -4, "Eb" => -3, "Bb" => -2, "F" => -1,
-            "C" => 0, "G" => 1, "D" => 2, "A" => 3, "E" => 4, "B" => 5, "F#" => 6, "C#" => 7
-          }
-          minor_keys = {
-            "Ab" => -7, "Eb" => -6, "Bb" => -5, "F" => -4, "C" => -3, "G" => -2, "D" => -1,
-            "A" => 0, "E" => 1, "B" => 2, "F#" => 3, "C#" => 4, "G#" => 5, "D#" => 6, "A#" => 7
-          }
-          (minor_mode ? minor_keys : major_keys).fetch(tonic, 0)
+          parsed_key(value).fetch(:fifths)
         end
 
         def key_mode(value)
-          minor_key?(value.to_s) ? "minor" : "major"
+          parsed_key(value).fetch(:mode)
         end
 
-        def minor_key?(key)
-          (key.end_with?("m") && key.length > 1) || key.match?(/\A[a-g]/)
+        def parsed_key(value)
+          parsed = Production.parse_key_context(value)
+          tonic = parsed.fetch(:tonic_name).sub(/-?\d+\z/, "")
+          fifths = MAJOR_FIFTHS.fetch(tonic, 0) + MODE_FIFTHS_OFFSET.fetch(parsed.fetch(:mode), 0)
+          { fifths: fifths.clamp(-7, 7), mode: MUSICXML_MODES.fetch(parsed.fetch(:mode), "major") }
+        rescue Partitura::Production::CompileError
+          legacy_parsed_key(value.to_s)
+        end
+
+        # Pre-mode key spellings ("Dm", "F#m") that parse_key_context does not accept.
+        def legacy_parsed_key(key)
+          minor = key.end_with?("m") && key.length > 1
+          tonic = minor ? key.delete_suffix("m") : key
+          tonic = tonic[0].upcase + tonic[1..] if tonic.match?(/\A[a-g]/)
+          fifths = MAJOR_FIFTHS.fetch(tonic, 0) + (minor ? -3 : 0)
+          { fifths: fifths.clamp(-7, 7), mode: minor ? "minor" : "major" }
         end
 
         def parse_pitch(value)
