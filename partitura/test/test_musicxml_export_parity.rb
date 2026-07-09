@@ -64,7 +64,8 @@ class MusicXMLExportParityTest < Minitest::Test
       assert_equal "score-partwise", document.root.name
       assert_equal "4.0", document.root.attributes["version"]
       assert_equal facts.fetch(:title), REXML::XPath.first(document, "/score-partwise/work/work-title").text
-      assert_equal facts.fetch(:xml_score_parts), REXML::XPath.match(document, "/score-partwise/part-list/score-part").length
+      assert_equal facts.fetch(:xml_score_parts), 
+REXML::XPath.match(document, "/score-partwise/part-list/score-part").length
     end
   end
 

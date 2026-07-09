@@ -48,7 +48,115 @@ class ProductionTexturesTest < Minitest::Test
     assert_equal "MThd", Partitura.production_midi(piece).byteslice(0, 4)
   end
 
+  def test_score_grid_sustains_across_barlines_emit_complete_tie_chains
+    piece = Partitura::Production.piece("Tie Chain") do
+      meter "4/4"
+      roster do
+        part :viola, "Viola", music21: "Viola"
+        part :cello, "Cello", music21: "Violoncello"
+      end
+      section :s1, "One", bars: 1..3 do
+        span bars: 1..3 do
+          texture :pad, bars: 1..3 do
+            score grid: :quarter do
+              viola "[C4,G4] _ _ _ | _ _ _ _ | _ _ C4 ."
+              cello "C3 _ _ _ | _ _ _ _ | _ _ _ _"
+            end
+          end
+        end
+      end
+    end
+
+    assert_equal "ok", piece.compile_response.fetch(:status)
+    viola_marks = piece.timed_events(include_rests: true).select { |e| e.part == :viola }.map(&:marks)
+    assert_equal [["tie("], ["tie)", "tie("], ["tie)"], [], []], viola_marks
+
+    xml = Partitura.production_musicxml(piece)
+    assert_equal xml.scan(/tied type=.start/).length, xml.scan(/tied type=.stop/).length
+    assert_equal 6, xml.scan(/tied type=.start/).length
+  end
+
+  def test_slot_count_mismatch_names_texture_lane_and_bar
+    error = assert_raises(Partitura::Production::CompileError) do
+      texture_piece_with_lane("C4 _ _ | E4 _ _ _")
+    end
+    response = error.response
+    assert_equal "score_grid_slot_mismatch", response.fetch(:code)
+    assert_equal "texture", response.fetch(:help_topic)
+    assert_includes response.fetch(:message), "lane viola"
+    assert_includes response.fetch(:message), "bar 1 of the lane has 3 slots"
+    assert_includes response.fetch(:docs), "docs/architecture/partitura/surfaces/texture.md"
+  end
+
+  def test_grid_parse_errors_carry_texture_and_lane_context
+    error = assert_raises(Partitura::Production::CompileError) do
+      texture_piece_with_lane("_ C4 _ _ | C4 _ _ _")
+    end
+    response = error.response
+    assert_equal "bad_score_grid", response.fetch(:code)
+    assert_equal "pad", response.fetch(:texture).to_s
+    assert_equal "viola", response.fetch(:lane).to_s
+  end
+
+  def test_grid_that_does_not_divide_the_meter_is_rejected
+    error = assert_raises(Partitura::Production::CompileError) do
+      Partitura::Production.piece("Odd meter") do
+        meter "7/8", beat_pattern: [3, 2, 2]
+        roster { part :viola, "Viola", music21: "Viola" }
+        section :s1, "One", bars: 1..1 do
+          span bars: 1..1 do
+            texture :pad, bars: 1..1 do
+              score(grid: :quarter) { viola "C4 _ _ _" }
+            end
+          end
+        end
+      end
+    end
+    assert_equal "bad_score_grid", error.response.fetch(:code)
+    assert_includes error.response.fetch(:message), "does not divide bar 1"
+  end
+
+  def test_triplet_grid_compiles_and_exports
+    piece = Partitura::Production.piece("Triplets") do
+      meter "4/4"
+      roster { part :viola, "Viola", music21: "Viola" }
+      section :s1, "One", bars: 1..1 do
+        span bars: 1..1 do
+          texture :spin, bars: 1..1 do
+            score(grid: :eighth_triplet) { viola "C4 E4 G4 C5 G4 E4 C4 E4 G4 C5 G4 E4" }
+          end
+        end
+      end
+    end
+
+    assert_equal "ok", piece.compile_response.fetch(:status)
+    assert_equal "MThd", Partitura.production_midi(piece).byteslice(0, 4)
+    assert_includes Partitura.production_musicxml(piece), "<work-title>Triplets</work-title>"
+  end
+
+  def test_texture_help_topic_is_routed
+    data = Partitura::JITDocs.data(:texture)
+    assert_equal :texture, data.fetch(:topic)
+    assert_equal :texture, Partitura::JITDocs.data(:score_grid).fetch(:topic)
+    assert_includes Partitura::JITDocs.data(:decision).fetch(:next_topics), :texture
+  end
+
   private
+
+  def texture_piece_with_lane(text)
+    lane_text = text
+    Partitura::Production.piece("Lane Probe") do
+      meter "4/4"
+      roster { part :viola, "Viola", music21: "Viola" }
+      section :s1, "One", bars: 1..2 do
+        span bars: 1..2 do
+          texture :pad, bars: 1..2 do
+            score(grid: :quarter) { viola lane_text }
+          end
+        end
+      end
+    end
+  end
 
   def load_texture_piece
     Dir.mktmpdir do |dir|

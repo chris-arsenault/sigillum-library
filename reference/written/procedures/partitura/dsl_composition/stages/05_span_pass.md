@@ -23,8 +23,10 @@ Use the surface that exposes the job:
 - intervals for motivic transformation
 - split pitch/rhythm for long editable lines
 - absolute pitch for register-bound material
+- texture + score grid to create composite vertical mechanisms (engines, distributed chords, swells)
 - staff grid for dense vertical inspection
-- phrase placement for entrances, handoffs, and returns
+- phrase placement for entrances, handoffs, and returns (anacrusis: for pickups)
+- fill / fill_material for sub-bar figures in phrase gaps and seams
 - hybrid for mixed orchestral or multi-role passages
 
 After each span or small section, run the loop:

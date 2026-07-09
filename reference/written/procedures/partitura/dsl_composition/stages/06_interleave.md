@@ -41,6 +41,10 @@ Possible local actions:
 - counterline answer
 - accompaniment borrowing the foreground tail
 
+The DSL constructs for most of these are `anacrusis:` on a placement (pickups, early
+starts, cross-seam entries) and `fill`/`fill_material` (gap-fill answers, turns,
+handoff figures - sub-bar, reusable across voices, transposable per entrance).
+
 The purpose is not density. The purpose is local causality: each bar should sound like it follows
 from the piece, not from a template. If an incident does not clarify the form, remove it.
 

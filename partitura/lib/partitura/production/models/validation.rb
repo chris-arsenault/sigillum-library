@@ -84,12 +84,44 @@ module Partitura
         phrase = phrase_map[placement.phrase_id]
         return unless phrase
 
+        validate_anacrusis!(placement, phrase)
         end_offset = validate_placement_segments!(placement, phrase)
         validate_span_overflow!(span, placement, phrase, end_offset)
       end
 
+      # A pickup must be a positive length and must have somewhere to sound: an
+      # anacrusis spilling before offset 0 has no bar to live in and corrupts export.
+      def validate_anacrusis!(placement, phrase)
+        anacrusis = placement.anacrusis
+        return if anacrusis.nil?
+
+        if anacrusis <= 0
+          raise compile_error(
+            code: "bad_anacrusis",
+            message: "Phrase #{phrase.id} placed at #{placement_location(placement)}: anacrusis " \
+                     "#{Production.format_duration(anacrusis)} must be a positive number of beats.",
+            repair_instruction: "Give the pickup its sounding length in beats (e.g. anacrusis 1), or remove it.",
+            help_topic: "phrase_placement",
+            docs: ["docs/architecture/partitura/surfaces/phrase_placement.md"],
+            extra: { phrase: phrase.id, part: placement.part }
+          )
+        end
+        return if placement_start_offset(placement) >= 0
+
+        raise compile_error(
+          code: "anacrusis_before_start",
+          message: "Phrase #{phrase.id} placed at #{placement_location(placement)}: a pickup of " \
+                   "#{Production.format_duration(anacrusis)} beats starts before the piece begins.",
+          repair_instruction: "Place the arrival downbeat at bar 2 or later, shorten the pickup, or drop the " \
+                              "anacrusis and start the piece with the pickup written in bar 1.",
+          help_topic: "phrase_placement",
+          docs: ["docs/architecture/partitura/surfaces/phrase_placement.md"],
+          extra: { phrase: phrase.id, part: placement.part }
+        )
+      end
+
       def validate_placement_segments!(placement, phrase)
-        offset = offset_for(placement.bar, placement.beat)
+        offset = placement_start_offset(placement)
         boundaries = segment_boundaries(phrase)
         onset_bar = nil
         phrase.events.each_with_index do |event, index|
@@ -128,8 +160,8 @@ module Partitura
                               "(watch the meter and any pickup offset), or move the `|`. To hold a pitch across " \
                               "the barline as tied noteheads, split it into two events around the `|` marked " \
                               "{tie(} / {tie)}; a single long event with no `|` also crosses legally.",
-          help_topic: phrase.surface.to_s,
-          docs: ["docs/architecture/partitura/surfaces/#{phrase.surface}.md"],
+          help_topic: surface_help_topic(phrase.surface),
+          docs: surface_docs(phrase.surface),
           extra: { phrase: phrase.id, part: placement.part, bar: bar }
         )
       end
@@ -146,9 +178,10 @@ module Partitura
             repair_instruction: "Add a `|` at each barline so every segment holds one bar of attacks. Only a " \
                                 "sustained event may cross a barline without a marker; for a suspension written " \
                                 "as tied noteheads, split the pitch into two events around the `|` marked " \
-                                "{tie(} / {tie)}.",
-            help_topic: phrase.surface.to_s,
-            docs: ["docs/architecture/partitura/surfaces/#{phrase.surface}.md"],
+                                "{tie(} / {tie)}. With an anacrusis, put the first `|` immediately after the " \
+                                "pickup.",
+            help_topic: surface_help_topic(phrase.surface),
+            docs: surface_docs(phrase.surface),
             extra: { phrase: phrase.id, part: placement.part, bar: bar }
           )
         end
@@ -170,6 +203,16 @@ module Partitura
           extra: { phrase: phrase.id, part: placement.part }
         )
       end
+
+# :score_grid phrases are authored inside texture blocks; their help lives there.
+def surface_help_topic(surface)
+  surface.to_sym == :score_grid ? "texture" : surface.to_s
+end
+
+def surface_docs(surface)
+  name = surface.to_sym == :score_grid ? "texture" : surface
+  ["docs/architecture/partitura/surfaces/#{name}.md"]
+end
 
       def placement_location(placement)
         "bar #{placement.bar} beat #{Production.format_duration(placement.beat)}"

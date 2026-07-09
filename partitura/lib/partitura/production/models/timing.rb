@@ -8,7 +8,7 @@ module Partitura
       def timed_events_for_placement(placement, phrase_map, include_rests:)
         validate_placement_part!(placement)
         phrase = phrase_for_placement(placement, phrase_map)
-        offset = offset_for(placement.bar, placement.beat)
+        offset = placement_start_offset(placement)
         phrase.events.filter_map do |event|
           current = timed_event_for(placement, phrase, event, offset)
           offset += event.duration

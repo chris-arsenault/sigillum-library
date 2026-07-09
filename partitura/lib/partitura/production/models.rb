@@ -17,7 +17,8 @@ module Partitura
       include TieValidation
 
       attr_reader :title, :meter_value, :beat_pattern, :bar_length, :key_value, :tempo_marks,
-                  :meter_changes, :tempo_events, :anchors, :controls, :key_changes, :parts, :sections
+                  :meter_changes, :tempo_events, :anchors, :controls, :key_changes, :parts, :sections,
+                  :fill_materials
       attr_accessor :lint_config
 
       def initialize(title)
@@ -35,6 +36,7 @@ module Partitura
         @key_changes = []
         @parts = {}
         @sections = []
+        @fill_materials = {}
       end
 
       def set_meter(value, beat_pattern: nil)
@@ -98,6 +100,23 @@ module Partitura
 
       def add_section(section)
         @sections << section
+      end
+
+      def add_fill_material(material)
+        @fill_materials[material.id] = material
+      end
+
+      def fill_material(id)
+        @fill_materials.fetch(id.to_sym) do
+          raise compile_error(
+            code: "unknown_fill_material",
+            message: "Fill material #{id.inspect} is not defined.",
+            repair_instruction: "Define it with `fill_material :#{id}, surface: ... do ... end` before " \
+                                "using `fill from:`.",
+            help_topic: "phrase_placement",
+            docs: ["docs/architecture/partitura/surfaces/phrase_placement.md"]
+          )
+        end
       end
 
       def phrases
@@ -169,6 +188,10 @@ module Partitura
         offset = Rational(0)
         (1...bar).each { |number| offset += bar_length_for(number) }
         offset + Rational(beat) - 1
+      end
+
+      def placement_start_offset(placement)
+        offset_for(placement.bar, placement.beat) - Rational(placement.anacrusis || 0)
       end
 
       def offset_for_reference(reference)

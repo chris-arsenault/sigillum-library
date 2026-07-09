@@ -92,10 +92,13 @@ module Partitura
       def phrase(id, surface: nil, pitch: nil, &block)
         builder = PhraseBuilder.new(id, surface || pitch, default_key: @default_key,
                                                           default_key_explicit: @key_explicit)
-        @span.add_phrase(builder.build(&block))
+        phrase = builder.build(&block)
+        @span.add_phrase(phrase)
+        @span.set_phrase_anacrusis(phrase.id, builder.anacrusis_value) if builder.anacrusis_value
+        phrase
       end
 
-      def placement(phrase_id, part:, at:, role: nil, transform: nil, realization: nil, &block)
+      def placement(phrase_id, part:, at:, role: nil, transform: nil, realization: nil, anacrusis: nil, &block)
         bar, beat = Production.parse_location(at)
         placement = PlacementBuilder.new(
           phrase_id: phrase_id,
@@ -104,9 +107,21 @@ module Partitura
           bar: bar,
           beat: beat,
           transform: transform,
-          realization: realization
+          realization: realization,
+          anacrusis: anacrusis
         ).build(&block)
         @span.add_placement(placement)
+      end
+
+      def fill(id, part:, at:, from: nil, surface: nil, pitch: nil, role: :fill, **kwargs, &block)
+        if from
+          add_material_fill(id, from, block, **kwargs)
+        else
+          validate_realized_fill_duration!(phrase(id, surface: surface, pitch: pitch, &block), :inline)
+        end
+        @span.mark_fill(id)
+        placement(id, part: part, at: at, role: role, realization: kwargs[:realization],
+                      anacrusis: kwargs[:anacrusis])
       end
 
       def staff_bar(number, &block)
@@ -128,6 +143,31 @@ module Partitura
       end
 
       private
+
+      def add_material_fill(id, material_id, block, **kwargs)
+        options = {
+          transpose_to: kwargs[:transpose_to],
+          transpose_by: kwargs[:transpose_by],
+          key_match: kwargs[:key_match]
+        }.compact
+        options = FillTransformBuilder.new(options).build(&block)
+        phrase = FillMaterialRealizer.new(@piece.fill_material(material_id), options).realize(id: id)
+        validate_realized_fill_duration!(phrase, material_id)
+        @span.add_phrase(phrase)
+      end
+
+      def validate_realized_fill_duration!(phrase, material_id)
+        return if phrase.duration < @piece.bar_length_for(@span.bars.begin)
+
+        raise CompileError.new(
+          code: "fill_too_long",
+          message: "Fill #{phrase.id} from #{material_id} lasts #{Production.format_duration(phrase.duration)} " \
+                   "beats; fills must be shorter than one bar.",
+          repair_instruction: "Use a shorter fill material, diminish it, or write a normal phrase/texture line.",
+          help_topic: "phrase_placement",
+          docs: ["docs/architecture/partitura/surfaces/phrase_placement.md"]
+        )
+      end
 
       def parse_chord_token(token)
         match = token.match(/\Ab(\d+)(?:-(\d+))?:(\S+)\z/)
@@ -160,7 +200,7 @@ module Partitura
     end
 
     class PlacementBuilder
-      def initialize(phrase_id:, part:, role:, bar:, beat:, transform:, realization:)
+      def initialize(phrase_id:, part:, role:, bar:, beat:, transform:, realization:, anacrusis:)
         @phrase_id = phrase_id
         @part = part
         @role = role
@@ -168,6 +208,7 @@ module Partitura
         @beat = beat
         @transform = transform
         @realization = realization
+        @anacrusis = anacrusis.nil? ? nil : Rational(anacrusis)
       end
 
       def build(&block)
@@ -181,7 +222,8 @@ module Partitura
           bar: @bar,
           beat: @beat,
           transform: @transform,
-          realization: @realization
+          realization: @realization,
+          anacrusis: @anacrusis
         )
       end
 
@@ -195,6 +237,10 @@ module Partitura
 
       def realization(value)
         @realization = value
+      end
+
+      def anacrusis(value)
+        @anacrusis = Rational(value)
       end
 
       def materialized(value)

@@ -6,7 +6,7 @@ directly. Optimize for agent comprehension, local retrieval, and self-correction
 ## Rules
 
 - The source must expose musical relationships, not just final notes.
-- One standard container is mandatory: `piece -> section -> span -> phrase/placement/staff`.
+- One standard container is mandatory: `piece -> section -> span -> phrase/placement/texture/staff`.
 - Local notation surfaces must be typed. Never switch from degrees to intervals to absolute notes
   without an explicit block boundary.
 - Default long-line surface: key-relative degrees plus separate rhythm.

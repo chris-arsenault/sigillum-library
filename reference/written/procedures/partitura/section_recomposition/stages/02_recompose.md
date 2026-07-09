@@ -13,7 +13,8 @@ Rules of composition (imported from the span-pass standard):
   spine bass is read, not rewritten), counterline/inner motion, accompaniment,
   controls, staff checkpoints where the vertical must be readable.
 - Use the surface that exposes the job (degrees for tonal function, intervals for
-  cells, split pitch/rhythm for editable lines, absolute for register-bound material);
+  cells, split pitch/rhythm for editable lines, absolute for register-bound material,
+  texture + score grid for composite vertical mechanisms);
   `partitura help decision` when unsure. Respect the notation gates: `|` on barlines,
   one bar of attacks per segment, checkpoints that tell the truth.
 - Stay inside the declared chord track; where the repair improves the harmony, update

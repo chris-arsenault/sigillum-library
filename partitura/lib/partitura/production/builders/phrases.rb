@@ -28,6 +28,14 @@ module Partitura
         @fields[:anchor] = value.to_s
       end
 
+      def anacrusis(value)
+        @fields[:anacrusis] = Rational(value)
+      end
+
+      def anacrusis_value
+        @fields[:anacrusis]
+      end
+
       def degrees(text)
         @fields[:degrees] = text.to_s
       end

@@ -50,6 +50,13 @@ module Partitura
         ControlBuilder.new(@piece).build(&block)
       end
 
+      def fill_material(id, surface: nil, pitch: nil, &block)
+        builder = FillMaterialBuilder.new(id, surface || pitch, default_key: @piece.key_value)
+        material = builder.build(&block)
+        validate_fill_material_duration!(material)
+        @piece.add_fill_material(material)
+      end
+
       def roster(&block)
         RosterBuilder.new(@piece).build(&block)
       end
@@ -58,6 +65,22 @@ module Partitura
         section = Section.new(id: id, name: name, bars: bars, type: type)
         SectionBuilder.new(@piece, section, default_key: @piece.key_value).build(&block)
         @piece.add_section(section)
+      end
+
+      private
+
+      def validate_fill_material_duration!(material)
+        duration = FillMaterialRealizer.new(material).realize.duration
+        return if duration < @piece.bar_length
+
+        raise CompileError.new(
+          code: "fill_material_too_long",
+          message: "Fill material #{material.id} lasts #{Production.format_duration(duration)} beats; " \
+                   "fills must be shorter than one bar.",
+          repair_instruction: "Shorten the material or write it as a normal phrase/texture line instead of a fill.",
+          help_topic: "phrase_placement",
+          docs: ["docs/architecture/partitura/surfaces/phrase_placement.md"]
+        )
       end
     end
 

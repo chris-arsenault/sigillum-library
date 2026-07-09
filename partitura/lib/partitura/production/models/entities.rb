@@ -149,10 +149,23 @@ notation_staff: nil)
       end
     end
 
-    class Placement
-      attr_reader :phrase_id, :part, :role, :bar, :beat, :transform, :realization
+    class FillMaterial
+      attr_reader :id, :surface, :fields, :segment_counts, :default_key
 
-      def initialize(phrase_id:, part:, role:, bar:, beat:, transform: nil, realization: nil)
+      def initialize(id:, surface:, fields:, segment_counts:, default_key: nil)
+        @id = id.to_sym
+        @surface = surface.to_sym
+        @fields = fields.freeze
+        @segment_counts = segment_counts&.freeze
+        @default_key = default_key
+      end
+    end
+
+    class Placement
+      attr_reader :phrase_id, :part, :role, :bar, :beat, :transform, :realization, :anacrusis, :fill
+
+      def initialize(phrase_id:, part:, role:, bar:, beat:, transform: nil, realization: nil,
+                     anacrusis: nil, fill: false)
         @phrase_id = phrase_id.to_sym
         @part = part.to_sym
         @role = role.to_sym
@@ -160,6 +173,8 @@ notation_staff: nil)
         @beat = Rational(beat)
         @transform = transform
         @realization = realization
+        @anacrusis = anacrusis.nil? ? nil : Rational(anacrusis)
+        @fill = fill
       end
     end
 
@@ -252,7 +267,8 @@ notation_staff: nil)
 
     class Span
       attr_reader :bars, :texture, :harmony_texts, :chord_track, :process_texts, :phrases,
-                  :phrase_definitions, :placements, :staff_bars, :gestures
+                  :phrase_definitions, :placements, :staff_bars, :gestures, :phrase_anacruses,
+                  :fill_phrase_ids
 
       def initialize(bars:, texture: nil)
         @bars = bars
@@ -265,6 +281,8 @@ notation_staff: nil)
         @placements = []
         @staff_bars = []
         @gestures = []
+        @phrase_anacruses = {}
+        @fill_phrase_ids = []
       end
 
       def add_harmony(text)
@@ -285,7 +303,21 @@ notation_staff: nil)
       end
 
       def add_placement(placement)
-        @placements << placement
+        anacrusis = placement.anacrusis || @phrase_anacruses[placement.phrase_id]
+        fill = @fill_phrase_ids.include?(placement.phrase_id) || placement.fill
+        @placements << Placement.new(
+          phrase_id: placement.phrase_id, part: placement.part, role: placement.role, bar: placement.bar,
+          beat: placement.beat, transform: placement.transform, realization: placement.realization,
+          anacrusis: anacrusis, fill: fill
+        )
+      end
+
+      def set_phrase_anacrusis(phrase_id, duration)
+        @phrase_anacruses[phrase_id.to_sym] = Rational(duration)
+      end
+
+      def mark_fill(phrase_id)
+        @fill_phrase_ids << phrase_id.to_sym
       end
 
       def add_staff_bar(staff_bar)

@@ -144,7 +144,8 @@ when "export"
   OptionParser.new { |opts| opts.on("--stem STEM") { |value| options[:stem] = value } }.parse!
   source = ARGV.shift or (warn "usage: partitura export SOURCE.rb [--stem STEM]"; exit 2)
   stem = options[:stem] || File.basename(source, File.extname(source))
-  repo_root = `git -C #{File.dirname(File.expand_path(source))} rev-parse --show-toplevel`.chomp
+  repo_root = `git -C #{File.dirname(File.expand_path(source))} rev-parse --show-toplevel 2>/dev/null`.chomp
+  repo_root = File.dirname(File.expand_path(source)) if repo_root.empty?
   source_rel = File.expand_path(source).delete_prefix("#{repo_root}/")
   out_dir = File.join(repo_root, "outputs", File.dirname(source_rel), stem)
   FileUtils.mkdir_p(out_dir)

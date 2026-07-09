@@ -93,7 +93,7 @@ module Partitura
       end
 
       def placed_bar_span(piece, phrase, placement)
-        start = piece.offset_for(placement.bar, placement.beat)
+        start = piece.placement_start_offset(placement)
         finish = start + phrase.duration
         last_bar = bar_at(piece, finish - Rational(1, 1000))
         last_bar - placement.bar + 1

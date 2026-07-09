@@ -37,13 +37,13 @@ module Partitura
         phrase_builder = PhraseBuilder.new(phrase_id, surface || pitch, default_key: @default_key,
                                                                      default_key_explicit: @default_key_explicit)
         @span.add_phrase(phrase_builder.build(&block))
-        add_texture_placement(phrase_id, part, role)
+        add_texture_placement(phrase_id, part, role, anacrusis: phrase_builder.anacrusis_value)
       end
 
       def score(grid:, surface: :absolute, role: :texture, &block)
         raise unsupported_score_surface!(surface) unless surface.to_sym == :absolute
 
-        ScoreGridBuilder.new(@id, grid, role).build(&block).each do |lane|
+        ScoreGridBuilder.new(@id, grid, role, expected_slots: expected_slots_for(grid)).build(&block).each do |lane|
           @span.add_phrase(lane.fetch(:phrase))
           add_texture_placement(lane.fetch(:phrase).id, lane.fetch(:part), lane.fetch(:role))
         end
@@ -55,11 +55,11 @@ module Partitura
         :"#{@id}_#{id}"
       end
 
-      def add_texture_placement(phrase_id, part, role)
+      def add_texture_placement(phrase_id, part, role, anacrusis: nil)
         @parts << part.to_sym
         @span.add_placement(Placement.new(
           phrase_id: phrase_id, part: part, role: role, bar: @bars.begin, beat: 1,
-          realization: "texture #{@id}"
+          realization: "texture #{@id}", anacrusis: anacrusis
         ))
       end
 
@@ -76,6 +76,32 @@ module Partitura
           help_topic: "texture",
           docs: ["docs/architecture/partitura/surfaces/texture.md"]
         )
+      end
+
+      # One integer slot count per texture bar, derived from the meter timeline; a grid
+      # that does not divide a bar evenly is rejected here with the fix in hand.
+      def expected_slots_for(grid)
+        slot = ScoreGridBuilder::GRID_DURATIONS.fetch(grid.to_sym) do
+          raise CompileError.new(
+            code: "bad_score_grid",
+            message: "texture #{@id}: unknown grid #{grid.inspect}.",
+            repair_instruction: "Use one of: #{ScoreGridBuilder::GRID_DURATIONS.keys.join(', ')}.",
+            help_topic: "texture", docs: ["docs/architecture/partitura/surfaces/texture.md"]
+          )
+        end
+        @bars.map do |bar|
+          slots = @piece.bar_length_for(bar) / slot
+          next slots.to_i if (slots % 1).zero?
+
+          raise CompileError.new(
+            code: "bad_score_grid",
+            message: "texture #{@id}: grid :#{grid} does not divide bar #{bar} " \
+                     "(#{@piece.meter_for(bar).meter}) evenly.",
+            repair_instruction: "Use a finer grid (e.g. :eighth or :sixteenth) that divides every bar of the " \
+                                "texture's meter.",
+            help_topic: "texture", docs: ["docs/architecture/partitura/surfaces/texture.md"]
+          )
+        end
       end
     end
 
@@ -134,13 +160,16 @@ module Partitura
     class ScoreGridBuilder
       GRID_DURATIONS = {
         whole: Rational(4), half: Rational(2), quarter: Rational(1),
-        eighth: Rational(1, 2), sixteenth: Rational(1, 4), thirty_second: Rational(1, 8)
+        quarter_triplet: Rational(2, 3), eighth: Rational(1, 2), eighth_triplet: Rational(1, 3),
+        sixteenth: Rational(1, 4), thirty_second: Rational(1, 8)
       }.freeze
 
-      def initialize(texture_id, grid, role)
+      def initialize(texture_id, grid, role, expected_slots: nil)
         @texture_id = texture_id
-        @slot = GRID_DURATIONS.fetch(grid.to_sym)
+        @grid = grid.to_sym
+        @slot = GRID_DURATIONS.fetch(@grid)
         @role = role
+        @expected_slots = expected_slots
         @lanes = []
       end
 
@@ -166,10 +195,48 @@ module Partitura
       private
 
       def compiled_lane(lane)
+        slot_counts = validated_slot_counts(lane)
         events, counts = ScoreGridParser.new(lane.fetch(:text), @slot).parse
-        phrase = Phrase.new(id: :"#{@texture_id}_#{lane.fetch(:part)}_score", surface: :score_grid,
+        phrase = Phrase.new(id: lane_phrase_id(lane), surface: :score_grid,
                             events: events, segment_counts: counts)
-        { phrase: phrase, part: lane.fetch(:part), role: lane.fetch(:role) }
+        { phrase: phrase, part: lane.fetch(:part), role: lane.fetch(:role), slots: slot_counts }
+      rescue CompileError => e
+        raise e.with_context(phrase: lane_phrase_id(lane), texture: @texture_id, lane: lane.fetch(:part))
+      end
+
+      def lane_phrase_id(lane)
+        :"#{@texture_id}_#{lane.fetch(:part)}_score"
+      end
+
+      # Every bar of a lane must carry exactly the meter's slot count for this grid, so
+      # a miscounted bar fails here with the lane and bar named - never downstream as a
+      # generic marker misalignment.
+      def validated_slot_counts(lane)
+        counts = Production.token_bars(lane.fetch(:text)).map(&:length)
+        return counts unless @expected_slots
+
+        raise slot_mismatch!(lane, "has #{counts.length} bars; the texture spans #{@expected_slots.length}") if
+          counts.length != @expected_slots.length
+
+        counts.each_with_index do |count, index|
+          next if count == @expected_slots.fetch(index)
+
+          raise slot_mismatch!(lane, "bar #{index + 1} of the lane has #{count} slots; the meter needs " \
+                                     "#{@expected_slots.fetch(index)} at grid :#{@grid}")
+        end
+        counts
+      end
+
+      def slot_mismatch!(lane, detail)
+        CompileError.new(
+          code: "score_grid_slot_mismatch",
+          message: "texture #{@texture_id} lane #{lane.fetch(:part)}: #{detail}.",
+          repair_instruction: "Write one token per :#{@grid} slot (pitch/chord = attack, `_` = sustain, " \
+                              "`.` = silence) and one `|` per barline, so every bar carries exactly the " \
+                              "meter's slot count.",
+          help_topic: "texture",
+          docs: ["docs/architecture/partitura/surfaces/texture.md"]
+        )
       end
     end
 
@@ -231,7 +298,7 @@ module Partitura
         pitch = Production.pitch_from_absolute_body(parsed.fetch(:body), help_topic: :absolute)
         count = run_length(tokens, index + 1) { |token| token == "_" }
         marks = parsed.fetch(:marks)
-        marks << "tie(" if index + count == tokens.length && continues_after
+        marks << "tie(" if index + count + 1 == tokens.length && continues_after
         event = Event.new(pitch: pitch, duration: @slot * (count + 1), source: parsed.fetch(:body),
                           local_marks: marks)
         [event, index + count + 1, pitch]

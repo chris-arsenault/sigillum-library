@@ -47,7 +47,7 @@ class ProductionSurfaceExportCliTest < Minitest::Test
       source_dir = File.join(dir, "dsl")
       FileUtils.mkdir_p(source_dir)
       source = File.join(source_dir, "bad_source.rb")
-      out_dir = File.join(dir, "out")
+      File.join(dir, "out")
       File.write(source, BAD_EXPORT_SOURCE)
 
       _stdout, stderr, status = Open3.capture3(

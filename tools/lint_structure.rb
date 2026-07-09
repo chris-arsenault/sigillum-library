@@ -17,6 +17,7 @@ ALLOWED_DYNAMIC_DISPATCH = {
   "partitura/lib/partitura/builders.rb" => ["instance_eval"],
   "partitura/lib/partitura/production.rb" => ["instance_eval"],
   "partitura/lib/partitura/production/builders/controls.rb" => ["instance_eval"],
+  "partitura/lib/partitura/production/builders/fills.rb" => ["instance_eval"],
   "partitura/lib/partitura/production/builders/gestures.rb" => ["instance_eval", "method_missing"],
   "partitura/lib/partitura/production/builders/phrases.rb" => ["instance_eval"],
   "partitura/lib/partitura/production/builders/piece.rb" => ["instance_eval"],

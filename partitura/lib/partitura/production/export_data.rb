@@ -146,13 +146,15 @@ module Partitura
     end
 
     def export_placement(piece, placement)
-      offset = piece.offset_for(placement.bar, placement.beat)
+      offset = piece.placement_start_offset(placement)
       {
         phrase_id: placement.phrase_id.to_s,
         part: placement.part.to_s,
         role: placement.role.to_s,
         bar: placement.bar,
         beat: rational_number(placement.beat),
+        anacrusis_ql: rational_number(placement.anacrusis || 0),
+        fill: placement.fill,
         offset_ql: rational_number(offset),
         offset_label: piece.format_offset(offset),
         transform: placement.transform,

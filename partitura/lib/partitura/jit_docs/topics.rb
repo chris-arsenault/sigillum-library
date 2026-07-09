@@ -21,7 +21,7 @@ module Partitura
         use_when: "Write or inspect executable LLM-native Partitura source.",
         rules: [
           "Use `production_piece` in source files loaded by `load_production_file`.",
-          "Use one container: production_piece, roster, section, span, phrase, placement, staff_bar.",
+          "Use one container: production_piece, roster, section, span, phrase, placement, texture, staff_bar.",
           "Declare the span's harmony as a per-bar chord track: chords \"b1:F b2:Bb\"; verify with harmony_check.",
           "Every roster part declares display name plus exact `music21:` instrument class.",
           "Declare opening meter once; use `meter { change ... }` for bar-boundary meter changes.",
@@ -72,6 +72,8 @@ module Partitura
         rules: [
           "Default long-line surface is degrees plus rhythm.",
           "Use intervals for motivic identity.",
+          "Use texture + score grid to CREATE dense vertical/ostinato material; use staff_grid to " \
+          "VERIFY simultaneity after composing.",
           "Use staff_grid for dense vertical or timing-critical bars.",
           "Use hybrid for most orchestral passages.",
           "Use absolute when register is the musical object.",
@@ -79,13 +81,15 @@ module Partitura
           "Never mix untyped representations inside one phrase."
         ],
         example: "partitura_help hybrid",
-        next_topics: %i[degrees intervals split_pitch_rhythm absolute staff_grid controls phrase_placement hybrid],
+        next_topics: %i[degrees intervals split_pitch_rhythm absolute texture staff_grid controls phrase_placement 
+hybrid],
         docs: ["docs/architecture/partitura/02_surface_decision.md"]
       },
       container: {
         use_when: "Create or inspect the standard piece/section/span/phrase container.",
         rules: [
-          "Keep the outer architecture stable: production_piece, section, span, phrase, placement, staff_bar.",
+          "Keep the outer architecture stable: production_piece, section, span, phrase, placement, texture, " \
+          "staff_bar.",
           "Do not invent a new top-level shape for a local passage.",
           "Roster parts use `part :id, \"Display Name\", music21: \"Music21Class\"`.",
           "Opening meter belongs at piece level; later meter changes must land on bar boundaries.",
@@ -253,6 +257,40 @@ module Partitura
         next_topics: %i[marks absolute split_pitch_rhythm phrase_placement projections export],
         docs: ["docs/architecture/partitura/surfaces/controls.md"]
       },
+      texture: {
+        use_when: "Compose a composite sounding mechanism directly: broken-chord engine, distributed chord, " \
+                  "ensemble swell, or any vertical block where the grid IS the source.",
+        rules: [
+          "texture is SOUNDING source; staff_bar stays the verified checkpoint (use both: compose with score, " \
+          "pin with staff_bar).",
+          "score grid: :eighth divides every texture bar into equal slots; one token per slot, one | per barline.",
+          "Grid tokens: pitch/chord = attack, `_` = sustain (crossing a barline emits authored ties), `.` = " \
+          "silence; inline marks attach to attacks.",
+          "Every bar of every lane must carry exactly the meter's slot count for the grid (compile error " \
+          "score_grid_slot_mismatch otherwise); grids: whole half quarter quarter_triplet eighth eighth_triplet " \
+          "sixteenth thirty_second.",
+          "line embeds a normal phrase surface (degrees/intervals/absolute) in the same texture; use " \
+          "`anacrusis` for a pickup before the texture's first bar, or write leading rests for a later entry.",
+          "control inside the texture (:start/:end anchors) expands to every participating part, lines included.",
+          "The span keyword `texture: :label` is prose metadata; the `texture ... do` block is the sounding " \
+          "construct - they are unrelated."
+        ],
+        example: <<~RUBY.strip,
+            texture :string_engine, bars: 45..48 do
+              control { dynamic :mp, at: :start; crescendo from: :start, to: :end }
+              score grid: :eighth do
+                violin "E5 B4 G5 B4 E5 B4 G5 B4 | F5 C5 Ab4 C5 F5 C5 Ab4 C5"
+                cello  "E3 _ _ _ B2 _ _ _ | F3 _ _ _ C3 _ _ _"
+              end
+              line :call, part: :flute, role: :foreground, pitch: :degrees do
+                degrees "5 4 3 r | 4 3 2 r"
+                rhythm  "1 1 1 1 | 1 1 1 1"
+              end
+            end
+          RUBY
+        next_topics: %i[staff_grid marks harmony decision projections],
+        docs: ["docs/architecture/partitura/surfaces/texture.md"]
+      },
       staff_grid: {
         use_when: "Write or inspect simultaneity, handoffs, cadence bars, exits, or rhythmic engines.",
         rules: [
@@ -270,13 +308,16 @@ module Partitura
               pulse      "drum: X . X X . X ."
             end
           RUBY
-        next_topics: %i[hybrid phrase_placement controls projections],
+        next_topics: %i[texture hybrid phrase_placement controls projections],
         docs: ["docs/architecture/partitura/surfaces/staff_grid.md"]
       },
       phrase_placement: {
         use_when: "Place named material into instruments, bars, beats, or transformed entrances.",
         rules: [
           "Every placement states part, location, and role.",
+          "Use `anacrusis` for pickups: `at:` is the arrival downbeat, and sounding starts earlier by that length.",
+          "`fill_material` defines reusable sub-bar material; `fill from:` realizes it across voices with " \
+          "transpose_to/transpose_by/invert/retrograde/key_match and role :fill.",
           "Repeated placements need distinct musical jobs.",
           "Transformed placements must be inspectable or materialized.",
           "Do not use placement as hidden stamping."

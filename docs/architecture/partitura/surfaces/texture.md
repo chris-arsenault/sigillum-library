@@ -29,15 +29,27 @@ end
 
 ## Rules
 
-- `texture` is sounding source, not a checkpoint.
-- `score` is vertical/grid notation. One token is one grid slot.
+- `texture` is sounding source, not a checkpoint. It is unrelated to the span keyword
+  `texture: :label`, which is prose metadata.
+- `score` is vertical/grid notation. One token is one grid slot; grids: `whole`, `half`,
+  `quarter`, `quarter_triplet`, `eighth`, `eighth_triplet`, `sixteenth`, `thirty_second`.
+- Slot counts are verified: every bar of every lane must carry exactly the meter's slot
+  count for the chosen grid, with one `|` per barline (compile error
+  `score_grid_slot_mismatch` naming the texture, lane, and bar otherwise). A grid that
+  does not divide the meter evenly is rejected with a finer-grid suggestion.
 - Grid tokens: pitch/chord = attack, `_` = sustain previous note, `.` = silence.
 - Chord tokens use existing bracket spelling: `[E4,G4,B4]`.
-- Inline marks attach to attacks: `G5{accent}`, `[E4,G4]{arp}`.
-- `_` across a barline emits authored ties.
+- Inline marks attach to attacks: `G5{accent}`, `[E4,G4]{arp}` (closed mark vocabulary
+  applies - see `partitura help marks`).
+- `_` across a barline emits authored ties (chords tie member-by-member).
 - `line` embeds existing phrase surfaces (`degrees`, `intervals`, `absolute`) in the same texture.
-- `control` inside a texture attaches dynamics/hairpins/text to the composite mechanism and expands to participating parts.
-- `staff_bar` remains a verified checkpoint; use `score` when the vertical grid should create sound.
+  A line normally enters at the texture's first bar; use `anacrusis N` inside the line
+  when its written pickup starts before that barline, or write leading rests for a later
+  entrance.
+- `control` inside a texture attaches dynamics/hairpins/text to the composite mechanism and expands
+  to participating parts (embedded lines included); `:start`/`:end` anchor to the texture's bars.
+- `staff_bar` remains a verified checkpoint; use `score` when the vertical grid should create sound,
+  and a `staff_bar` when you want the vertical asserted and re-verified on every compile.
 
 ## Projection Needed
 
