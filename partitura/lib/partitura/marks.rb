@@ -11,8 +11,9 @@ module Partitura
     ORNAMENTS = %w[trill].freeze
     SPANNERS = %w[slur( slur) tie( tie) cresc( cresc) dim( dim) gliss( gliss) trill( trill)].freeze
     ARPEGGIOS = %w[arp arp:up arp:down arp:non].freeze
+    HOLDS = %w[fermata].freeze
 
-    ALL = (DYNAMICS + ARTICULATIONS + TECHNIQUES + ORNAMENTS + SPANNERS + ARPEGGIOS).freeze
+    ALL = (DYNAMICS + ARTICULATIONS + TECHNIQUES + ORNAMENTS + SPANNERS + ARPEGGIOS + HOLDS).freeze
 
     # `txt:` carries free text (vocal syllables, `txt:con_sord.`); it is the only open
     # prefix. Techniques above must never be spelled as `txt:` labels.
@@ -32,6 +33,8 @@ module Partitura
         "ornaments: #{ORNAMENTS.join(' ')} (single note) / trill( trill) (span)",
         "spanner pairs: #{SPANNERS.join(' ')}",
         "rolled chords: #{ARPEGGIOS.join(' ')}",
+        "holds: #{HOLDS.join(' ')} (notation only - MIDI playback keeps the written duration; " \
+        "use tempo ritardando/a_tempo for timed holds)",
         "free text: #{TEXT_PREFIX}<words_with_underscores>"
       ]
     end

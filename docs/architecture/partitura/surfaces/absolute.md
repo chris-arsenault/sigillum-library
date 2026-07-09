@@ -39,6 +39,8 @@ end
     `G3:1{tie(} | G3:.5{tie)}`.
   - `{trill}` (one note) or `{trill(}` ... `{trill)}` — trill mark + wavy extension.
   - `{pizz}` / `{arco}` — bowing state (real `pizzicato="yes"` on every note until cancelled).
+  - `{fermata}` — hold on the event (`<fermata/>` in notation; MIDI playback keeps the written
+    duration — pair with `tempo` `ritardando`/`a_tempo` when the hold must be timed).
   - `{slur(}` ... `{slur)}`, `{cresc(}` ... `{cresc)}`, `{dim(}` ... `{dim)}` — slur/wedge spanner pairs.
 - Reserve `{txt:...}` for words that really are text (vocal syllables, `txt:con_sord.`), never for a technique above.
 - Keep pitch and rhythm streams aligned by bar and event count.

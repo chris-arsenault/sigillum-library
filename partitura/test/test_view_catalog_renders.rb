@@ -70,6 +70,27 @@ class ViewCatalogRendersTest < Minitest::Test
     assert_includes readout, "exact repeats (pitch+rhythm): (none)"
   end
 
+  def test_fermata_mark_renders_as_musicxml_notation_not_text
+    piece = Partitura::Production.piece("Fermata") do
+      meter "4/4"
+      roster { part :vc, "Cello", music21: "Violoncello" }
+      section :s1, "One", bars: 1..1 do
+        span bars: 1..1 do
+          phrase :cad, surface: :absolute do
+            events "[D3,A3]:4{pp,fermata}"
+          end
+          placement :cad, part: :vc, at: "bar 1 beat 1", role: :bass_line
+        end
+      end
+    end
+
+    assert_equal "ok", piece.compile_response.fetch(:status)
+    xml = REXML::Document.new(Partitura.production_musicxml(piece))
+    refute_nil REXML::XPath.first(xml, "//notations/fermata"), "expected a <fermata/> notation"
+    assert_nil REXML::XPath.first(xml, "//words[text()='fermata']"), "fermata must not leak as text"
+    Partitura.production_midi(piece)
+  end
+
   def test_recurrence_map_reports_cross_part_returns
     piece = Partitura::Production.piece("Migrating ground") do
       meter "4/4"

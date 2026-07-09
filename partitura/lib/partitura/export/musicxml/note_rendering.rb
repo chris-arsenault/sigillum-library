@@ -4,10 +4,11 @@ module Partitura
   module Export
     module MusicXML
       module NoteRendering
-        EMPTY_NOTATION_KEYS = %i[tie_types articulations technicals arpeggios ornaments spanners].freeze
+        EMPTY_NOTATION_KEYS = %i[tie_types articulations technicals arpeggios ornaments spanners
+                                 fermatas].freeze
         TEXT_MARK_EXCLUSIONS = %w[
           lv harm trem trill trill( trill) slur( slur) tie( tie) gliss( gliss) cresc( cresc) dim( dim)
-          pizz arco rimshot xstick
+          pizz arco rimshot xstick fermata
         ].freeze
 
         private
@@ -126,6 +127,7 @@ module Partitura
           notation.fetch(:arpeggios).each { |mark| render_arpeggio_notation(xml, mark) }
           notation.fetch(:spanners).each { |mark| render_spanner_notation(xml, mark) }
           render_tuplet_notation(xml, item) if item[:tuplet]
+          xml.empty("fermata") if notation.fetch(:fermatas).any?
           xml.element("notehead", notation.fetch(:notehead)) if notation.fetch(:notehead)
           xml.close("notations")
         end
@@ -140,6 +142,7 @@ module Partitura
             arpeggios: marks.select { |mark| mark.start_with?("arp") },
             ornaments: marks.select { |mark| %w[trill trem].include?(mark) },
             spanners: marks.select { |mark| spanner_mark?(mark) },
+            fermatas: marks.select { |mark| mark == "fermata" },
             notehead: notehead_for_marks(marks)
           }
         end

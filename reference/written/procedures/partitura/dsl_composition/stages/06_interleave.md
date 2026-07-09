@@ -1,8 +1,12 @@
 # Stage 6 - Interleave Ideas Below The Section Level
 
-Do this while composing, not as an afterthought.
+Interleaving belongs inside the span passes: while composing Stage 5 you already made
+one passage cause the next. This stage is the dedicated sweep for what composing
+missed - with the spans done, you can now see every opportunity zone across the whole
+piece at once, which no single span pass could. Run it as a fresh read: assume some
+seams and returns are still stencil-shaped, and go looking.
 
-First map opportunity zones:
+Map the opportunity zones across the full piece:
 
 - two bars before and after each section boundary
 - first statement and every return of primary material
