@@ -19,8 +19,16 @@ module Partitura
         def tempo_meta_event(event)
           return nil unless tempo_mark_event?(event)
 
-          micros = (60_000_000 / Float(event["bpm"])).round
+          micros = tempo_microseconds(event.fetch("bpm"))
           [ticks(rational(event["offset_ql"] || 0)), meta_event(0x51, [micros].pack("N").bytes.last(3).pack("C*"))]
+        end
+
+        def tempo_microseconds(bpm)
+          value = rational(bpm)
+          micros = value.positive? ? (Rational(60_000_000) / value).round : 0
+          return micros if Production::MIDI_TEMPO_MICROSECONDS.cover?(micros)
+
+          raise Error, "tempo #{bpm.inspect} is outside the MIDI playback range"
         end
 
         def tempo_mark_event?(event)

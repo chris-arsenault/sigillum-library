@@ -119,6 +119,41 @@ class ProductionSurfaceModelAnalysisTest < Minitest::Test
     end
   end
 
+  def test_musicxml_import_preserves_metronome_augmentation_dots
+    Dir.mktmpdir do |dir|
+      { 1 => "dotted-quarter=84", 2 => "double-dotted-quarter=84" }.each do |dots, expected|
+        path = File.join(dir, "#{dots}-dots.musicxml")
+        dot_elements = Array.new(dots, "<beat-unit-dot/>").join("\n              ")
+        xml = MINIMAL_IMPORT_MUSICXML.sub(
+          "<beat-unit>quarter</beat-unit>",
+          "<beat-unit>quarter</beat-unit>\n              #{dot_elements}"
+        )
+        File.write(path, xml)
+
+        conversion = Partitura.production_musicxml_import(path, bars: 1..1, beats: 4)
+        tempo = conversion.to_h.fetch(:meta).find { |row| row.fetch(:kind) == "tempo" }
+
+        assert_equal expected, tempo.fetch(:text)
+      end
+    end
+  end
+
+  def test_musicxml_import_preserves_approximate_dotted_metronome_text
+    Dir.mktmpdir do |dir|
+      path = File.join(dir, "approximate-dotted.musicxml")
+      xml = MINIMAL_IMPORT_MUSICXML
+            .sub("<beat-unit>quarter</beat-unit>", "<beat-unit>quarter</beat-unit>\n              <beat-unit-dot/>")
+            .sub("<per-minute>84</per-minute>", "<per-minute>c. 84</per-minute>")
+      File.write(path, xml)
+
+      conversion = Partitura.production_musicxml_import(path, bars: 1..1, beats: 4)
+      tempo = conversion.to_h.fetch(:meta).find { |row| row.fetch(:kind) == "tempo" }
+
+      assert_equal "dotted-quarter=c. 84", tempo.fetch(:text)
+      assert_equal 126, Partitura::Production.bpm_from_text(tempo.fetch(:text))
+    end
+  end
+
   private
 
   def metrics_piece

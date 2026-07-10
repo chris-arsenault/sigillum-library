@@ -2,6 +2,7 @@
 
 require_relative "../marks"
 require_relative "degree_parsing"
+require_relative "tempo_parsing"
 
 module Partitura
   module Production
@@ -24,15 +25,7 @@ module Partitura
       "mixolydian" => [0, 2, 4, 5, 7, 9, 10].freeze,
       "locrian" => [0, 1, 3, 5, 6, 8, 10].freeze
     }.freeze
-
     module_function
-
-    def bpm_from_text(text)
-      bpm = text.to_s.scan(/\d+(?:\.\d+)?/).last
-      return nil unless bpm
-
-      bpm.include?(".") ? bpm.to_f : bpm.to_i
-    end
 
     def events_from_degrees(degrees, rhythm, key_context)
       degree_tokens, rhythm_tokens = parallel_tokens(degrees, rhythm, "degrees", "rhythm", :degrees)

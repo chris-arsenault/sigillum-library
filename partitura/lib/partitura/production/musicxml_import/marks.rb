@@ -43,6 +43,15 @@ module Partitura
       def typed_span_mark(element, name)
         element.attributes["type"] == "start" ? "#{name}(" : "#{name})"
       end
+
+      def metronome_beat_unit(metronome)
+        beat_unit = text_at(metronome, "beat-unit")
+        dots = each_at(metronome, "beat-unit-dot").count
+        return beat_unit if dots.zero?
+
+        prefix = { 1 => "dotted", 2 => "double-dotted", 3 => "triple-dotted" }.fetch(dots, "#{dots}-dotted")
+        "#{prefix}-#{beat_unit}"
+      end
     end
   end
 end

@@ -41,7 +41,15 @@ module Partitura
                 offset: event.fetch(:local_offset)
               )
             when :tempo
-              render_tempo_direction(xml, event.fetch(:bpm), event[:text], offset: event.fetch(:local_offset))
+              render_tempo_direction(
+                xml,
+                event.fetch(:bpm),
+                event[:text],
+                offset: event.fetch(:local_offset),
+                beat_unit: event[:beat_unit] || "quarter",
+                beat_unit_dots: event[:beat_unit_dots] || 0,
+                per_minute: event[:per_minute] || event.fetch(:bpm)
+              )
             when :hidden_tempo
               render_hidden_tempo_direction(xml, event.fetch(:bpm), offset: event.fetch(:local_offset))
             end

@@ -39,7 +39,17 @@ module Partitura
           bpm = event["bpm"]
           return unless bpm
 
-          add_direction(directions, 0, rational(event["offset_ql"] || 0), :tempo, bpm: bpm, text: event["text"])
+          add_direction(
+            directions,
+            0,
+            rational(event["offset_ql"] || 0),
+            :tempo,
+            bpm: bpm,
+            text: event["text"],
+            beat_unit: event["beat_unit"] || "quarter",
+            beat_unit_dots: event["beat_unit_dots"] || 0,
+            per_minute: event["per_minute"] || bpm
+          )
         end
 
         def add_tempo_text_direction(directions, marks, kind, event)
@@ -169,6 +179,9 @@ value: control.fetch("value"))
           staff: nil,
           bpm: nil,
           text: nil,
+          beat_unit: nil,
+          beat_unit_dots: nil,
+          per_minute: nil,
           other: nil,
           number: nil,
           spread: nil
@@ -183,6 +196,9 @@ value: control.fetch("value"))
             staff: staff,
             bpm: bpm,
             text: text,
+            beat_unit: beat_unit,
+            beat_unit_dots: beat_unit_dots,
+            per_minute: per_minute,
             other: other,
             number: number,
             spread: spread,

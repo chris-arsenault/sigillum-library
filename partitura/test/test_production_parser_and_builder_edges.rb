@@ -3,6 +3,63 @@
 require_relative "support/production_surface_helpers"
 
 class ProductionParserAndBuilderEdgesTest < Minitest::Test
+  def test_tempo_parser_normalizes_common_beat_units_to_quarter_bpm
+    cases = {
+      "whole = 30" => 120,
+      "half = 45" => 90,
+      "quarter = 96" => 96,
+      "eighth = 132" => 66,
+      "16th = 200" => 50,
+      "32nd = 240" => 30
+    }
+
+    cases.each do |text, expected_bpm|
+      assert_equal expected_bpm, Partitura::Production.bpm_from_text(text), text
+    end
+  end
+
+  def test_tempo_parser_preserves_written_unit_dots_and_per_minute
+    tempo = Partitura::Production.tempo_from_text("dotted-quarter = 52")
+    assert_equal(
+      { bpm: 78, beat_unit: "quarter", beat_unit_dots: 1, per_minute: 52 },
+      tempo
+    )
+    assert_equal 174, Partitura::Production.bpm_from_text("dotted-quarter = 116")
+
+    assert_equal 70, Partitura::Production.bpm_from_text("double-dotted-quarter = 40")
+    assert_equal 60, Partitura::Production.bpm_from_text("triple dotted quarter = 32")
+
+    approximate = Partitura::Production.tempo_from_text("dotted-quarter = ca. 52")
+    assert_equal 78, approximate.fetch(:bpm)
+    assert_equal "ca. 52", approximate.fetch(:per_minute)
+
+    ranged = Partitura::Production.tempo_from_text("eighth = 132-144")
+    assert_equal 69, ranged.fetch(:bpm)
+    assert_equal "132-144", ranged.fetch(:per_minute)
+
+    float_tempo = Partitura::Production.tempo_from_text("dotted-sixteenth = 80.5")
+    assert_equal "16th", float_tempo.fetch(:beat_unit)
+    assert_equal 80.5, float_tempo.fetch(:per_minute)
+    assert_in_delta 30.1875, float_tempo.fetch(:bpm)
+  end
+
+  def test_tempo_parser_retains_legacy_numeric_fallback
+    assert_equal 72.5, Partitura::Production.bpm_from_text("Allegro 72.5")
+    assert_equal 148, Partitura::Production.bpm_from_text("Fast march tempo=148")
+    assert_equal 148, Partitura::Production.tempo_from_text("Fast march q=148").fetch(:bpm)
+    assert_equal 96, Partitura::Production.tempo_from_text("quarter = 96 unhurried").fetch(:bpm)
+    assert_nil Partitura::Production.bpm_from_text("senza misura")
+  end
+
+  def test_tempo_parser_rejects_malformed_typed_marks_and_unrepresentable_playback
+    assert_tempo_error("undotted-quarter = 60", "bad_tempo_mark")
+    assert_tempo_error("dotted-quarter = fast", "bad_tempo_mark")
+    assert_tempo_error("quarter = 144-132", "bad_tempo_mark")
+    assert_tempo_error("quarter = 0", "tempo_out_of_midi_range")
+    assert_tempo_error("32nd = 20", "tempo_out_of_midi_range")
+    assert_tempo_error("quarter = 120000001", "tempo_out_of_midi_range")
+  end
+
   def test_note_parser_rejects_bad_tokens_and_non_positive_durations
     assert_parse_error("C5")
     assert_parse_error("C5:0", "duration must be positive")
@@ -102,6 +159,14 @@ class ProductionParserAndBuilderEdgesTest < Minitest::Test
   end
 
   private
+
+  def assert_tempo_error(text, code)
+    error = assert_raises(Partitura::Production::CompileError) do
+      Partitura::Production.tempo_from_text(text)
+    end
+    assert_equal code, error.response.fetch(:code)
+    assert_equal "controls", error.response.fetch(:help_topic)
+  end
 
   def assert_parse_error(text, message = "bad note token")
     error = assert_raises(Partitura::ParseError) { Partitura::NoteParser.parse(text) }

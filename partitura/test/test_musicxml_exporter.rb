@@ -126,6 +126,54 @@ class MusicXMLExporterTest < Minitest::Test
     assert_equal 1, REXML::XPath.match(document, "//backup").length
   end
 
+  def test_dotted_tempo_preserves_notation_and_uses_quarter_normalized_sound_tempo
+    piece = Partitura::Production.piece("Dotted Tempo Export") do
+      meter "6/8"; key "C"; tempo "dotted-quarter = 52"
+      roster do
+        part :flute, "Flute", music21: "Flute", family: :woodwind
+      end
+      section :s1, "Opening", bars: 1..1 do
+        span bars: 1..1 do
+          phrase(:line, surface: :absolute) { events "C5:3" }
+          placement :line, part: :flute, at: "bar 1 beat 1", role: :foreground
+        end
+      end
+    end
+
+    document = render_document(piece)
+    metronome = REXML::XPath.first(document, "//metronome")
+
+    assert_equal "quarter", text_at(document, "//metronome/beat-unit")
+    assert_equal 1, REXML::XPath.match(metronome, "beat-unit-dot").length
+    assert_equal "52", text_at(document, "//metronome/per-minute")
+    assert_equal "78", REXML::XPath.first(document, "//sound[@tempo]").attributes["tempo"]
+  end
+
+  def test_tempo_without_notation_metadata_defaults_to_quarter_bpm
+    piece = Partitura::Production.piece("Legacy Tempo Export") do
+      meter "4/4"; key "C"
+      roster do
+        part :flute, "Flute", music21: "Flute", family: :woodwind
+      end
+      section :s1, "Opening", bars: 1..1 do
+        span bars: 1..1 do
+          phrase(:line, surface: :absolute) { events "C5:4" }
+          placement :line, part: :flute, at: "bar 1 beat 1", role: :foreground
+        end
+      end
+    end
+    piece.add_tempo_event(
+      Partitura::Production::TempoEvent.new(kind: :mark, text: "legacy", at: "bar 1 beat 1", bpm: 90)
+    )
+
+    document = render_document(piece)
+
+    assert_equal "quarter", text_at(document, "//metronome/beat-unit")
+    assert_empty REXML::XPath.match(document, "//metronome/beat-unit-dot")
+    assert_equal "90", text_at(document, "//metronome/per-minute")
+    assert_equal "90", REXML::XPath.first(document, "//sound[@tempo]").attributes["tempo"]
+  end
+
   def test_text_controls_create_notes_staff
     piece = Partitura::Production.piece("Notes Staff Export") do
       meter "4/4"

@@ -303,12 +303,21 @@ module Partitura
           xml.close("direction")
         end
 
-        def render_tempo_direction(xml, bpm, _text, offset: nil)
+        def render_tempo_direction(
+          xml,
+          bpm,
+          _text,
+          offset: nil,
+          beat_unit: "quarter",
+          beat_unit_dots: 0,
+          per_minute: nil
+        )
           xml.open("direction")
           xml.open("direction-type")
           xml.open("metronome", "parentheses" => "no")
-          xml.element("beat-unit", "quarter")
-          xml.element("per-minute", bpm.to_s)
+          xml.element("beat-unit", beat_unit)
+          (beat_unit_dots || 0).to_i.times { xml.empty("beat-unit-dot") }
+          xml.element("per-minute", per_minute.nil? ? bpm.to_s : per_minute.to_s)
           xml.close("metronome")
           xml.close("direction-type")
           render_offset(xml, offset, sound: true)

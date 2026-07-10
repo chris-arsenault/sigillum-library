@@ -17,7 +17,7 @@ anchor :answer_entry, at: "bar 3 beat 1.5"
 anchor :answer_exit, at: "bar 4 beat 3"
 
 tempo do
-  mark "quarter = 72", at: "bar 1 beat 1"
+  mark "dotted-quarter = 52", at: "bar 1 beat 1"
   change "quarter = 96", at: "bar 9 beat 1"
   ritardando from: "bar 15 beat 1", to: "bar 16 beat 3.5"
   a_tempo at: "bar 17 beat 1"
@@ -39,6 +39,15 @@ end
 - Use inline event marks for point marks tied to one event: `{mf}`, `{accent}`, `{stacc}`, `{txt:pizz.}`.
 - Use `control` for marks that span time or target more than one event.
 - Use `tempo` for score tempo. Use `change` or `mark` for explicit tempo marks.
+- Tempo values count the declared beat unit, not an implicit quarter note: `dotted-quarter = 52`
+  means 52 dotted quarters per minute, equivalent to quarter = 78 for playback.
+- Beat units are `whole`, `half`, `quarter`, `eighth`, `16th`, and `32nd`. Prefix a unit with
+  `dotted-`, `double-dotted-`, or `triple-dotted-` when the metronome beat includes dots;
+  `sixteenth` and `thirty-second` are accepted aliases.
+- Approximate and ranged marks such as `quarter = ca. 72` and `eighth = 132-144` preserve their
+  written metronome text while playback uses the numeric value or range midpoint.
+- Typed tempo marks are validated against MIDI's representable playback range; malformed or
+  unrepresentable declarations fail compilation instead of silently changing beat units.
 - Use `meter` for score meter changes. Meter changes must be at bar boundaries.
 - Locations are explicit strings like `"bar 9 beat 1"` or named anchors.
 - `for:` accepts `:all`, a part id, a family selector such as `:string`, a role selector, or a list.

@@ -244,7 +244,7 @@ text: "chord or grace note skipped")
             part: part,
             bar: bar,
             kind: "tempo",
-            text: "#{text_at(metronome, 'beat-unit')}=#{text_at(metronome, 'per-minute')}"
+            text: "#{metronome_beat_unit(metronome)}=#{text_at(metronome, 'per-minute')}"
           )
         end
         wedge = first_at(element, ".//wedge")

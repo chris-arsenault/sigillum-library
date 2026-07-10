@@ -234,7 +234,10 @@ module Partitura
       base = {
         kind: event.kind.to_s,
         text: event.text,
-        bpm: event.bpm
+        bpm: event.bpm,
+        beat_unit: event.beat_unit,
+        beat_unit_dots: event.beat_unit_dots,
+        per_minute: event.per_minute
       }.compact
       if event.at
         offset = piece.offset_for_reference(event.at)
@@ -330,10 +333,10 @@ module Partitura
 
     def tempo_events_from_marks(marks)
       marks.filter_map do |mark|
-        bpm = bpm_from_text(mark)
-        next unless bpm
+        tempo = tempo_from_text(mark)
+        next unless tempo
 
-        { offset_ql: 0.0, bpm: bpm, text: mark.to_s }
+        { offset_ql: 0.0, text: mark.to_s }.merge(tempo)
       end
     end
   end

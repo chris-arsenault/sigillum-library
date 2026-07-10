@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "tempo_parsing"
 require_relative "models/entities"
 require_relative "models/compile_response"
 require_relative "models/timing"
@@ -69,12 +70,13 @@ module Partitura
       end
 
       def add_tempo(text, at: "bar 1 beat 1")
+        tempo = Production.tempo_from_text(text) || {}
         @tempo_marks << text.to_s
         @tempo_events << TempoEvent.new(
           kind: :mark,
           text: text.to_s,
           at: at,
-          bpm: Production.bpm_from_text(text)
+          **tempo
         )
       end
 

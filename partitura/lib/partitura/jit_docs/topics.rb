@@ -229,6 +229,8 @@ hybrid],
           "Use inline event marks only for marks tied to one event.",
           "Use `control` for marks that span time or target one part, a family, a role, a list, or all parts.",
           "Use `tempo` for score tempo and tempo changes; do not repeat tempo markings in part material.",
+          "Tempo beat units are semantic: `dotted-quarter = 52` means 52 dotted-quarter beats per minute " \
+          "(quarter = 78 for playback).",
           "Use `meter` for bar-boundary meter changes.",
           "Locations are explicit bar/beat strings or named anchors.",
           "Inspect with `production_view SOURCE.rb controls` before export."
@@ -241,7 +243,7 @@ hybrid],
             end
 
             tempo do
-              mark "quarter = 72", at: "bar 1 beat 1"
+              mark "dotted-quarter = 52", at: "bar 1 beat 1"
               change "quarter = 96", at: "bar 9 beat 1"
               ritardando from: "bar 15 beat 1", to: "bar 16 beat 3.5"
               a_tempo at: "bar 17 beat 1"

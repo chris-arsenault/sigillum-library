@@ -34,6 +34,27 @@ class ProductionSurfaceControlsExportTest < Minitest::Test
     assert_includes timed_events, "marks={mf}"
   end
 
+  def test_dotted_tempo_exports_written_mark_and_normalized_playback_bpm
+    piece = Partitura::Production.piece("Dotted tempo") do
+      meter "6/8"
+      key "C"
+      tempo { mark "dotted-quarter = 52", at: "bar 1 beat 1" }
+      roster { part :flute, "Flute", music21: "Flute" }
+      section :s1, "Opening", bars: 1..1 do
+        span bars: 1..1 do
+          phrase(:line, surface: :absolute) { events "C5:3" }
+          placement :line, part: :flute, at: "bar 1 beat 1", role: :foreground
+        end
+      end
+    end
+
+    event = Partitura::Production.export_data(piece).fetch(:tempo_events).first
+    assert_equal 78, event.fetch(:bpm)
+    assert_equal "quarter", event.fetch(:beat_unit)
+    assert_equal 1, event.fetch(:beat_unit_dots)
+    assert_equal 52, event.fetch(:per_minute)
+  end
+
   def test_roster_exports_notation_group_metadata
     piece = Partitura::Production.piece("Notation metadata") do
       meter "4/4"

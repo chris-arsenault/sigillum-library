@@ -91,7 +91,10 @@ class JITDocsTest < Minitest::Test
     assert_includes data[:example], "control do"
     assert_includes data[:example], "tempo do"
     assert_includes data[:example], "meter do"
+    assert_includes data[:example], "mark \"dotted-quarter = 52\", at: \"bar 1 beat 1\""
     assert_includes data[:example], "change \"quarter = 96\", at: \"bar 9 beat 1\""
+    assert_includes data[:rules], "Tempo beat units are semantic: `dotted-quarter = 52` means 52 " \
+      "dotted-quarter beats per minute (quarter = 78 for playback)."
     assert_includes data[:docs], "docs/architecture/partitura/surfaces/controls.md"
   end
 end

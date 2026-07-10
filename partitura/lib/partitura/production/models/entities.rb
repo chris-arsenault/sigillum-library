@@ -111,7 +111,10 @@ module Partitura
 
     MeterEvent = Struct.new(:meter, :beat_pattern, :bar, keyword_init: true)
 
-    TempoEvent = Struct.new(:kind, :text, :at, :from, :to, :bpm, keyword_init: true)
+    TempoEvent = Struct.new(
+      :kind, :text, :at, :from, :to, :bpm, :beat_unit, :beat_unit_dots, :per_minute,
+      keyword_init: true
+    )
 
     class Part
       attr_reader :id, :name, :music21_instrument, :family, :range, :description, :notation_group, :notation_staff
