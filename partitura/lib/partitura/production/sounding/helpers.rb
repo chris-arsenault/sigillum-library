@@ -50,7 +50,7 @@ module Partitura
         end
 
         def all_sounding
-          @all_sounding ||= @piece.timed_events.reject(&:rest?)
+          @all_sounding ||= Production.merge_authored_ties(@piece.timed_events.reject(&:rest?))
         end
 
         def event_midi(event)

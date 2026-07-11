@@ -36,8 +36,16 @@ module Partitura
         private
 
         def report_title
-          "# Melody Report #{piece.title}#{scope_suffix} " \
+          "# Melody Report #{piece.title}#{scope_suffix}#{auto_selected_suffix} " \
             "(#{notes.length} notes, #{bar_count} bars; key #{key_label})"
+        end
+
+        # Without --part the melody line is chosen heuristically; say so, or the reader
+        # assumes the role-declared foreground was analyzed.
+        def auto_selected_suffix
+          return "" if part || notes.empty?
+
+          " [auto-selected line: #{notes.map(&:part).uniq.join('+')} - pass --part to choose]"
         end
 
         def report_framing
@@ -125,7 +133,8 @@ module Partitura
         end
 
         def analysis_header
-          "# Melody Analysis #{piece.title}#{scope_suffix} (#{notes.length} melody notes; key #{key_label})"
+          "# Melody Analysis #{piece.title}#{scope_suffix}#{auto_selected_suffix} " \
+            "(#{notes.length} melody notes; key #{key_label})"
         end
 
         def motif_transforms

@@ -2,6 +2,21 @@
 
 Compose the main musical identities before filling the texture.
 
+Composition methods available - pick per musical job, and pick BEFORE writing the
+first material, not after (`partitura help decision` routes; no method outranks
+another):
+
+- `degrees` + rhythm - tonal/modal function; key- and mode-aware ("c4", "D4 dorian")
+- `intervals` + rhythm - motivic cells and their transformations
+- split pitch/rhythm or `absolute` streams - editable long lines, register-bound material
+- `texture` + `score` grid - composite vertical mechanisms: engines, ostinati,
+  distributed chords, swells (the grid IS the source)
+- `fill` / `fill_material` - reusable sub-bar figures, transposed/inverted/retrograded
+  per entrance
+- `anacrusis:` - pickups (`at:` stays the arrival downbeat)
+- `chords "bN:X"` - declared harmony per bar; `harmony_check` closes the loop
+
+
 For theme-led pieces:
 
 - Name A, B, and any important secondary cells.

@@ -14,7 +14,7 @@ module Partitura
         end
 
         def prepare_measure_tuplets(items)
-          tuplet_index_groups(items).each { |indexes| apply_tuplet_group!(items, indexes) }
+          tuplet_index_groups(items).each { |group| apply_tuplet_group!(items, group) }
         end
 
         def beam_index_groups(items, bar)
@@ -24,7 +24,58 @@ module Partitura
         end
 
         def tuplet_index_groups(items)
-          consecutive_index_groups(items) { |item| tuplet_signature(item.fetch(:duration)) }
+          consecutive_index_groups(items) { |item| tuplet_signature(item.fetch(:duration)) ? :tuplet : nil }
+            .flat_map { |indexes| split_tuplet_index_group(items, indexes) }
+        end
+
+        def split_tuplet_index_group(items, indexes)
+          beat_groups = beat_tuplet_index_groups(items, indexes)
+          return beat_groups if beat_groups
+
+          same_duration_tuplet_index_groups(items, indexes)
+        end
+
+        def beat_tuplet_index_groups(items, indexes)
+          groups = []
+          current = []
+          total = Rational(0)
+          indexes.each do |index|
+            current << index
+            total += items.fetch(index).fetch(:duration)
+            return nil if total > 1
+            next unless total == 1
+
+            groups << { indexes: current, normal_type: "eighth" }
+            current = []
+            total = Rational(0)
+          end
+          current.empty? ? groups : nil
+        end
+
+        def same_duration_tuplet_index_groups(items, indexes)
+          same_duration_index_runs(items, indexes)
+            .flat_map do |same_duration_indexes|
+              same_duration_indexes.each_slice(3).filter_map do |slice|
+                next unless slice.length == 3
+
+                { indexes: slice, normal_type: tuplet_signature(items.fetch(slice.first).fetch(:duration))
+                  .fetch(:normal_type) }
+              end
+            end
+        end
+
+        def same_duration_index_runs(items, indexes)
+          runs = []
+          current = []
+          current_signature = nil
+          indexes.each do |index|
+            signature = tuplet_signature(items.fetch(index).fetch(:duration))
+            runs << current if current.any? && signature != current_signature
+            current = signature == current_signature ? current + [index] : [index]
+            current_signature = signature
+          end
+          runs << current if current.any?
+          runs
         end
 
         def consecutive_index_groups(items)
@@ -53,12 +104,14 @@ module Partitura
           end
         end
 
-        def apply_tuplet_group!(items, indexes)
-          indexes.each_slice(3) do |slice|
-            next unless slice.length == 3
-
-            items.fetch(slice.first)[:tuplet] = :start
-            items.fetch(slice.last)[:tuplet] = :stop
+        def apply_tuplet_group!(items, group)
+          indexes = group.fetch(:indexes)
+          indexes.each { |index| items.fetch(index)[:tuplet_normal_type] = group.fetch(:normal_type) }
+          if indexes.length == 1
+            items.fetch(indexes.first)[:tuplet] = :start_stop
+          else
+            items.fetch(indexes.first)[:tuplet] = :start
+            items.fetch(indexes.last)[:tuplet] = :stop
           end
         end
 
@@ -69,8 +122,20 @@ module Partitura
         end
 
         def beam_group_for(item, bar)
+          group_lengths = beat_group_lengths(bar)
+          return proportional_beam_group(item, group_lengths) if group_lengths.any?
+
           group_length = beam_group_length(bar.fetch(:meter))
           (item.fetch(:local_offset) / group_length).floor
+        end
+
+        def proportional_beam_group(item, group_lengths)
+          cursor = Rational(0)
+          group_lengths.each_with_index do |length, index|
+            cursor += length
+            return index if item.fetch(:local_offset) < cursor
+          end
+          group_lengths.length - 1
         end
 
         def beam_group_length(meter)

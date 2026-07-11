@@ -283,7 +283,7 @@ text: "chord or grace note skipped")
       end
 
       def pending_anything_at_or_after(notes, bar, offset)
-        notes.find { |note| [note.bar, note.onset] >= [bar, offset] }
+        notes.find { |note| ([note.bar, note.onset] <=> [bar, offset]) >= 0 }
       end
 
       def merge_ties(notes)

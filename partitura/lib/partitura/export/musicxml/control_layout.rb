@@ -119,9 +119,24 @@ module Partitura
             add_hairpin_control_direction(directions, control)
           when "harp_pedals"
             add_harp_pedals_control_direction(directions, control)
+          when "text"
+            add_text_control_direction(directions, control)
           when "chord_symbol"
             add_direction(directions, 0, rational(control.fetch("offset_ql")), :harmony, 
 value: control.fetch("value"))
+          end
+        end
+
+        def add_text_control_direction(directions, control)
+          rendered_notation_targets(control["target"]).each do |target|
+            add_direction(
+              directions,
+              target.fetch(:index),
+              rational(control.fetch("offset_ql")),
+              :words,
+              value: control.fetch("value"),
+              staff: target[:staff]
+            )
           end
         end
 
@@ -269,26 +284,68 @@ staff: staff || start_item[:staff], long: true)
         end
 
         def add_hairpin_wedge_directions(directions, rendered_index, context)
-          number = next_wedge_number
-          add_direction(
+          number = hairpin_wedge_number(rendered_index, context)
+          add_hairpin_wedge_direction(
             directions,
+            rendered_index,
+            hairpin_wedge_direction_context(
+              context, number,
+              {
+                offset: :start_offset, item: :start_item, value: context.fetch(:type),
+                spread: wedge_hairpin_start_spread(context.fetch(:type))
+              }
+            )
+          )
+          add_hairpin_wedge_direction(
+            directions,
+            rendered_index,
+            hairpin_wedge_direction_context(
+              context, number,
+              {
+                offset: :end_offset, item: :end_item, value: "stop",
+                spread: wedge_hairpin_stop_spread(context.fetch(:type))
+              }
+            )
+          )
+        end
+
+        def hairpin_wedge_direction_context(context, number, selectors)
+          {
+            offset: context.fetch(selectors.fetch(:offset)),
+            value: selectors.fetch(:value),
+            item: context.fetch(selectors.fetch(:item)),
+            number: number,
+            staff: context[:staff],
+            spread: selectors.fetch(:spread)
+          }
+        end
+
+        def hairpin_wedge_number(rendered_index, context)
+          wedge_number_for_span(
             rendered_index,
             context.fetch(:start_offset),
-            :wedge,
-            value: context.fetch(:type),
-            staff: context[:staff] || context.fetch(:start_item)[:staff],
-            number: number,
-            spread: wedge_hairpin_start_spread(context.fetch(:type))
+            context.fetch(:end_offset),
+            key: [
+              :control,
+              rendered_index,
+              context[:staff],
+              context.fetch(:type),
+              context.fetch(:start_offset),
+              context.fetch(:end_offset)
+            ]
           )
+        end
+
+        def add_hairpin_wedge_direction(directions, rendered_index, event)
           add_direction(
             directions,
             rendered_index,
-            context.fetch(:end_offset),
+            event.fetch(:offset),
             :wedge,
-            value: "stop",
-            staff: context[:staff] || context.fetch(:end_item)[:staff],
-            number: number,
-            spread: wedge_hairpin_stop_spread(context.fetch(:type))
+            value: event.fetch(:value),
+            staff: event[:staff] || event.fetch(:item)[:staff],
+            number: event.fetch(:number),
+            spread: event.fetch(:spread)
           )
         end
 
@@ -349,35 +406,46 @@ staff: staff || start_item[:staff], long: true)
         end
 
         def add_pedal_span_direction(directions, rendered_index, from_offset, to_offset, staff: nil)
+          start_item, end_item = pedal_span_items(rendered_index, from_offset, to_offset, staff)
+          return unless pedal_span_renderable?(start_item, end_item, to_offset)
+
+          number = pedal_span_number(rendered_index, from_offset, to_offset, staff)
+          add_pedal_direction(directions, rendered_index, pedal_direction_context(start_item, "start", staff, number))
+          add_pedal_direction(directions, rendered_index, pedal_direction_context(end_item, "stop", staff, number))
+        end
+
+        def pedal_span_items(rendered_index, from_offset, to_offset, staff)
           start_item = element_at_or_after(rendered_index, from_offset, staff: staff, sounding_only: true)
           end_item = element_before(rendered_index, to_offset, staff: staff, sounding_only: true) ||
             element_at_or_before(rendered_index, to_offset, staff: staff, sounding_only: true)
-          return if start_item.nil? || end_item.nil?
-          return if item_absolute_offset(start_item) >= to_offset
-
-          number = next_pedal_number
-          add_direction(
-            directions,
-            rendered_index,
-            item_absolute_offset(start_item),
-            :pedal,
-            value: "start",
-            staff: staff || start_item[:staff],
-            number: number
-          )
-          add_direction(
-            directions,
-            rendered_index,
-            item_absolute_offset(end_item),
-            :pedal,
-            value: "stop",
-            staff: staff || end_item[:staff],
-            number: number
-          )
+          [start_item, end_item]
         end
 
-        def next_pedal_number
-          @pedal_number = (@pedal_number || 0) + 1
+        def pedal_span_renderable?(start_item, end_item, to_offset)
+          return false if start_item.nil? || end_item.nil?
+
+          item_absolute_offset(start_item) < to_offset
+        end
+
+        def pedal_span_number(rendered_index, from_offset, to_offset, staff)
+          pedal_number_for_span(rendered_index, from_offset, to_offset,
+                                key: [:control, rendered_index, staff, from_offset, to_offset])
+        end
+
+        def pedal_direction_context(item, value, staff, number)
+          { item: item, value: value, staff: staff || item[:staff], number: number }
+        end
+
+        def add_pedal_direction(directions, rendered_index, event)
+          add_direction(
+            directions,
+            rendered_index,
+            item_absolute_offset(event.fetch(:item)),
+            :pedal,
+            value: event.fetch(:value),
+            staff: event.fetch(:staff),
+            number: event.fetch(:number)
+          )
         end
 
         def element_at_or_after(rendered_index, offset, staff: nil, sounding_only: false)

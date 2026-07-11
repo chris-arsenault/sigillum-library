@@ -26,7 +26,8 @@ module Partitura
       def parse_fields(text)
         fields = {}
         current = nil
-        text.to_s.each_line do |line|
+        text = text.to_s.dup.force_encoding(Encoding::UTF_8).scrub
+        text.each_line do |line|
           stripped = line.strip.sub(/\A[-*]\s+/, "")
           if (match = stripped.match(/\A([a-z_\/]+)\s*:\s*(.*)\z/i))
             current = normalize_key(match[1])

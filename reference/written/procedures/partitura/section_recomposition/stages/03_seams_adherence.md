@@ -51,6 +51,5 @@ its payload carries your original pass note for exactly that comparison.
 Run this whole stage in EDITING mode. Name what the drafting lens of the recomposed material was,
 then walk the span and its seam windows again with the lenses that were neglected while composing -
 that is where the replacement will be weakest, and "nothing is broken" there is the good-enough
-bias, not a verdict. The payload's OPEN THREADS list (your own recorded weaknesses, outputs, and
-improvement candidates) is part of this pass's worklist: address, build on, or consciously carry
-each with a reason.
+bias, not a verdict. The payload's OPEN THREADS list (the carries you recorded earlier) is part of
+this pass's worklist: close each in source, or consciously carry it on with a reason.

@@ -34,7 +34,9 @@ least one. An audit unit is an EDITING pass, not a defect scan:
    countermelodies, elaborated figures, sharper seams. Deletion-only findings are the
    good-enough lens talking; pair every opened space with music composed into it.
 4. Revise the DSL source itself, re-export, and commit the unit with the pass note recording
-   what improved (the `improvements` field) and the open threads addressed.
+   what improved (the `improvements` field) and the carries closed. This is the full-ledger stage:
+   every carry fed forward from earlier passes is closed in source here, or consciously carried on
+   with a stated reason.
 5. Repeat while the auditions still find room - there is always room; stop when the remaining
    candidates are genuinely worse than the music they would replace, and say so.
 
@@ -62,7 +64,8 @@ The new composition pass is complete only when:
 - Primary materials and accompaniment rhythms use duration, rests, and beat placement as musical
   functions, not bar-filling.
 - Bass, accompaniment, counterlines, and pads have positive musical jobs.
-- Span pass notes account for realized events, produced outputs, divergences, and revisions.
+- The realized material is present in the source (read `material_map`), and span pass notes account
+  for divergences and revisions.
 - The closeout includes a musical review of bar/beat failure modes in substantial spans.
 - Technique-library influence has been adapted into the piece's own notes.
 - Flow is interleaved below the section level where the form needs it.
@@ -79,9 +82,9 @@ The new composition pass is complete only when:
 - Exported score/playback has been auditioned after the first successful export.
 - At least one post-export audit unit has been committed (the stage gate enforces this), and its
   findings were improvements to compose, not only defects to remove.
-- Every open thread fed forward from earlier pass notes (weaknesses, outputs, improvement
-  candidates) has been addressed, built on, or consciously carried with a reason.
-- Any discovered weaknesses were revised in source and re-exported.
+- Every carry fed forward from earlier pass notes has been closed in source, or consciously carried
+  on with a reason.
+- Any weakness discovered at any stage was revised in source and re-exported, not logged and left.
 - The DSL source compiles and exports.
 
 Do not describe the result as a draft in the closeout. If it is still a draft, the procedure is not

@@ -26,6 +26,21 @@ class MIDIExporterTest < Minitest::Test
     assert_equal simple_piece.parts.length + 1, midi.byteslice(10, 2).unpack1("n")
   end
 
+  def test_text_controls_preserve_the_empty_notes_metadata_track
+    midi = Partitura::Export::MIDI.render(text_control_piece)
+
+    assert_equal 3, midi.byteslice(10, 2).unpack1("n")
+    assert_includes midi, "Notes"
+  end
+
+  def test_emits_tuba_and_timpani_program_changes
+    tuba_midi = Partitura::Export::MIDI.render(instrument_piece("Tuba", :brass, "C2:4"))
+    timpani_midi = Partitura::Export::MIDI.render(instrument_piece("Timpani", :pitched_percussion, "D2:4"))
+
+    assert_includes tuba_midi, [0xC0, 58].pack("C*")
+    assert_includes timpani_midi, [0xC0, 47].pack("C*")
+  end
+
   def test_dotted_quarter_tempo_normalizes_to_quarter_bpm
     midi = Partitura.production_midi(tempo_piece("dotted-quarter = 52"))
 
@@ -36,6 +51,20 @@ class MIDIExporterTest < Minitest::Test
     midi = Partitura.production_midi(tempo_piece("quarter = 120"))
 
     assert_equal 500_000, first_tempo_microseconds(midi)
+  end
+
+  def test_emits_meter_and_key_change_timelines
+    midi = Partitura.production_midi(meter_and_key_change_piece)
+
+    assert_equal [
+      [0, [4, 2, 24, 8]],
+      [8 * 10_080, [3, 2, 24, 8]]
+    ], tempo_track_meta_events(midi, 0x58)
+    assert_equal [
+      [0, [0, 0]],
+      [4 * 10_080, [-2, 1]],
+      [11 * 10_080, [2, 0]]
+    ], tempo_track_meta_events(midi, 0x59, unpack: "cC")
   end
 
   def test_midi_export_rejects_unrepresentable_raw_tempo_events
@@ -73,6 +102,56 @@ class MIDIExporterTest < Minitest::Test
     end
   end
 
+  def instrument_piece(instrument, family, event_text)
+    Partitura::Production.piece("#{instrument} Program") do
+      meter "4/4"
+      key "C"
+
+      roster do
+        part :instrument, instrument, music21: instrument, family: family
+      end
+
+      section :s1, "Opening", bars: 1..1 do
+        span bars: 1..1 do
+          phrase(:line, surface: :absolute) { events event_text }
+          placement :line, part: :instrument, at: "bar 1 beat 1", role: :foreground
+        end
+      end
+    end
+  end
+
+  def meter_and_key_change_piece
+    Partitura::Production.piece("MIDI Meter And Key Timeline") do
+      meter "4/4"
+      key "C"
+      meter { change "3/4", at: "bar 3" }
+      control { key_change "g", at: "bar 2"; key_change "D", at: "bar 4" }
+
+      roster { part :flute, "Flute", music21: "Flute", family: :woodwind }
+      section :s1, "Changing Grid", bars: 1..4 do
+        span bars: 1..4 do
+          phrase(:line, surface: :absolute) { events "C5:1" }
+          placement :line, part: :flute, at: "bar 1 beat 1", role: :foreground
+        end
+      end
+    end
+  end
+
+  def text_control_piece
+    Partitura::Production.piece("MIDI Text Control") do
+      meter "4/4"
+      key "C"
+      control { text "mark this transition", at: "bar 1 beat 1", for: :all }
+      roster { part :flute, "Flute", music21: "Flute", family: :woodwind }
+      section :s1, "Opening", bars: 1..1 do
+        span bars: 1..1 do
+          phrase(:line, surface: :absolute) { events "C5:4" }
+          placement :line, part: :flute, at: "bar 1 beat 1", role: :foreground
+        end
+      end
+    end
+  end
+
   def first_tempo_microseconds(midi)
     position = 14
     raise "invalid MIDI tempo track" unless midi.byteslice(position, 4) == "MTrk"
@@ -95,6 +174,29 @@ class MIDIExporterTest < Minitest::Test
     end
 
     raise "MIDI tempo event not found"
+  end
+
+  def tempo_track_meta_events(midi, wanted_type, unpack: nil)
+    position = 14
+    raise "invalid MIDI tempo track" unless midi.byteslice(position, 4) == "MTrk"
+
+    track_length = midi.byteslice(position + 4, 4).unpack1("N")
+    position += 8
+    track_end = position + track_length
+    tick = 0
+    events = []
+    while position < track_end
+      delta, position = read_variable_length(midi, position)
+      tick += delta
+      raise "expected MIDI meta event" unless midi.getbyte(position) == 0xFF
+
+      type = midi.getbyte(position + 1)
+      data_length, data_position = read_variable_length(midi, position + 2)
+      payload = midi.byteslice(data_position, data_length)
+      events << [tick, unpack ? payload.unpack(unpack) : payload.bytes] if type == wanted_type
+      position = data_position + data_length
+    end
+    events
   end
 
   def read_variable_length(bytes, position)

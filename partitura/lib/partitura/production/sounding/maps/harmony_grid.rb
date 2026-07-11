@@ -66,7 +66,7 @@ module Partitura
         end
 
         def ensemble_grid(bars: nil)
-          notes = @piece.timed_events(include_rests: true).reject(&:rest?)
+          notes = Production.merge_authored_ties(@piece.timed_events(include_rests: true).reject(&:rest?))
           lines = ["# Ensemble Grid (16th resolution; X=attack -=sustain .=silent; beats separated by |)"]
           ensemble_grid_range(notes, bars).each { |bar| append_ensemble_grid_bar(lines, bar, notes) }
           lines.join("\n")

@@ -19,8 +19,10 @@ module Partitura
         "Horn" => 60,
         "Oboe" => 68,
         "Piano" => 0,
+        "Timpani" => 47,
         "Trumpet" => 56,
         "Trombone" => 57,
+        "Tuba" => 58,
         "Viola" => 41,
         "Violin" => 40,
         "Violoncello" => 42

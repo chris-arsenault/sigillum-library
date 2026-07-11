@@ -26,6 +26,54 @@ class ProductionAnacrusisFillTest < Minitest::Test
     assert_equal "ok", piece.compile_response.fetch(:status)
   end
 
+  def test_anacrusis_overwrites_prior_rests_without_warning
+    piece = Partitura::Production.piece("Pickup overwrites rest") do
+      meter "4/4"; key "C"
+      roster { part :flute, "Flute", music21: "Flute", family: :woodwind }
+      section :s1, "One", bars: 1..2 do
+        span bars: 1..1 do
+          phrase(:resting, surface: :absolute) { events "r:4" }
+          placement :resting, part: :flute, at: "bar 1 beat 1", role: :background
+        end
+        span bars: 2..2 do
+          phrase :call, surface: :absolute do
+            anacrusis 1
+            events "G4:1 | C5:4"
+          end
+          placement :call, part: :flute, at: "bar 2 beat 1", role: :foreground
+        end
+      end
+    end
+
+    assert_equal "b1:4", piece.format_offset(piece.timed_events(include_rests: true).find { |event|
+ event.pitch_label == "G4" }.offset)
+    assert_empty piece.compile_response.fetch(:lints)
+  end
+
+  def test_anacrusis_overwrites_prior_notes_with_warning
+    piece = Partitura::Production.piece("Pickup overwrites note") do
+      meter "4/4"; key "C"
+      roster { part :flute, "Flute", music21: "Flute", family: :woodwind }
+      section :s1, "One", bars: 1..2 do
+        span bars: 1..1 do
+          phrase(:held, surface: :absolute) { events "C5:4" }
+          placement :held, part: :flute, at: "bar 1 beat 1", role: :background
+        end
+        span bars: 2..2 do
+          phrase :call, surface: :absolute do
+            anacrusis 1
+            events "G4:1 | C5:4"
+          end
+          placement :call, part: :flute, at: "bar 2 beat 1", role: :foreground
+        end
+      end
+    end
+
+    lints = piece.compile_response.fetch(:lints)
+    assert_equal ["anacrusis_overlap"], lints.map { |lint| lint.fetch(:rule) }.uniq
+    assert_includes lints.first.fetch(:message), "overwritten by anacrusis"
+  end
+
   def test_inline_fill_creates_short_fill_role_with_pickup
     piece = Partitura::Production.piece("Fill") do
       meter "4/4"; key "C"

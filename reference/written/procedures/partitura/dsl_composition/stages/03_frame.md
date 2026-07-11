@@ -1,5 +1,9 @@
 # Stage 3 - DSL Frame
 
+Before laying the frame, skim the full method palette (degrees/intervals/split/absolute
+streams, texture + score grids, fills, anacrusis, chord track) - `partitura help decision` -
+so the frame leaves room for the methods each section will need.
+
 Create the source frame:
 
 - `production_piece`

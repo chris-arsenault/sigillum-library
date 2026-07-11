@@ -95,11 +95,15 @@ module Partitura
     end
 
     TimedEvent = Struct.new(:part, :role, :phrase_id, :pitch, :duration, :offset, :source,
-                            :transform, :realization, :local_marks, keyword_init: true) do
+                            :transform, :realization, :local_marks, :anacrusis, keyword_init: true) do
       include PitchEvent
 
       def end_offset
         offset + duration
+      end
+
+      def anacrusis?
+        !!anacrusis
       end
     end
 
@@ -117,18 +121,21 @@ module Partitura
     )
 
     class Part
-      attr_reader :id, :name, :music21_instrument, :family, :range, :description, :notation_group, :notation_staff
+      attr_reader :id, :name, :music21_instrument, :family, :range, :description, :percussion_map,
+                  :notation_group, :notation_staff, :abbreviation
 
-      def initialize(id:, name:, music21_instrument:, family: nil, range: nil, description: nil, notation_group: nil, 
-notation_staff: nil)
+      def initialize(id:, name:, music21_instrument:, family: nil, range: nil, description: nil,
+                     percussion_map: nil, notation_group: nil, notation_staff: nil, abbreviation: nil)
         @id = id.to_sym
         @name = name
         @music21_instrument = music21_instrument.to_s
         @family = family&.to_sym
         @range = range
         @description = description
+        @percussion_map = percussion_map || {}.freeze
         @notation_group = notation_group&.to_sym
         @notation_staff = notation_staff
+        @abbreviation = abbreviation
       end
     end
 

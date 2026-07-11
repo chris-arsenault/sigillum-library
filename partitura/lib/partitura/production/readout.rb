@@ -89,9 +89,18 @@ module Partitura
       def render(view, part: nil, bars: nil)
         bars = Production.parse_bar_range(bars) if bars.is_a?(String)
         body = render_view(view, part: part, bars: bars)
-        return "#{SECONDARY_BANNER}\n#{body}" if SECONDARY_VIEWS.include?(view.to_sym)
+        body = "#{SECONDARY_BANNER}\n#{body}" if SECONDARY_VIEWS.include?(view.to_sym)
+        return body if view.to_sym == :compile || piece.deferred_errors.empty?
 
-        body
+        "#{deferred_error_banner}\n#{body}"
+      end
+
+      def deferred_error_banner
+        lines = ["# COMPILE BLOCKED - this view renders best-effort; fix before export:"]
+        piece.deferred_errors.each do |error|
+          lines << "#   #{error.response[:code]}: #{error.response[:message]}"
+        end
+        lines.join("\n")
       end
 
       def render_view(view, part: nil, bars: nil)

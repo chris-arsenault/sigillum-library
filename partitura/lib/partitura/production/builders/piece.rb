@@ -118,8 +118,8 @@ module Partitura
         instance_eval(&block) if block
       end
 
-      def part(id, name, music21: nil, family: nil, range: nil, description: nil, notation_group: nil, 
-notation_staff: nil)
+      def part(id, name, music21: nil, family: nil, range: nil, description: nil, percussion_map: nil,
+               notation_group: nil, notation_staff: nil, abbreviation: nil)
         unless music21
           raise CompileError.new(
             code: "missing_music21_instrument",
@@ -131,6 +131,7 @@ notation_staff: nil)
           )
         end
 
+        normalized_percussion_map = normalize_percussion_map(id, family, percussion_map)
         @piece.add_part(Part.new(
           id: id,
           name: name,
@@ -138,9 +139,29 @@ notation_staff: nil)
           family: family,
           range: range,
           description: description,
+          percussion_map: normalized_percussion_map,
           notation_group: notation_group,
-          notation_staff: notation_staff
+          notation_staff: notation_staff,
+          abbreviation: abbreviation
         ))
+      end
+
+      private
+
+      def normalize_percussion_map(id, family, percussion_map)
+        normalized = PercussionDevices.normalize_map(percussion_map)
+        return normalized if normalized.empty? || family.to_s == "percussion"
+
+        raise ArgumentError, "percussion_map requires family: :percussion"
+      rescue ArgumentError => error
+        raise CompileError.new(
+          code: "bad_percussion_map",
+          message: "Roster part #{id.inspect} has an invalid percussion_map: #{error.message}.",
+          repair_instruction: "Map authored pitch identifiers to supported devices: " \
+                              "#{PercussionDevices::DEVICES.keys.join(', ')}.",
+          help_topic: "container",
+          docs: ["docs/architecture/partitura/01_container.md"]
+        )
       end
     end
   end

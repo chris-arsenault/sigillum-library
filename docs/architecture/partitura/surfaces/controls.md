@@ -28,6 +28,7 @@ control do
   dynamic :pp, at: "bar 13 beat 1", for: [:clarinet, :solo_violin]
   crescendo from: "bar 9 beat 1", to: "bar 12 beat 3.5", for: :string
   diminuendo from: :answer_entry, to: :answer_exit, for: [:clarinet, :solo_violin]
+  clef :tenor, at: "bar 9 beat 1", for: :cello
   pedal :down, at: "bar 9 beat 1", for: :keyboard
   pedal :up, at: "bar 10 beat 3", for: :keyboard
   harp_pedals "D# C# B# | E# F# G# A#", at: "bar 5 beat 1", for: :harp_rh
@@ -49,6 +50,7 @@ end
 - Typed tempo marks are validated against MIDI's representable playback range; malformed or
   unrepresentable declarations fail compilation instead of silently changing beat units.
 - Use `meter` for score meter changes. Meter changes must be at bar boundaries.
+- Use `clef :treble|:alto|:tenor|:bass|:percussion` for a notated clef change. Clef changes must land at bar boundaries and do not alter sounding pitch or MIDI.
 - Locations are explicit strings like `"bar 9 beat 1"` or named anchors.
 - `for:` accepts `:all`, a part id, a family selector such as `:string`, a role selector, or a list.
 - `harp_pedals` takes the seven pedals in diagram order `D C B | E F G A` (optional `#`/`b` per pedal)

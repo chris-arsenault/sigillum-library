@@ -127,27 +127,58 @@ def card_haystacks(card)
   }
 end
 
-def token_score(card, haystacks, token)
+FUZZY_THRESHOLD = 0.45
+
+def trigrams(word)
+  return [word] if word.length < 3
+
+  (0..(word.length - 3)).map { |index| word[index, 3] }
+end
+
+def trigram_similarity(left, right)
+  a = trigrams(left)
+  b = trigrams(right)
+  return 0.0 if a.empty? || b.empty?
+
+  (a & b).length.to_f / [a.length, b.length].max
+end
+
+def card_words(haystacks)
+  (haystacks[:behavior].scan(/[a-z][a-z-]{2,}/) + haystacks[:name].split(/[_\s]+/)).uniq
+end
+
+def token_score(card, haystacks, token, words)
   return 10 if haystacks[:name].include?(token)
   return 6 if category_match?(token, haystacks[:category])
   return 4 if facets_of(card).include?(token)
 
-  behavior_score(haystacks[:behavior], token)
+  behavior_score(haystacks[:behavior], token, words)
 end
 
-def behavior_score(behavior, token)
+def behavior_score(behavior, token, words)
   return 2 if expand_token(token).any? { |term| term != token && behavior.include?(term) }
-  return 1 if behavior.include?(token)
+  return 2 if behavior.include?(token)
 
-  0
+  fuzzy_score(token, words)
 end
 
+# Morphology and misspellings ("arpeggios", "ostinati", "cresendo") land on the
+# closest real word instead of zeroing out.
+def fuzzy_score(token, words)
+  best = words.map { |word| trigram_similarity(token, word) }.max || 0.0
+  best >= FUZZY_THRESHOLD ? (2.0 * best).round(2) : 0
+end
+
+# OR semantics: tokens the library has never heard of contribute nothing instead of
+# vetoing the query; ranking prefers cards matching more of the query.
 def score_card(card, tokens)
   haystacks = card_haystacks(card)
-  scores = tokens.map { |token| token_score(card, haystacks, token) }
-  return 0 if scores.any?(&:zero?)
+  words = card_words(haystacks)
+  scores = tokens.map { |token| token_score(card, haystacks, token, words) }
+  matched = scores.count(&:positive?)
+  return [0, 0] if matched.zero?
 
-  scores.sum
+  [matched, scores.sum]
 end
 
 def search(query)
@@ -155,21 +186,23 @@ def search(query)
   return puts(usage) if tokens.empty?
 
   scored = manifest.filter_map do |card|
-    score = score_card(card, tokens)
-    [score, card] if score.positive?
+    matched, score = score_card(card, tokens)
+    [matched, score, card] if matched.positive?
   end
   return no_hits(query, tokens) if scored.empty?
 
-  print_ranked_hits(query, scored)
+  print_ranked_hits(query, tokens, scored)
 end
 
-def print_ranked_hits(query, scored)
-  ranked = scored.sort_by { |score, card| [-score, card.fetch("name")] }.map(&:last)
+def print_ranked_hits(query, tokens, scored)
+  ranked = scored.sort_by { |matched, score, card| [-matched, -score, card.fetch("name")] }
+  full = ranked.count { |matched, _, _| matched == tokens.length }
   shown = ranked.first(SEARCH_LIMIT)
   suffix = ranked.length > shown.length ? ", showing #{shown.length}" : ""
-  puts "#{ranked.length} card(s) for '#{query}'#{suffix}:"
+  partial_note = full < ranked.length ? " (#{ranked.length - full} match only part of the query)" : ""
+  puts "#{ranked.length} card(s) for '#{query}'#{suffix}#{partial_note}:"
   puts
-  shown.each { |card| print_search_hit(card) }
+  shown.each { |_, _, card| print_search_hit(card) }
   return unless ranked.length > shown.length
 
   puts

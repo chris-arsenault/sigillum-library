@@ -4,7 +4,7 @@ require "json"
 require "minitest/autorun"
 require "open3"
 
-ROOT = File.expand_path("../..", __dir__)
+ROOT = File.expand_path("../../..", __dir__)
 CARD_ROOT = File.join(ROOT, "technique_library", "dsl", "cards")
 MANIFEST = File.join(CARD_ROOT, "manifest.json")
 

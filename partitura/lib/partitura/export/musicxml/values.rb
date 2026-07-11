@@ -21,6 +21,20 @@ module Partitura
         # MusicXML <mode> vocabulary; the notated signature for harmonic/melodic minor is minor.
         MUSICXML_MODES = MODE_FIFTHS_OFFSET.keys.to_h { |mode| [mode, mode] }
                                            .merge("harmonic_minor" => "minor", "melodic_minor" => "minor").freeze
+        NOTE_TYPE_DURATIONS = {
+          Rational(8) => "breve",
+          Rational(4) => "whole",
+          Rational(2) => "half",
+          Rational(1) => "quarter",
+          Rational(1, 2) => "eighth",
+          Rational(1, 4) => "16th",
+          Rational(1, 8) => "32nd",
+          Rational(1, 16) => "64th",
+          Rational(1, 32) => "128th",
+          Rational(1, 64) => "256th",
+          Rational(1, 128) => "512th",
+          Rational(1, 256) => "1024th"
+        }.freeze
 
         private
 
@@ -88,6 +102,46 @@ module Partitura
           }
         end
 
+        def written_pitch(value)
+          parsed = parse_pitch(value)
+          transposition = written_transposition_for_current_part
+          return parsed unless transposition
+
+          transpose_written_pitch(parsed, transposition)
+        end
+
+        def written_transposition_for_current_part
+          return nil unless @current_rendered_index
+
+          written_transposition_for(rendered_parts.fetch(@current_rendered_index))
+        end
+
+        def written_transposition_for(part)
+          WRITTEN_TRANSPOSITIONS[part.fetch("music21_instrument", "").to_s]
+        end
+
+        def transpose_written_pitch(parsed, transposition)
+          steps = %w[C D E F G A B]
+          source_index = steps.index(parsed.fetch(:step))
+          diatonic_total = source_index + transposition.fetch(:written_diatonic)
+          target_step = steps.fetch(diatonic_total % steps.length)
+          target_octave = parsed.fetch(:octave) + diatonic_total.div(steps.length)
+          target_midi = parsed_pitch_midi(parsed) + transposition.fetch(:written_chromatic)
+          natural_midi = parsed_pitch_midi({ step: target_step, alter: 0, octave: target_octave })
+          { step: target_step, alter: target_midi - natural_midi, octave: target_octave }
+        end
+
+        def parsed_pitch_midi(parsed)
+          base = { "C" => 0, "D" => 2, "E" => 4, "F" => 5, "G" => 7, "A" => 9, "B" => 11 }
+          ((parsed.fetch(:octave) + 1) * 12) + base.fetch(parsed.fetch(:step)) + parsed.fetch(:alter)
+        end
+
+        def written_key_fifths(part, value)
+          transposition = written_transposition_for(part)
+          delta = transposition ? transposition.fetch(:key_fifths_delta) : 0
+          (key_fifths(value) + delta).clamp(-7, 7)
+        end
+
         def pitch_midi(value)
           parsed = parse_pitch(value)
           base = { "C" => 0, "D" => 2, "E" => 4, "F" => 5, "G" => 7, "A" => 9, "B" => 11 }.fetch(parsed.fetch(:step))
@@ -122,26 +176,72 @@ module Partitura
           (duration * DIVISIONS).round
         end
 
+        def clef_for_part(part)
+          return ["G", "2"] if part.fetch("render_kind") == "notes"
+
+          instrument = part.fetch("music21_instrument", "").to_s
+          return ["percussion", nil] if PERCUSSION_CLEF_INSTRUMENTS.include?(instrument)
+          return ["C", "3"] if ALTO_CLEF_INSTRUMENTS.include?(instrument)
+          return ["F", "4"] if BASS_CLEF_INSTRUMENTS.include?(instrument)
+
+          ["G", "2"]
+        end
+
+        def clef_signature(value)
+          CLEF_SIGNATURES.fetch(value.to_s)
+        end
+
+        def wedge_number_for_span(rendered_index, start_offset, end_offset, key:)
+          musicxml_number_level([:wedge, rendered_index], start_offset, end_offset, key: key)
+        end
+
+        def pedal_number_for_span(rendered_index, start_offset, end_offset, key:)
+          musicxml_number_level([:pedal, rendered_index], start_offset, end_offset, key: key)
+        end
+
+        def musicxml_number_level(scope, start_offset, end_offset, key:)
+          start_offset = rational(start_offset)
+          end_offset = rational(end_offset)
+          cache_key = [scope, key]
+          number_level_assignments.fetch(cache_key) do
+            number = next_musicxml_number_level(scope, start_offset, end_offset)
+            number_level_assignments[cache_key] = number
+          end
+        end
+
+        def next_musicxml_number_level(scope, start_offset, end_offset)
+          spans = number_level_spans[scope]
+          used = spans.filter_map do |span|
+            span.fetch(:number) if number_level_spans_overlap?(span, start_offset, end_offset)
+          end
+          number = MUSICXML_NUMBER_LEVELS.find { |candidate| !used.include?(candidate) } ||
+            MUSICXML_NUMBER_LEVELS.last
+          spans << { start_offset: start_offset, end_offset: end_offset, number: number }
+          number
+        end
+
+        def number_level_spans_overlap?(span, start_offset, end_offset)
+          span.fetch(:start_offset) < end_offset && start_offset < span.fetch(:end_offset)
+        end
+
+        def number_level_assignments
+          @number_level_assignments ||= {}
+        end
+
+        def number_level_spans
+          @number_level_spans ||= Hash.new { |hash, key| hash[key] = [] }
+        end
+
         def format_tempo(value)
           value.to_s
         end
 
         def duration_type(duration)
-          return ["quarter", 0, :tuplet] if duration == Rational(2, 3)
-          return ["eighth", 0, :tuplet] if duration == Rational(1, 3)
+          tuplet = tuplet_signature(duration)
+          return [tuplet.fetch(:normal_type), 0, :tuplet] if tuplet
+          return [NOTE_TYPE_DURATIONS.fetch(duration), 0, :exact] if NOTE_TYPE_DURATIONS.key?(duration)
 
-          base_types = {
-            Rational(4) => "whole",
-            Rational(2) => "half",
-            Rational(1) => "quarter",
-            Rational(1, 2) => "eighth",
-            Rational(1, 4) => "16th",
-            Rational(1, 8) => "32nd",
-            Rational(1, 16) => "64th"
-          }
-          return [base_types.fetch(duration), 0, :exact] if base_types.key?(duration)
-
-          base_types.each do |base, name|
+          NOTE_TYPE_DURATIONS.each do |base, name|
             return [name, 1, :exact] if duration == base * Rational(3, 2)
             return [name, 2, :exact] if duration == base * Rational(7, 4)
           end
@@ -150,8 +250,9 @@ module Partitura
         end
 
         def tuplet_signature(duration)
-          return { normal_type: "quarter" } if duration == Rational(2, 3)
-          return { normal_type: "eighth" } if duration == Rational(1, 3)
+          NOTE_TYPE_DURATIONS.each do |base, name|
+            return { normal_type: name } if duration == base * Rational(2, 3)
+          end
 
           nil
         end
@@ -164,7 +265,21 @@ module Partitura
           "I#{index + 1}"
         end
 
+        def percussion_instrument_xml_id(index, entry_index)
+          "#{instrument_xml_id(index)}-#{entry_index + 1}"
+        end
+
+        def percussion_map_entries(part)
+          Array(part["percussion_map"])
+        end
+
+        def percussion_map_entry(part, pitch)
+          percussion_map_entries(part).find { |entry| entry.fetch("source_pitch") == pitch.to_s }
+        end
+
         def abbreviation_for(part)
+          return part.fetch("abbreviation") if part["abbreviation"]
+
           name = part_name_for(part)
           return "Notes" if name == "Notes"
 

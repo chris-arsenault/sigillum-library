@@ -8,9 +8,8 @@ module Partitura
     module Payload
       module_function
 
-      THREAD_FIELDS = %w[weaknesses outputs improvements].freeze
-      THREAD_LIMIT = 240
-      THREAD_DISPLAY_CAP = 24
+      THREAD_LIMIT = 320
+      THREAD_RECENT_WINDOW = 10
 
       # work: false renders the compact between-units payload (an iterative stage's
       # instructions do not change between unit commits).
@@ -19,6 +18,7 @@ module Partitura
 
         stage = run.current_stage
         lines = header_lines(run, stage)
+        lines.concat(commission_lines(run, stage))
         lines.concat(flag_lines(run))
         lines.concat(reopened_lines(run, stage))
         lines.concat(thread_lines(run))
@@ -53,7 +53,7 @@ module Partitura
           gates: stage.gates,
           pass_note_fields: run.manifest.pass_note_fields,
           open_flags: open_flags(run),
-          open_threads: open_threads(run, stage.threads_fields)
+          open_threads: open_threads(run)
             .map { |origin, field, value| { origin: origin, field: field, value: value } },
           next_command: next_command(stage),
           docs: stage.docs + [run.manifest.principles_path].compact
@@ -87,27 +87,30 @@ module Partitura
         ] + note.map { |field, value| "  #{field}: #{squeeze(value)}" }
       end
 
-      # Pass-note content has consequences: what earlier passes recorded as weaknesses,
-      # outputs, and improvement candidates comes back to later stages until it is
-      # addressed, built on, or consciously carried. Which fields chase a given stage
-      # comes from the manifest (outputs only where commitments are checked).
+      # A carry has consequences: an item an earlier pass could not close - a cross-stage
+      # dependency, an unknown, or half-finished material - comes back to later stages until
+      # one closes it or consciously carries it on. Carries decay mechanically by recency -
+      # agents reliably build on what is fresh and reliably never "close" a long list, so
+      # working stages see only the recent window while the full ledger returns once, at the
+      # merge/closeout stages, where disposition of every carry is the actual work.
       def thread_lines(run)
         stage = run.current_stage
-        threads = open_threads(run, stage.threads_fields)
+        threads = open_threads(run)
         return [] if threads.empty?
 
-        shown = threads
-        overflow = []
-        if stage.threads_fields == Manifest::DEFAULT_THREAD_FIELDS && threads.length > THREAD_DISPLAY_CAP
-          shown = threads.last(THREAD_DISPLAY_CAP)
-          overflow = ["  (+#{threads.length - THREAD_DISPLAY_CAP} earlier threads - `partitura status --json` " \
-                      "lists all; every one is due at the merge/closeout stages)"]
-        end
-        ["", "OPEN THREADS (from your own pass notes - address, build on, or consciously carry each):"] +
-          shown.map { |origin, field, value| "- [#{origin}] #{field}: #{value}" } + overflow
+        full_ledger = stage.full_ledger
+        shown = full_ledger ? threads : threads.last(THREAD_RECENT_WINDOW)
+        header = full_ledger ? "OPEN THREADS - FULL LEDGER (dispose of every carry: close it in source, or " \
+                               "consciously carry it forward with a reason):" \
+                             : "OPEN THREADS (carries from earlier pass notes - close each here unless it " \
+                               "genuinely depends on a later stage; the full ledger returns at merge/closeout):"
+        older = threads.length - shown.length
+        lines = ["", header] + shown.map { |origin, field, value| "- [#{origin}] #{field}: #{value}" }
+        lines << "  (+#{older} older carries held back for the merge/closeout ledger)" if older.positive?
+        lines
       end
 
-      def open_threads(run, fields = THREAD_FIELDS)
+      def open_threads(run, fields = Manifest::THREAD_FIELDS)
         run.committed_notes.flat_map do |stage_id, unit, note|
           origin = unit ? "#{stage_id} #{unit}" : stage_id
           fields.filter_map do |field|
@@ -121,11 +124,24 @@ module Partitura
 
       def squeeze(value)
         text = value.to_s.gsub(/\s+/, " ").strip
-        text.length > THREAD_LIMIT ? "#{text[0, THREAD_LIMIT]}..." : text
+        return text unless text.length > THREAD_LIMIT
+
+        cut = text.rindex(" ", THREAD_LIMIT) || THREAD_LIMIT
+        "#{text[0, cut]}..."
       end
 
       def cli_path
         File.join(Manifest::LIBRARY_ROOT, "partitura", "bin", "partitura")
+      end
+
+      # The caller's commission; it shows while the opening stage is in progress and
+      # then lives on in the brief the agent writes.
+      def commission_lines(run, stage)
+        brief = run.state["brief"]
+        return [] unless brief && stage.id == run.manifest.stages(run.mode).first.id
+
+        ["", "COMMISSION: #{brief}",
+         "Treat this as the commission. Deviate only where the music demands it, and say why in the brief."]
       end
 
       def flag_lines(run)
@@ -166,8 +182,10 @@ module Partitura
         lines = [
           "",
           "pass_note_schema: #{run.manifest.pass_note_fields.join(' | ')}",
-          "  (weaknesses/outputs/improvements feed forward to later stages as OPEN THREADS - " \
-          "write them as material to build on, not as form-filling)",
+          "  (carries feed forward to later stages as OPEN THREADS - record only what genuinely " \
+          "cannot be closed here, e.g. a cross-stage dependency or half-finished material; fix " \
+          "anything fixable now rather than logging it. Realized material lives in the score, " \
+          "not the pass note - read it with `partitura view <source> material_map`)",
           "gates: #{stage.gates.join(', ')}"
         ]
         lines << "stage_complete_gates: #{stage.stage_complete_gates.join(', ')}" if stage.iterative &&

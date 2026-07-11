@@ -51,7 +51,8 @@ module Partitura
           source: event.source,
           transform: placement.transform,
           realization: placement.realization,
-          local_marks: event.marks
+          local_marks: event.marks,
+          anacrusis: placement.anacrusis
         )
       end
     end

@@ -6,8 +6,11 @@ require "rexml/xpath"
 
 $LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
 require "partitura"
+require_relative "support/musicxml_exporter_helpers"
 
 class MusicXMLExporterTest < Minitest::Test
+  include MusicXMLExporterHelpers
+
   def test_renders_single_staff_piece_to_musicxml
     piece = Partitura::Production.piece("Ruby Export Core") do
       meter "4/4"
@@ -64,6 +67,67 @@ class MusicXMLExporterTest < Minitest::Test
     assert_equal "minor", text_at(document, "//key/mode")
   end
 
+  def test_beat_pattern_controls_beaming_without_additive_time_display
+    piece = Partitura::Production.piece("Additive Beaming") do
+      meter "7/8", beat_pattern: [3, 2, 2]
+      key "C"
+      roster { part :violin, "Violin", music21: "Violin", family: :string }
+      section :s1, "Opening", bars: 1..1 do
+        span bars: 1..1 do
+          phrase(:line, surface: :absolute) { events "C5:.5 D5:.5 E5:.5 F5:.5 G5:.5 A5:.5 B5:.5" }
+          placement :line, part: :violin, at: "bar 1 beat 1", role: :foreground
+        end
+      end
+    end
+
+    document = render_document(piece)
+
+    assert_equal "7", text_at(document, "//time/beats")
+    assert_equal %w[begin continue end begin end begin end],
+      REXML::XPath.match(document, "//note/beam[@number='1']").map(&:text)
+  end
+
+  def test_tremolo_survives_every_fragment_of_a_tied_long_note
+    piece = Partitura::Production.piece("Sustained Tremolo") do
+      meter "11/8", beat_pattern: [3, 3, 3, 2]
+      key "C"
+      roster { part :cymbal, "Cymbal", music21: "Percussion", family: :percussion }
+      section :s1, "Opening", bars: 1..1 do
+        span bars: 1..1 do
+          phrase(:roll, surface: :absolute) { events "C3:5.5{trem}" }
+          placement :roll, part: :cymbal, at: "bar 1 beat 1", role: :rhythm
+        end
+      end
+    end
+
+    document = render_document(piece)
+
+    assert_equal 2, REXML::XPath.match(document, "//note[pitch]").length
+    assert_equal 2, REXML::XPath.match(document, "//ornaments/tremolo").length
+    assert_equal %w[start stop], REXML::XPath.match(document, "//tie").map { |element| element.attributes["type"] }
+  end
+
+  def test_trill_span_nests_wavy_line_inside_ornaments
+    piece = Partitura::Production.piece("Trill Span") do
+      meter "4/4"
+      key "C"
+      roster { part :violin, "Violin", music21: "Violin", family: :string }
+      section :s1, "Opening", bars: 1..1 do
+        span bars: 1..1 do
+          phrase(:line, surface: :absolute) { events "C5:1{trill(} D5:1 E5:1 F5:1{trill)}" }
+          placement :line, part: :violin, at: "bar 1 beat 1", role: :foreground
+        end
+      end
+    end
+
+    document = render_document(piece)
+    wavy_lines = REXML::XPath.match(document, "//ornaments/wavy-line")
+
+    assert_equal %w[start stop], wavy_lines.map { |element| element.attributes["type"] }
+    refute_nil REXML::XPath.first(document, "//ornaments[trill-mark and wavy-line[@type='start']]")
+    assert_empty REXML::XPath.match(document, "//notations/wavy-line")
+  end
+
   def test_authored_ties_connect_notes_split_by_bar_marker
     piece = Partitura::Production.piece("Ruby Authored Tie") do
       meter "2/4"
@@ -112,6 +176,83 @@ class MusicXMLExporterTest < Minitest::Test
     assert_includes xml, "<work-title>Helper Export</work-title>"
     assert_includes xml, "<beats>3</beats>"
     assert_includes xml, "<beat-type>4</beat-type>"
+  end
+
+  def test_emits_tuba_and_timpani_programs_and_abbreviations
+    tuba = render_document(
+      single_part_piece(
+        "Tuba Program", :tuba, "Tuba", music21: "Tuba", family: :brass, event_text: "C2:4"
+      )
+    )
+    timpani = render_document(
+      single_part_piece(
+        "Timpani Program", :timpani, "Timpani", music21: "Timpani",
+        family: :pitched_percussion, event_text: "D2:4"
+      )
+    )
+
+    assert_equal "59", text_at(tuba, "//midi-instrument/midi-program")
+    assert_equal "Tba", text_at(tuba, "//score-part/part-abbreviation")
+    assert_equal "48", text_at(timpani, "//midi-instrument/midi-program")
+    assert_equal "Timp.", text_at(timpani, "//score-part/part-abbreviation")
+  end
+
+  def test_routes_every_unpitched_percussion_part_to_channel_ten
+    piece = Partitura::Production.piece("Percussion Channels") do
+      meter "4/4"
+      key "C"
+      roster do
+        part :flute, "Flute", music21: "Flute", family: :woodwind
+        part :skins, "Skins", music21: "Percussion", family: :percussion
+        part :metals, "Metals", music21: "Percussion", family: :percussion
+      end
+      section :s1, "Opening", bars: 1..1 do
+        span bars: 1..1 do
+          phrase(:flute_line, surface: :absolute) { events "C5:4" }
+          phrase(:skins_line, surface: :absolute) { events "C2:.25 r:3.75" }
+          phrase(:metals_line, surface: :absolute) { events "C#3:.25 r:3.75" }
+          placement :flute_line, part: :flute, at: "bar 1 beat 1", role: :foreground
+          placement :skins_line, part: :skins, at: "bar 1 beat 1", role: :punctuation
+          placement :metals_line, part: :metals, at: "bar 1 beat 1", role: :punctuation
+        end
+      end
+    end
+
+    channels = REXML::XPath.match(render_document(piece), "//midi-instrument/midi-channel").map(&:text)
+
+    assert_equal %w[1 10 10], channels
+  end
+
+  def test_reserves_channel_ten_without_wrapping_later_pitched_parts
+    piece = Partitura::Production.piece("Mixed Orchestra Channels") do
+      meter "4/4"
+      key "C"
+      roster do
+        part :flute, "Flute", music21: "Flute", family: :woodwind
+        part :skins, "Skins", music21: "Percussion", family: :percussion
+        part :metals, "Metals", music21: "Percussion", family: :percussion
+        part :violin, "Violin", music21: "Violin", family: :string
+        part :cello, "Cello", music21: "Violoncello", family: :string
+      end
+      section :s1, "Opening", bars: 1..1 do
+        span bars: 1..1 do
+          phrase(:flute_line, surface: :absolute) { events "C5:4" }
+          phrase(:skins_line, surface: :absolute) { events "C2:.25 r:3.75" }
+          phrase(:metals_line, surface: :absolute) { events "C#3:.25 r:3.75" }
+          phrase(:violin_line, surface: :absolute) { events "G5:4" }
+          phrase(:cello_line, surface: :absolute) { events "C3:4" }
+          placement :flute_line, part: :flute, at: "bar 1 beat 1", role: :foreground
+          placement :skins_line, part: :skins, at: "bar 1 beat 1", role: :punctuation
+          placement :metals_line, part: :metals, at: "bar 1 beat 1", role: :punctuation
+          placement :violin_line, part: :violin, at: "bar 1 beat 1", role: :foreground
+          placement :cello_line, part: :cello, at: "bar 1 beat 1", role: :bass
+        end
+      end
+    end
+
+    channels = REXML::XPath.match(render_document(piece), "//midi-instrument/midi-channel").map(&:text)
+
+    assert_equal %w[1 10 10 2 3], channels
   end
 
   def test_notation_group_renders_as_two_staff_score_part
@@ -174,59 +315,4 @@ class MusicXMLExporterTest < Minitest::Test
     assert_equal "90", REXML::XPath.first(document, "//sound[@tempo]").attributes["tempo"]
   end
 
-  def test_text_controls_create_notes_staff
-    piece = Partitura::Production.piece("Notes Staff Export") do
-      meter "4/4"
-      key "C"
-
-      roster do
-        part :flute, "Flute", music21: "Flute", family: :woodwind
-      end
-
-      control do
-        text "mark this transition", at: "bar 1 beat 1", for: :all
-      end
-
-      section :s1, "Opening", bars: 1..1 do
-        span bars: 1..1 do
-          phrase(:line, surface: :absolute) { events "C5:4" }
-          placement :line, part: :flute, at: "bar 1 beat 1", role: :foreground
-        end
-      end
-    end
-
-    document = render_document(piece)
-
-    assert_equal %w[Flute Notes], 
-REXML::XPath.match(document, "/score-partwise/part-list/score-part/part-name").map(&:text)
-    assert_equal "mark this transition", text_at(document, "//part[2]//words")
-  end
-
-  private
-
-  def grand_staff_piece
-    Partitura::Production.piece("Grand Staff Export") do
-      meter "4/4"; key "C"; tempo "quarter = 96"
-      roster do
-        part :piano_upper, "Piano Upper", music21: "Piano", family: :keyboard, notation_group: :piano, notation_staff: 1
-        part :piano_lower, "Piano Lower", music21: "Piano", family: :keyboard, notation_group: :piano, notation_staff: 2
-      end
-      section :s1, "Opening", bars: 1..1 do
-        span bars: 1..1 do
-          phrase(:upper, surface: :absolute) { events "C5:1 D5:1 E5:2" }
-          phrase(:lower, surface: :absolute) { events "C3:2 G2:2" }
-          placement :upper, part: :piano_upper, at: "bar 1 beat 1", role: :foreground
-          placement :lower, part: :piano_lower, at: "bar 1 beat 1", role: :bass
-        end
-      end
-    end
-  end
-
-  def render_document(piece)
-    REXML::Document.new(Partitura::Export::MusicXML.render(piece))
-  end
-
-  def text_at(document, path)
-    REXML::XPath.first(document, path).text
-  end
 end

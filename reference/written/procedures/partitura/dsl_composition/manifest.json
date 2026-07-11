@@ -1,14 +1,12 @@
 {
   "id": "dsl_composition",
-  "version": 3,
+  "version": 4,
   "title": "DSL new-composition procedure",
   "principles": "principles.md",
   "pass_note_fields": [
-    "bars",
     "decisions",
-    "weaknesses",
+    "carries",
     "improvements",
-    "outputs",
     "musical_verdict"
   ],
   "stages": [
@@ -178,5 +176,6 @@
       ]
     ],
     "note": "the procedure's documented true-miniature fallback: fewer fresh contexts, same pass order"
-  }
+  },
+  "brief": "required"
 }

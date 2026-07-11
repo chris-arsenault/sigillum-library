@@ -1,14 +1,12 @@
 {
   "id": "section_recomposition",
-  "version": 2,
+  "version": 3,
   "title": "Section recomposition (surgical repair of an existing piece)",
   "principles": "principles.md",
   "pass_note_fields": [
-    "bars",
     "decisions",
-    "weaknesses",
+    "carries",
     "improvements",
-    "outputs",
     "musical_verdict"
   ],
   "stages": [

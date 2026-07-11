@@ -20,7 +20,9 @@ Examples of decisions that count:
 Do not keep citations that do not change a musical decision. If the research is only decorative, it
 has not earned a place in the procedure.
 
-Also record the DSL surfaces likely needed. If a surface is unfamiliar, run the relevant JIT help
+Also record the DSL methods likely needed - from the full palette (degrees, intervals,
+split/absolute streams, texture + score grids, fills, anacrusis, chord track), not just
+the line surfaces. If a surface is unfamiliar, run the relevant JIT help
 before authoring it.
 
 Keep an unused-commitments ledger while working:

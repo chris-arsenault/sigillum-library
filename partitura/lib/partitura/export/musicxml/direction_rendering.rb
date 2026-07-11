@@ -34,7 +34,7 @@ module Partitura
               end
             end
           end
-          point_events + local_hairpin_events(voices).fetch(bar.fetch(:number), [])
+          point_events + local_hairpin_events(rendered_index, voices).fetch(bar.fetch(:number), [])
         end
 
         def local_direction_event(mark, item, sequence)
@@ -64,21 +64,21 @@ module Partitura
           nil
         end
 
-        def local_hairpin_events(voices)
+        def local_hairpin_events(rendered_index, voices)
           voices.each_with_index.each_with_object(Hash.new { |hash, key|
  hash[key] = [] }) do |(voice, voice_index), out|
-            append_voice_hairpin_events(out, voice, voice_index)
+            append_voice_hairpin_events(out, rendered_index, voice, voice_index)
           end
         end
 
-        def append_voice_hairpin_events(out, voice, voice_index)
+        def append_voice_hairpin_events(out, rendered_index, voice, voice_index)
           active = nil
           ordered_voice_items(voice).each do |item|
             active = opening_hairpin(item, voice_index) || active
             close_kind = closing_hairpin_kind(item.fetch(:marks))
             next unless active && close_kind == active.fetch(:kind)
 
-            append_hairpin_events(out, active.fetch(:kind), active.fetch(:item), item, voice_index)
+            append_hairpin_events(out, rendered_index, active, item, voice_index)
             active = nil
           end
         end
@@ -106,7 +106,9 @@ module Partitura
           voice.fetch(:bars).values.flatten.sort_by { |item| [item.fetch(:bar_number), item.fetch(:local_offset)] }
         end
 
-        def append_hairpin_events(out, kind, start_item, end_item, sequence_seed)
+        def append_hairpin_events(out, rendered_index, active, end_item, sequence_seed)
+          kind = active.fetch(:kind)
+          start_item = active.fetch(:item)
           start_offset = item_absolute_offset(start_item)
           end_offset = item_absolute_offset(end_item)
           return if end_offset <= start_offset
@@ -122,6 +124,7 @@ module Partitura
               kind,
               start_item,
               end_item,
+              rendered_index: rendered_index,
               start_offset: start_offset,
               end_offset: end_offset,
               sequence_seed: sequence_seed
@@ -140,11 +143,12 @@ module Partitura
           out[event.fetch(:bar_number)] << event
         end
 
-        def wedge_event_context(kind, start_item, end_item, start_offset:, end_offset:, sequence_seed:)
+        def wedge_event_context(kind, start_item, end_item, rendered_index:, start_offset:, end_offset:, sequence_seed:)
           {
             kind: kind,
             start_item: start_item,
             end_item: end_item,
+            rendered_index: rendered_index,
             start_offset: start_offset,
             end_offset: end_offset,
             sequence_seed: sequence_seed
@@ -152,25 +156,48 @@ module Partitura
         end
 
         def append_wedge_hairpin_events(out, context)
-          number = next_wedge_number
-          start_event = wedge_hairpin_event(
-            context.fetch(:kind),
-            context.fetch(:start_item),
-            context.fetch(:start_offset),
-            number,
-            20_000 + context.fetch(:sequence_seed),
-            spread: wedge_hairpin_start_spread(context.fetch(:kind))
-          )
-          stop_event = wedge_hairpin_event(
-            "stop",
-            context.fetch(:end_item),
-            context.fetch(:end_offset),
-            number,
-            20_001 + context.fetch(:sequence_seed),
-            spread: wedge_hairpin_stop_spread(context.fetch(:kind))
-          )
+          number = local_wedge_hairpin_number(context)
+          start_event, stop_event = wedge_hairpin_event_pair(context, number)
           out[start_event.fetch(:bar_number)] << start_event
           out[stop_event.fetch(:bar_number)] << stop_event
+        end
+
+        def local_wedge_hairpin_number(context)
+          wedge_number_for_span(
+            context.fetch(:rendered_index),
+            context.fetch(:start_offset),
+            context.fetch(:end_offset),
+            key: [
+              :local,
+              context.fetch(:start_item)[:part_id],
+              context.fetch(:start_item)[:staff],
+              context.fetch(:start_item)[:voice],
+              context.fetch(:kind),
+              context.fetch(:start_offset),
+              context.fetch(:end_offset)
+            ]
+          )
+        end
+
+        def wedge_hairpin_event_pair(context, number)
+          [
+            wedge_hairpin_event(
+              context.fetch(:kind),
+              context.fetch(:start_item),
+              context.fetch(:start_offset),
+              number,
+              20_000 + context.fetch(:sequence_seed),
+              spread: wedge_hairpin_start_spread(context.fetch(:kind))
+            ),
+            wedge_hairpin_event(
+              "stop",
+              context.fetch(:end_item),
+              context.fetch(:end_offset),
+              number,
+              20_001 + context.fetch(:sequence_seed),
+              spread: wedge_hairpin_stop_spread(context.fetch(:kind))
+            )
+          ]
         end
 
         def wedge_hairpin_event(kind, item, offset, number, sequence, spread:)
@@ -212,10 +239,6 @@ module Partitura
         def long_hairpin?(start_offset, end_offset)
           bar = bar_at_offset(start_offset) || bar_layout.first
           end_offset - start_offset > MAX_HAIRPIN_BARS * bar.fetch(:length)
-        end
-
-        def next_wedge_number
-          @wedge_number = (@wedge_number || 0) + 1
         end
 
         def dedupe_measure_dynamics(events)

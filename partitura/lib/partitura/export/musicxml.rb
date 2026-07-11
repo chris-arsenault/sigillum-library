@@ -19,6 +19,7 @@ module Partitura
       NOTES_PART_ID = "__notes__"
       MAX_HAIRPIN_BARS = 2
       TEMPO_RAMP_STEP_QL = Rational(1)
+      MUSICXML_NUMBER_LEVELS = (1..16).to_a.freeze
       DEFAULT_TEMPO_RAMP_PERCENT = {
         "accelerando" => 125.0,
         "ritardando" => 65.0
@@ -56,11 +57,51 @@ module Partitura
         "Horn" => 61,
         "Oboe" => 69,
         "Piano" => 1,
+        "Timpani" => 48,
         "Trumpet" => 57,
         "Trombone" => 58,
+        "Tuba" => 59,
         "Viola" => 42,
         "Violin" => 41,
         "Violoncello" => 43
+      }.freeze
+
+      ALTO_CLEF_INSTRUMENTS = %w[
+        Viola
+      ].freeze
+      BASS_CLEF_INSTRUMENTS = %w[
+        Bass BassTrombone Bassoon Cello Contrabass Contrabassoon DoubleBass
+        ElectricBass Euphonium StringBass Timpani Trombone Tuba Violoncello
+      ].freeze
+      PERCUSSION_CLEF_INSTRUMENTS = %w[
+        BassDrum CrashCymbals Cymbals HiHatCymbal Percussion RideCymbals
+        SnareDrum Tambourine TomTom Triangle Woodblock
+      ].freeze
+      CLEF_SIGNATURES = {
+        "treble" => ["G", "2"].freeze,
+        "alto" => ["C", "3"].freeze,
+        "tenor" => ["C", "4"].freeze,
+        "bass" => ["F", "4"].freeze,
+        "percussion" => ["percussion", nil].freeze
+      }.freeze
+
+      WRITTEN_TRANSPOSITIONS = {
+        "Horn" => {
+          written_diatonic: 4,
+          written_chromatic: 7,
+          diatonic: -4,
+          chromatic: -7,
+          octave_change: 0,
+          key_fifths_delta: 1
+        }.freeze,
+        "Contrabass" => {
+          written_diatonic: 7,
+          written_chromatic: 12,
+          diatonic: 0,
+          chromatic: 0,
+          octave_change: -1,
+          key_fifths_delta: 0
+        }.freeze
       }.freeze
 
       ABBREVIATIONS = {
@@ -72,10 +113,19 @@ module Partitura
         "Horn" => "Hn",
         "Oboe" => "Ob",
         "Piano" => "Pno.",
+        "Timpani" => "Timp.",
         "Trombone" => "Trb",
         "Trumpet" => "Tpt",
+        "Tuba" => "Tba",
         "Viola" => "Vla",
-        "Violin" => "Vln"
+        "Violin" => "Vln",
+        "Violin I" => "Vln. I",
+        "Violin II" => "Vln. II",
+        "Violoncellos" => "Vc.",
+        "Contrabasses" => "Cb.",
+        "Horns 1-2" => "Hn. 1-2",
+        "Tenor and Bass Trombones" => "Tbn.",
+        "Orchestral Battery" => "Perc."
       }.freeze
 
       module_function

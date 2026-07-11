@@ -10,6 +10,7 @@ module Partitura
           lv harm trem trill trill( trill) slur( slur) tie( tie) gliss( gliss) cresc( cresc) dim( dim)
           pizz arco rimshot xstick fermata
         ].freeze
+        SUSTAINED_SEGMENT_MARKS = %w[trem].freeze
 
         private
 
@@ -33,23 +34,36 @@ module Partitura
 
         def render_pitched_notes(xml, item, pitches)
           pitches.each_with_index do |pitch_name, index|
+            # Tuplet start/stop is a per-event notation: emitting it on every
+            # chord member unbalances the bracket count and breaks renderers.
+            note_item = index.positive? && item[:tuplet] ? item.merge(tuplet: nil) : item
+            percussion_entry, instrument_id = mapped_percussion_note(pitch_name)
             xml.open("note")
             xml.empty("chord") if index.positive?
-            render_pitch(xml, pitch_name)
-            render_note_details(xml, item)
+            if percussion_entry
+              render_unpitched(xml, percussion_entry)
+            else
+              render_pitch(xml, pitch_name)
+            end
+            render_note_details(xml, note_item, instrument_id: instrument_id)
             xml.close("note")
           end
         end
 
-        def render_note_details(xml, item)
+        def render_note_details(xml, item, instrument_id: nil)
           render_duration(xml, item)
-          render_voice_staff(xml, item)
-          render_stem_and_beams(xml, item)
+          xml.empty("instrument", "id" => instrument_id) if instrument_id
+          render_voice(xml, item)
+          render_type_dots_and_time_modification(xml, item)
+          render_stem(xml, item)
+          render_notehead(xml, item)
+          render_staff(xml, item)
+          render_beams(xml, item)
           render_notations(xml, item)
         end
 
         def render_pitch(xml, pitch_name)
-          parsed = parse_pitch(pitch_name)
+          parsed = written_pitch(pitch_name)
           xml.open("pitch")
           xml.element("step", parsed.fetch(:step))
           xml.element("alter", parsed.fetch(:alter).to_s) unless parsed.fetch(:alter).zero?
@@ -57,45 +71,81 @@ module Partitura
           xml.close("pitch")
         end
 
+        def render_unpitched(xml, entry)
+          xml.open("unpitched")
+          xml.element("display-step", entry.fetch("display_step"))
+          xml.element("display-octave", entry.fetch("display_octave").to_s)
+          xml.close("unpitched")
+        end
+
+        def mapped_percussion_note(pitch_name)
+          return [nil, nil] unless @current_rendered_index
+
+          part = rendered_parts.fetch(@current_rendered_index)
+          entry = percussion_map_entry(part, pitch_name)
+          return [nil, nil] unless entry
+
+          entry_index = percussion_map_entries(part).index(entry)
+          [entry, percussion_instrument_xml_id(@current_rendered_index, entry_index)]
+        end
+
         def render_duration(xml, item)
-          duration = item.fetch(:duration)
-          xml.element("duration", duration_units(duration).to_s)
+          xml.element("duration", duration_units(item.fetch(:duration)).to_s)
           return if item[:measure_rest]
 
           tie_types_for(item).each { |type| xml.element("tie", nil, "type" => type) }
+        end
+
+        def render_type_dots_and_time_modification(xml, item)
+          return if item[:measure_rest]
+
+          duration = item.fetch(:duration)
           duration_name, dots = duration_type(duration)
           xml.element("type", duration_name)
           dots.times { xml.empty("dot") }
-          render_time_modification(xml, duration)
+          render_time_modification(xml, item)
         end
 
-        def render_time_modification(xml, duration)
-          tuplet = tuplet_signature(duration)
+        def render_time_modification(xml, item)
+          tuplet = tuplet_signature(item.fetch(:duration))
           return unless tuplet
 
           xml.open("time-modification")
           xml.element("actual-notes", "3")
           xml.element("normal-notes", "2")
-          xml.element("normal-type", tuplet.fetch(:normal_type))
+          xml.element("normal-type", item[:tuplet_normal_type] || tuplet.fetch(:normal_type))
           xml.close("time-modification")
         end
 
-        def render_voice_staff(xml, item)
+        def render_voice(xml, item)
           xml.element("voice", item.fetch(:voice).to_s) if item[:voice]
+        end
+
+        def render_staff(xml, item)
           xml.element("staff", item.fetch(:staff).to_s) if item[:staff]
         end
 
-        def render_stem_and_beams(xml, item)
-          return if item[:measure_rest]
-          return if item.fetch(:pitches).empty?
-
-          beams = Array(item[:beams])
-          return if beams.empty?
+        def render_stem(xml, item)
+          return unless beamed_note?(item)
 
           xml.element("stem", stem_direction(item))
-          beams.each do |number, value|
+        end
+
+        def render_notehead(xml, item)
+          notehead = notehead_for_marks(item.fetch(:marks))
+          xml.element("notehead", notehead) if notehead
+        end
+
+        def render_beams(xml, item)
+          return unless beamed_note?(item)
+
+          Array(item[:beams]).each do |number, value|
             xml.element("beam", value, "number" => number.to_s)
           end
+        end
+
+        def beamed_note?(item)
+          !item[:measure_rest] && item.fetch(:pitches).any? && Array(item[:beams]).any?
         end
 
         def stem_direction(item)
@@ -128,7 +178,6 @@ module Partitura
           notation.fetch(:spanners).each { |mark| render_spanner_notation(xml, mark) }
           render_tuplet_notation(xml, item) if item[:tuplet]
           xml.empty("fermata") if notation.fetch(:fermatas).any?
-          xml.element("notehead", notation.fetch(:notehead)) if notation.fetch(:notehead)
           xml.close("notations")
         end
 
@@ -140,15 +189,14 @@ module Partitura
             articulations: marks.filter_map { |mark| ARTICULATIONS[mark] },
             technicals: marks.select { |mark| %w[harm lv choke].include?(mark) },
             arpeggios: marks.select { |mark| mark.start_with?("arp") },
-            ornaments: marks.select { |mark| %w[trill trem].include?(mark) },
+            ornaments: marks.select { |mark| %w[trill trill( trill) trem].include?(mark) },
             spanners: marks.select { |mark| spanner_mark?(mark) },
-            fermatas: marks.select { |mark| mark == "fermata" },
-            notehead: notehead_for_marks(marks)
+            fermatas: marks.select { |mark| mark == "fermata" }
           }
         end
 
         def notation_empty?(notation, item)
-          notation_component_empty?(notation) && notation.fetch(:notehead).nil? && item[:tuplet].nil?
+          notation_component_empty?(notation) && item[:tuplet].nil?
         end
 
         def notation_component_empty?(notation)
@@ -186,7 +234,9 @@ module Partitura
           return if ornaments.empty?
 
           xml.open("ornaments")
-          xml.empty("trill-mark") if ornaments.include?("trill")
+          xml.empty("trill-mark") if ornaments.any? { |mark| %w[trill trill(].include?(mark) }
+          xml.empty("wavy-line", "type" => "start") if ornaments.include?("trill(")
+          xml.empty("wavy-line", "type" => "stop") if ornaments.include?("trill)")
           xml.element("tremolo", "3", "type" => "single") if ornaments.include?("trem")
           xml.close("ornaments")
         end
@@ -195,20 +245,28 @@ module Partitura
           tuplet = tuplet_signature(item.fetch(:duration))
           return unless tuplet
 
+          normal_type = item[:tuplet_normal_type] || tuplet.fetch(:normal_type)
           if item[:tuplet] == :start
-            xml.open("tuplet", "bracket" => "yes", "number" => "1", "placement" => "above", "type" => "start")
-            xml.open("tuplet-actual")
-            xml.element("tuplet-number", "3")
-            xml.element("tuplet-type", tuplet.fetch(:normal_type))
-            xml.close("tuplet-actual")
-            xml.open("tuplet-normal")
-            xml.element("tuplet-number", "2")
-            xml.element("tuplet-type", tuplet.fetch(:normal_type))
-            xml.close("tuplet-normal")
-            xml.close("tuplet")
+            render_tuplet_start(xml, normal_type)
+          elsif item[:tuplet] == :start_stop
+            render_tuplet_start(xml, normal_type)
+            xml.empty("tuplet", "number" => "1", "type" => "stop")
           else
             xml.empty("tuplet", "number" => "1", "type" => "stop")
           end
+        end
+
+        def render_tuplet_start(xml, normal_type)
+          xml.open("tuplet", "bracket" => "yes", "number" => "1", "placement" => "above", "type" => "start")
+          xml.open("tuplet-actual")
+          xml.element("tuplet-number", "3")
+          xml.element("tuplet-type", normal_type)
+          xml.close("tuplet-actual")
+          xml.open("tuplet-normal")
+          xml.element("tuplet-number", "2")
+          xml.element("tuplet-type", normal_type)
+          xml.close("tuplet-normal")
+          xml.close("tuplet")
         end
 
         def render_arpeggio_notation(xml, mark)
@@ -232,15 +290,11 @@ module Partitura
             xml.empty("glissando", "type" => "start", "line-type" => "wavy")
           when "gliss)"
             xml.empty("glissando", "type" => "stop", "line-type" => "wavy")
-          when "trill("
-            xml.empty("wavy-line", "type" => "start")
-          when "trill)"
-            xml.empty("wavy-line", "type" => "stop")
           end
         end
 
         def spanner_mark?(mark)
-          %w[slur( slur) gliss( gliss) trill( trill)].include?(mark)
+          %w[slur( slur) gliss( gliss)].include?(mark)
         end
 
         def notehead_for_marks(marks)
@@ -277,10 +331,11 @@ module Partitura
 
         def marks_for_segment(marks, index, count)
           return marks if count == 1
+          sustained = marks.select { |mark| SUSTAINED_SEGMENT_MARKS.include?(mark) }
           return marks.reject { |mark| mark == "ten" } if index.zero?
-          return marks.select { |mark| mark == "ten" } if index == count - 1
+          return (sustained + marks.select { |mark| mark == "ten" }).uniq if index == count - 1
 
-          []
+          sustained
         end
       end
     end

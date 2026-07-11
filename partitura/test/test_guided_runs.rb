@@ -8,12 +8,12 @@ $LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
 require "partitura"
 
 class GuidedRunsTest < Minitest::Test
+  BRIEF = "a giddy polka in E major, very fast, in the spirit of Rossini"
+
   PASS_NOTE = <<~NOTE
-    bars: all
     decisions: test decision
-    weaknesses: none
+    carries: none
     improvements: none
-    outputs: none
     musical_verdict: proceeds as planned
   NOTE
 
@@ -107,17 +107,16 @@ class GuidedRunsTest < Minitest::Test
   def test_pass_notes_feed_forward_as_open_threads
     with_run do |dir|
       File.write(File.join(dir, "procedure", "brief.md"), "brief")
-      note = PASS_NOTE.sub("weaknesses: none", "weaknesses: bar 2 accompaniment stamps the same skeleton")
-                      .sub("improvements: none", "improvements: candidate - answer in the bar 2 phrase gap")
+      note = PASS_NOTE.sub("carries: none",
+                           "carries: bar 2 accompaniment depends on the s8 harmony pass to resolve")
       _, payload = Partitura::Guided.commit(dir: dir, notes: note)
       assert_includes payload, "OPEN THREADS"
-      assert_includes payload, "[s0] weaknesses: bar 2 accompaniment stamps the same skeleton"
-      assert_includes payload, "[s0] improvements: candidate - answer in the bar 2 phrase gap"
-      refute_includes payload, "[s0] outputs:"
+      assert_includes payload, "[s0] carries: bar 2 accompaniment depends on the s8 harmony pass to resolve"
+      refute_includes payload, "[s0] improvements:"
 
       run = Partitura::Guided::Run.locate(dir)
       data = Partitura::Guided::Payload.data(run)
-      assert_equal 2, data.fetch(:open_threads).length
+      assert_equal 1, data.fetch(:open_threads).length
     end
   end
 
@@ -173,8 +172,11 @@ class GuidedRunsTest < Minitest::Test
 
   def test_start_refuses_existing_run_without_force_new
     with_run do |dir|
-      assert_raises(Partitura::Guided::RunError) { Partitura::Guided.start(dir, source: "dsl/piece.rb") }
-      run, = Partitura::Guided.start(dir, source: "dsl/piece.rb", force_new: true)
+      existing = assert_raises(Partitura::Guided::RunError) do
+        Partitura::Guided.start(dir, source: "dsl/piece.rb", brief: BRIEF)
+      end
+      assert_includes existing.message, "--force-new"
+      run, = Partitura::Guided.start(dir, source: "dsl/piece.rb", force_new: true, brief: BRIEF)
       assert_equal "s0", run.current_stage_id
       assert(Dir[File.join(dir, "procedure_archived_*")].any?)
     end
@@ -195,7 +197,7 @@ class GuidedRunsTest < Minitest::Test
     Dir.mktmpdir do |dir|
       FileUtils.mkdir_p(File.join(dir, "dsl"))
       File.write(File.join(dir, "dsl", "piece.rb"), SOURCE)
-      run, payload = Partitura::Guided.start(dir, source: "dsl/piece.rb", miniature: true)
+      run, payload = Partitura::Guided.start(dir, source: "dsl/piece.rb", miniature: true, brief: BRIEF)
       assert_equal "miniature", run.mode
       assert_includes payload, "Brief, Form, And Destination + Form And Texture Contract"
 
@@ -206,13 +208,40 @@ class GuidedRunsTest < Minitest::Test
     end
   end
 
+  def test_composition_runs_require_a_brief_from_the_caller
+    Dir.mktmpdir do |dir|
+      FileUtils.mkdir_p(File.join(dir, "dsl"))
+      File.write(File.join(dir, "dsl", "piece.rb"), SOURCE)
+      error = assert_raises(Partitura::Guided::RunError) { Partitura::Guided.start(dir, source: "dsl/piece.rb") }
+      assert_includes error.message, "--brief"
+    end
+  end
+
+  def test_the_brief_shows_as_commission_only_during_the_opening_stage
+    with_run do |dir|
+      run, payload = Partitura::Guided.status(dir)
+      assert_equal BRIEF, run.state["brief"]
+      assert_includes payload, "COMMISSION: #{BRIEF}"
+
+      File.write(File.join(dir, "procedure", "brief.md"), "brief")
+      _, payload = Partitura::Guided.commit(dir: dir, notes: PASS_NOTE)
+      refute_includes payload, "COMMISSION", "the commission shows only while the opening stage is in progress"
+    end
+  end
+
+  def test_pass_notes_accept_utf8_from_ascii_tagged_input
+    note = (+PASS_NOTE).sub("test decision", "crescendo \xE2\x80\x94 then hush").force_encoding("US-ASCII")
+    fields = Partitura::Guided::PassNote.parse(note, %w[decisions carries improvements musical_verdict])
+    assert_includes fields["decisions"], "—"
+  end
+
   private
 
   def with_run
     Dir.mktmpdir do |dir|
       FileUtils.mkdir_p(File.join(dir, "dsl"))
       File.write(File.join(dir, "dsl", "piece.rb"), SOURCE)
-      Partitura::Guided.start(dir, source: "dsl/piece.rb")
+      Partitura::Guided.start(dir, source: "dsl/piece.rb", brief: BRIEF)
       yield dir
     end
   end

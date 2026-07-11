@@ -64,9 +64,17 @@ module Partitura
         family: part.family&.to_s,
         range: part.range,
         description: part.description,
+        percussion_map: export_percussion_map(part),
         notation_group: part.notation_group&.to_s,
-        notation_staff: part.notation_staff&.to_s
+        notation_staff: part.notation_staff&.to_s,
+        abbreviation: part.abbreviation
       }.compact
+    end
+
+    def export_percussion_map(part)
+      return if part.percussion_map.empty?
+
+      PercussionDevices.export_map(part.percussion_map)
     end
 
     def export_meter_event(piece, event)

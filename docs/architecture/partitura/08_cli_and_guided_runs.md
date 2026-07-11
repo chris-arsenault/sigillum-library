@@ -27,6 +27,16 @@ Status: IMPLEMENTED (2026-07-07) through milestone M3 plus the M4 doc rewiring.
   principles now carry the improvement-not-remediation doctrine (EDITING mode vs AUDIT
   mode, edit-means-improve-not-delete, drafting-lens decay traversal, feedback-is-
   structural) with no dimension ranking installed.
+- Pass-note slim-down (2026-07-10): the schema dropped `bars` and `outputs` (realized
+  material lives in the score and is read via the `material_map` projection, not
+  re-authored in prose) and replaced `weaknesses` with `carries`. A carry is the only
+  field that feeds forward as an OPEN THREAD, and it holds only what a stage genuinely
+  cannot close — a cross-stage dependency, an unknown, or half-finished material. A
+  fixable weakness is fixed in source now, never logged and deferred. `Stage#full_ledger`
+  (from `"threads": "all"`) replaced the old field-set toggle; the recent-window/full-
+  ledger split is now purely about how much carry history a stage sees. Schema is now
+  `decisions | carries | improvements | musical_verdict`. Manifest versions bumped
+  (dsl_composition 3→4, section_recomposition 2→3).
 - Still open from M4: a real trial run in the consumer repo.
 
 Companion finding source: `docs/reviews/2026-07-07_partitura_llm_first_review.md`
@@ -135,8 +145,9 @@ the lab is not part of the production surface.
   judgments (consistent with `00_llm_contract.md`). The musical judgment lives in the
   pass note, whose *presence and completeness* the gate enforces — never its content
   quality.
-- **Pass note**: the structured record the current procedure already mandates
-  (`Pass | bars/spans | decisions | weaknesses | revisions | outputs/divergences`).
+- **Pass note**: the structured judgment-and-handoff record the procedure mandates
+  (`decisions | carries | improvements | musical_verdict`). It records judgment, not an
+  inventory of the music — realized material is read from the score.
 - **Payload**: what the runtime emits after `start`/`status`/`commit` — the next
   stage's work order.
 
@@ -195,7 +206,7 @@ parallel span agents merge cleanly (Beads lesson).
 ### Command protocol
 
 ```bash
-partitura start <dir> [--procedure dsl_composition] [--source FILE] [--miniature]
+partitura start <dir> --brief "commission" [--procedure dsl_composition] [--source FILE] [--miniature]
 partitura status [<dir>]
 partitura commit [--span A-B | --stage-complete] --notes FILE|-
 partitura next --reason TEXT
@@ -209,7 +220,12 @@ partitura runs        # list runs under the project root
   Stage 0 payload and nothing else. Refuses if a run already exists (resume with
   `status`; `--force-new` archives the old run directory first). `--miniature` is the
   sanctioned fast path (Kiro's Quick Plan): activates the manifest's declared miniature
-  collapse, recorded in state — agents never need to invent shortcuts.
+  collapse, recorded in state — agents never need to invent shortcuts. `--brief` carries
+  the caller's commission (affect, form, key, tempo, style, forces); procedures with
+  `"brief": "required"` in their manifest refuse to start without one, and the payload
+  shows it as `COMMISSION:` while the opening stage is in progress. The tool never
+  invents a brief — left to their own priors, composing agents converge on one palette,
+  so the differentiation must come from the orchestrator.
 - **`status`** is the fresh-agent re-entry point: run summary (piece, procedure, mode,
   open flags), the current stage payload, and pointers to committed artifacts. A span
   agent spawned mid-run is fully oriented by `cd <dir> && partitura status`.
@@ -245,7 +261,7 @@ inputs:
   - procedure/research_commitments.md (open commitments: 2)
   - previous unit pass note: bars 9-16 (log)
 work: <the stage instructions, rendered from stages/05_span_pass.md>
-pass_note_schema: bars | engine | decisions | weaknesses | revisions | outputs/divergences | verdict
+pass_note_schema: decisions | carries | improvements | musical_verdict
 gate: source_compiles + pass_note_complete
 next: partitura commit --span 17-24 --notes -
 docs:
@@ -346,7 +362,8 @@ Planned manifests, in order:
 ### Fresh-agent orchestration flow
 
 ```text
-orchestrator:  partitura start movements/mvt5        # payload: Stage 0
+orchestrator:  partitura start movements/mvt5 --brief "a swaggering rag in Eb, brisk, two hands in dialogue"
+               #                                      # payload: Stage 0 + COMMISSION
                ... stages 0-3, committing each with pass notes ...
                spawn span agent per span/phrase-arc
 

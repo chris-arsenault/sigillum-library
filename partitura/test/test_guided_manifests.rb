@@ -84,7 +84,7 @@ class GuidedManifestsTest < Minitest::Test
     Dir.mktmpdir do |dir|
       FileUtils.mkdir_p(File.join(dir, "dsl"))
       File.write(File.join(dir, "dsl", "piece.rb"), SOURCE)
-      Partitura::Guided.start(dir, source: "dsl/piece.rb")
+      Partitura::Guided.start(dir, source: "dsl/piece.rb", brief: "a bright gavotte in G, brisk")
       yield dir
     end
   end

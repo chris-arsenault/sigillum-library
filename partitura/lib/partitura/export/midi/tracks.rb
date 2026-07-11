@@ -12,8 +12,24 @@ module Partitura
 
         def tempo_track_events
           events = Array(@data["tempo_events"]).filter_map { |event| tempo_meta_event(event) }
-          events << [0, meta_event(0x58, time_signature_bytes(@data["meter"]))]
-          events << [0, meta_event(0x59, key_signature_bytes(@data["key"] || "C"))]
+          events.concat(meter_meta_events)
+          events.concat(key_meta_events)
+          events
+        end
+
+        def meter_meta_events
+          timeline = Array(@data["meter_events"])
+          timeline = [{ "meter" => @data["meter"], "offset_ql" => 0 }] if timeline.empty?
+          timeline.map do |event|
+            [ticks(rational(event.fetch("offset_ql", 0))), meta_event(0x58, time_signature_bytes(event.fetch("meter")))]
+          end
+        end
+
+        def key_meta_events
+          timeline = [{ "key" => @data["key"] || "C", "offset_ql" => 0 }] + Array(@data["key_changes"])
+          timeline.map do |event|
+            [ticks(rational(event.fetch("offset_ql", 0))), meta_event(0x59, key_signature_bytes(event.fetch("key")))]
+          end
         end
 
         def tempo_meta_event(event)
@@ -41,7 +57,7 @@ module Partitura
           velocity = 72
           timed_events_for(part.fetch("id")).each do |event|
             velocity = event_velocity(event, velocity)
-            events.concat(part_note_events(event, channel, velocity)) unless event["rest"]
+            events.concat(part_note_events(event, channel, velocity, part)) unless event["rest"]
           end
           build_track(events.sort_by { |tick, bytes| part_track_sort_key(tick, bytes, channel) })
         end
@@ -51,7 +67,15 @@ module Partitura
         end
 
         def midi_channel(part, index)
-          part["family"].to_s == "percussion" ? 9 : index % 16
+          return 9 if percussion_part?(part)
+
+          pitched_ordinal = parts.first(index).count { |candidate| !percussion_part?(candidate) }
+          channel = pitched_ordinal % 15
+          channel >= 9 ? channel + 1 : channel
+        end
+
+        def percussion_part?(part)
+          part["family"].to_s == "percussion"
         end
 
         def part_track_header(part, channel)
@@ -66,16 +90,21 @@ module Partitura
           local_dynamic ? DYNAMIC_VELOCITY.fetch(local_dynamic) : current
         end
 
-        def part_note_events(event, channel, velocity)
+        def part_note_events(event, channel, velocity, part)
           start_tick = ticks(rational(event.fetch("offset_ql")))
           end_tick = ticks(rational(event.fetch("offset_ql")) + rational(event.fetch("duration_ql")))
           event_pitches(event).flat_map do |pitch|
-            midi = midi_pitch(pitch)
+            midi = midi_pitch_for_part(part, pitch)
             [
               [start_tick, [0x90 | channel, midi, velocity].pack("C*")],
               [end_tick, [0x80 | channel, midi, 0].pack("C*")]
             ]
           end
+        end
+
+        def midi_pitch_for_part(part, pitch)
+          entry = Array(part["percussion_map"]).find { |candidate| candidate.fetch("source_pitch") == pitch.to_s }
+          entry ? Integer(entry.fetch("midi_note")) : midi_pitch(pitch)
         end
 
         def part_track_sort_key(tick, bytes, channel)

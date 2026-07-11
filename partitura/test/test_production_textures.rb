@@ -76,16 +76,22 @@ class ProductionTexturesTest < Minitest::Test
     assert_equal 6, xml.scan(/tied type=.start/).length
   end
 
-  def test_slot_count_mismatch_names_texture_lane_and_bar
-    error = assert_raises(Partitura::Production::CompileError) do
-      texture_piece_with_lane("C4 _ _ | E4 _ _ _")
-    end
-    response = error.response
+  # Slot mismatches are deferred: the piece loads (views render best-effort with a
+  # COMPILE BLOCKED banner) and compile/export fail on the recorded error.
+  def test_slot_count_mismatch_defers_but_fails_compile_with_lane_and_bar
+    piece = texture_piece_with_lane("C4 _ _ | E4 _ _ _")
+    response = piece.compile_response
+    assert_equal "error", response.fetch(:status)
     assert_equal "score_grid_slot_mismatch", response.fetch(:code)
     assert_equal "texture", response.fetch(:help_topic)
     assert_includes response.fetch(:message), "lane viola"
     assert_includes response.fetch(:message), "bar 1 of the lane has 3 slots"
     assert_includes response.fetch(:docs), "docs/architecture/partitura/surfaces/texture.md"
+
+    readout = Partitura.production_readout(piece, :ensemble_grid, bars: 1..1)
+    assert_includes readout, "COMPILE BLOCKED"
+    assert_includes readout, "score_grid_slot_mismatch"
+    assert_includes readout, "--- b1"
   end
 
   def test_grid_parse_errors_carry_texture_and_lane_context
@@ -98,22 +104,36 @@ class ProductionTexturesTest < Minitest::Test
     assert_equal "viola", response.fetch(:lane).to_s
   end
 
-  def test_grid_that_does_not_divide_the_meter_is_rejected
-    error = assert_raises(Partitura::Production::CompileError) do
-      Partitura::Production.piece("Odd meter") do
-        meter "7/8", beat_pattern: [3, 2, 2]
-        roster { part :viola, "Viola", music21: "Viola" }
-        section :s1, "One", bars: 1..1 do
-          span bars: 1..1 do
-            texture :pad, bars: 1..1 do
-              score(grid: :quarter) { viola "C4 _ _ _" }
-            end
+  def test_grid_that_does_not_divide_the_meter_fails_compile_but_loads
+    piece = Partitura::Production.piece("Odd meter") do
+      meter "7/8", beat_pattern: [3, 2, 2]
+      roster { part :viola, "Viola", music21: "Viola" }
+      section :s1, "One", bars: 1..1 do
+        span bars: 1..1 do
+          texture :pad, bars: 1..1 do
+            score(grid: :quarter) { viola "C4 _ _ _" }
           end
         end
       end
     end
-    assert_equal "bad_score_grid", error.response.fetch(:code)
-    assert_includes error.response.fetch(:message), "does not divide bar 1"
+    response = piece.compile_response
+    assert_equal "error", response.fetch(:status)
+    assert_equal "bad_score_grid", response.fetch(:code)
+    assert_includes response.fetch(:message), "does not divide bar 1"
+  end
+
+  def test_tie_continuations_read_as_sustains_in_sounding_projections
+    piece = suspension_piece
+    grid = Partitura.production_readout(piece, :ensemble_grid, bars: 2..2)
+    viola_row = grid.lines.find { |line| line.include?("viola") }
+    assert viola_row.strip.split(/\s+/).last.start_with?("----|"),
+           "tie continuation must render as sustain, got: #{viola_row}"
+
+    clashes = Partitura.production_readout(piece, :exposed_clashes, bars: 2..2)
+    refute_includes clashes, "both-atk", "a suspension held by tie is not a double attack:\n#{clashes}"
+
+    profile = Partitura.production_readout(piece, :rhythm_profile, part: :viola)
+    assert_includes profile, "2:1", "tied 1+1 must merge to one 2-beat event: #{profile}"
   end
 
   def test_triplet_grid_compiles_and_exports
@@ -142,6 +162,31 @@ class ProductionTexturesTest < Minitest::Test
   end
 
   private
+
+  # Viola holds a tie across the barline (a suspension) while the cello moves.
+  def suspension_piece
+    Partitura::Production.piece("Suspension") do
+      meter "4/4"
+      roster do
+        part :viola, "Viola", music21: "Viola"
+        part :cello, "Cello", music21: "Violoncello"
+      end
+      section :s1, "One", bars: 1..2 do
+        span bars: 1..2 do
+          phrase :held, surface: :split_pitch_rhythm do
+            pitches "C4 D4{tie(} | D4{tie)} C4"
+            rhythm  "3 1 | 1 3"
+          end
+          phrase :bass, surface: :absolute do
+            pitch_bars  "C3 | E2"
+            rhythm_bars "4 | 4"
+          end
+          placement :held, part: :viola, at: "bar 1 beat 1", role: :foreground
+          placement :bass, part: :cello, at: "bar 1 beat 1", role: :bass
+        end
+      end
+    end
+  end
 
   def texture_piece_with_lane(text)
     lane_text = text

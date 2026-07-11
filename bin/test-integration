@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+for test_file in partitura/test/integration/test_*.rb; do
+  [ -e "$test_file" ] || continue
+  ruby "$test_file"
+done

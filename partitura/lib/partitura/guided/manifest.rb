@@ -15,15 +15,18 @@ module Partitura
       PROCEDURES_DIR = File.join(LIBRARY_ROOT, "reference", "written", "procedures", "partitura")
 
       Stage = Struct.new(:id, :name, :docs, :artifacts, :gates, :stage_complete_gates,
-                         :iterative, :unit, :threads_fields, keyword_init: true)
+                         :iterative, :unit, :full_ledger, keyword_init: true)
 
-      # Weaknesses and improvement candidates chase every stage; recorded outputs are
-      # commitments that only need to surface where they are checked (merge/closeout
-      # stages declare "threads": "all").
-      DEFAULT_THREAD_FIELDS = %w[weaknesses improvements].freeze
-      ALL_THREAD_FIELDS = %w[weaknesses outputs improvements].freeze
+      # A carry is the one thing a pass note feeds forward: an item the stage genuinely
+      # cannot close - a cross-stage dependency, an unknown, or half-finished material
+      # awaiting a later stage - carried as an OPEN THREAD until a later stage disposes of
+      # it. Working stages see only the recent window; stages that declare "threads": "all"
+      # (merge/closeout) get the full ledger. Everything realized in the music lives in the
+      # score itself, not here.
+      THREAD_FIELDS = %w[carries].freeze
 
       attr_reader :id, :version, :title, :principles_path, :pass_note_fields
+
 
       def self.list
         Dir[File.join(PROCEDURES_DIR, "*", "manifest.json")].map { |path| File.basename(File.dirname(path)) }.sort
@@ -45,14 +48,23 @@ module Partitura
         @version = data.fetch("version")
         @title = data.fetch("title")
         @principles_path = data["principles"] && File.join(dir, data.fetch("principles"))
-        @pass_note_fields = data.fetch("pass_note_fields", %w[decisions verdict])
+        @pass_note_fields = data.fetch("pass_note_fields", %w[decisions carries improvements musical_verdict])
+        @brief = data.fetch("brief", "optional")
         @raw_stages = data.fetch("stages")
         @collapse = (data.dig("miniature", "collapse") || []).map { |group| group.map(&:to_s) }
+      end
+
+      # Whether a run of this procedure must be handed a commission at start. The
+      # brief always comes from the caller (the orchestrating agent); the tool never
+      # invents one.
+      def requires_brief?
+        @brief == "required"
       end
 
       # Effective ordered stages for a mode. Miniature mode merges each collapse group
       # into its head stage: docs, artifacts, and gates are unioned so one commit
       # satisfies the whole group.
+
       def stages(mode = "full")
         return @raw_stages.map { |raw| build_stage([raw]) } unless mode == "miniature"
 
@@ -97,16 +109,12 @@ module Partitura
           stage_complete_gates: merged_gates(members, "stage_complete_gates"),
           iterative: members.any? { |member| member["iterative"] },
           unit: members.filter_map { |member| member["unit"] }.first,
-          threads_fields: threads_fields_for(members)
+          full_ledger: members.any? { |member| member["threads"] == "all" }
         )
       end
 
       def merged_gates(members, key)
         members.flat_map { |member| member.fetch(key, []) }.uniq
-      end
-
-      def threads_fields_for(members)
-        members.any? { |member| member["threads"] == "all" } ? ALL_THREAD_FIELDS : DEFAULT_THREAD_FIELDS
       end
     end
   end

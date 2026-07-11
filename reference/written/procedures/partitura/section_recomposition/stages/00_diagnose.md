@@ -19,7 +19,10 @@ partitura view SOURCE.rb range_check
 partitura view SOURCE.rb line --part PART --bars A-B
 ```
 
-  A piece that no longer compiles under the notation gates is a valid starting state:
+  A piece that no longer compiles under the notation gates is a valid starting state.
+  Projections render best-effort on such a piece, prefixed with a COMPILE BLOCKED
+  banner naming the blocking errors - the banner is evidence, and the views beneath it
+  are still real sounding readouts. Then:
   record every compile error against its bar/phrase and classify each as
   **notation-only** (the sounding music is right; re-mark it: add `|` at barlines,
   correct checkpoint lanes, fix mark spellings) or **musical** (the notes themselves

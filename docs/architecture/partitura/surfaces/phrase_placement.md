@@ -52,6 +52,8 @@ end
   `anacrusis:` the pickup length in beats, so the material starts that many beats before
   the downbeat. Declare it on the phrase (`anacrusis 1`) or the placement
   (`placement :call, ..., anacrusis: 1`). The pickup must land the downbeat on a barline.
+  Anacrusis overwrites earlier same-part material in its pickup window: rests disappear
+  silently, while overwritten sounding notes compile with a warning.
 - A reusable fill is short material, not a label. Define it once with
   `fill_material :turn, surface: :intervals do ... end`, then realize it with
   `fill :flute_turn, from: :turn, part:, at:, anacrusis:`. Fills must be shorter than

@@ -31,7 +31,7 @@ module Partitura
       private
 
       def validate_staff_bars!(events)
-        sounding_by_part = events.reject(&:rest?).group_by(&:part)
+        sounding_by_part = Production.merge_authored_ties(events.reject(&:rest?)).group_by(&:part)
         staff_bars.each do |staff_bar|
           staff_bar.lanes.each do |lane|
             validate_checkpoint_lane!(staff_bar, lane, sounding_by_part)

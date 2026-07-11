@@ -32,18 +32,24 @@ module Partitura
         TextureControlBuilder.new(@controls).build(&block)
       end
 
-      def line(id, part:, role: id, surface: nil, pitch: nil, &block)
+      def line(id, part:, role: id, surface: nil, pitch: nil, realization: nil, anacrusis: nil, &block)
         phrase_id = texture_phrase_id(id)
         phrase_builder = PhraseBuilder.new(phrase_id, surface || pitch, default_key: @default_key,
                                                                      default_key_explicit: @default_key_explicit)
         @span.add_phrase(phrase_builder.build(&block))
-        add_texture_placement(phrase_id, part, role, anacrusis: phrase_builder.anacrusis_value)
+        add_texture_placement(
+          phrase_id, part, role, anacrusis: anacrusis || phrase_builder.anacrusis_value,
+                                realization: realization
+        )
       end
 
       def score(grid:, surface: :absolute, role: :texture, &block)
         raise unsupported_score_surface!(surface) unless surface.to_sym == :absolute
+        return unless grid_known?(grid)
 
-        ScoreGridBuilder.new(@id, grid, role, expected_slots: expected_slots_for(grid)).build(&block).each do |lane|
+        sink = ->(error) { @piece.add_deferred_error(error) }
+        builder = ScoreGridBuilder.new(@id, grid, role, expected_slots: expected_slots_for(grid), on_error: sink)
+        builder.build(&block).each do |lane|
           @span.add_phrase(lane.fetch(:phrase))
           add_texture_placement(lane.fetch(:phrase).id, lane.fetch(:part), lane.fetch(:role))
         end
@@ -55,11 +61,11 @@ module Partitura
         :"#{@id}_#{id}"
       end
 
-      def add_texture_placement(phrase_id, part, role, anacrusis: nil)
+      def add_texture_placement(phrase_id, part, role, anacrusis: nil, realization: nil)
         @parts << part.to_sym
         @span.add_placement(Placement.new(
           phrase_id: phrase_id, part: part, role: role, bar: @bars.begin, beat: 1,
-          realization: "texture #{@id}", anacrusis: anacrusis
+          realization: realization || "texture #{@id}", anacrusis: anacrusis
         ))
       end
 
@@ -78,29 +84,36 @@ module Partitura
         )
       end
 
-      # One integer slot count per texture bar, derived from the meter timeline; a grid
-      # that does not divide a bar evenly is rejected here with the fix in hand.
+      # Unknown grids abort the score block; a grid that does not divide a bar evenly
+      # is recorded as a deferred compile error (views still render best-effort) and
+      # per-bar counting is skipped for that bar.
+      def grid_known?(grid)
+        return true if ScoreGridBuilder::GRID_DURATIONS.key?(grid.to_sym)
+
+        @piece.add_deferred_error(CompileError.new(
+          code: "bad_score_grid",
+          message: "texture #{@id}: unknown grid #{grid.inspect}.",
+          repair_instruction: "Use one of: #{ScoreGridBuilder::GRID_DURATIONS.keys.join(', ')}.",
+          help_topic: "texture", docs: ["docs/architecture/partitura/surfaces/texture.md"]
+        ))
+        false
+      end
+
       def expected_slots_for(grid)
-        slot = ScoreGridBuilder::GRID_DURATIONS.fetch(grid.to_sym) do
-          raise CompileError.new(
-            code: "bad_score_grid",
-            message: "texture #{@id}: unknown grid #{grid.inspect}.",
-            repair_instruction: "Use one of: #{ScoreGridBuilder::GRID_DURATIONS.keys.join(', ')}.",
-            help_topic: "texture", docs: ["docs/architecture/partitura/surfaces/texture.md"]
-          )
-        end
+        slot = ScoreGridBuilder::GRID_DURATIONS.fetch(grid.to_sym)
         @bars.map do |bar|
           slots = @piece.bar_length_for(bar) / slot
           next slots.to_i if (slots % 1).zero?
 
-          raise CompileError.new(
+          @piece.add_deferred_error(CompileError.new(
             code: "bad_score_grid",
             message: "texture #{@id}: grid :#{grid} does not divide bar #{bar} " \
                      "(#{@piece.meter_for(bar).meter}) evenly.",
             repair_instruction: "Use a finer grid (e.g. :eighth or :sixteenth) that divides every bar of the " \
                                 "texture's meter.",
             help_topic: "texture", docs: ["docs/architecture/partitura/surfaces/texture.md"]
-          )
+          ))
+          nil
         end
       end
     end
@@ -164,12 +177,13 @@ module Partitura
         sixteenth: Rational(1, 4), thirty_second: Rational(1, 8)
       }.freeze
 
-      def initialize(texture_id, grid, role, expected_slots: nil)
+      def initialize(texture_id, grid, role, expected_slots: nil, on_error: nil)
         @texture_id = texture_id
         @grid = grid.to_sym
         @slot = GRID_DURATIONS.fetch(@grid)
         @role = role
         @expected_slots = expected_slots
+        @on_error = on_error
         @lanes = []
       end
 
@@ -208,23 +222,33 @@ module Partitura
         :"#{@texture_id}_#{lane.fetch(:part)}_score"
       end
 
-      # Every bar of a lane must carry exactly the meter's slot count for this grid, so
-      # a miscounted bar fails here with the lane and bar named - never downstream as a
-      # generic marker misalignment.
+      # Every bar of a lane must carry exactly the meter's slot count for this grid.
+      # A miscount is a deferred compile error, named by lane and bar: the piece still
+      # loads so projections can render best-effort evidence, but validate! (compile,
+      # export) fails on it.
       def validated_slot_counts(lane)
         counts = Production.token_bars(lane.fetch(:text)).map(&:length)
         return counts unless @expected_slots
 
-        raise slot_mismatch!(lane, "has #{counts.length} bars; the texture spans #{@expected_slots.length}") if
-          counts.length != @expected_slots.length
+        if counts.length != @expected_slots.length
+          report(slot_mismatch!(lane, "has #{counts.length} bars; the texture spans #{@expected_slots.length}"))
+          return counts
+        end
 
         counts.each_with_index do |count, index|
-          next if count == @expected_slots.fetch(index)
+          expected = @expected_slots.fetch(index)
+          next if expected.nil? || count == expected
 
-          raise slot_mismatch!(lane, "bar #{index + 1} of the lane has #{count} slots; the meter needs " \
-                                     "#{@expected_slots.fetch(index)} at grid :#{@grid}")
+          report(slot_mismatch!(lane, "bar #{index + 1} of the lane has #{count} slots; the meter needs " \
+                                      "#{expected} at grid :#{@grid}"))
         end
         counts
+      end
+
+      def report(error)
+        raise error unless @on_error
+
+        @on_error.call(error)
       end
 
       def slot_mismatch!(lane, detail)

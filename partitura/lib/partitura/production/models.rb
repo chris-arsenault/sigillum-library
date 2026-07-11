@@ -4,6 +4,7 @@ require_relative "tempo_parsing"
 require_relative "models/entities"
 require_relative "models/compile_response"
 require_relative "models/timing"
+require_relative "models/event_resolution"
 require_relative "models/validation"
 require_relative "models/checkpoint_validation"
 require_relative "models/tie_validation"
@@ -13,6 +14,7 @@ module Partitura
     class Piece
       include CompileResponse
       include Timing
+      include EventResolution
       include Validation
       include CheckpointValidation
       include TieValidation
@@ -102,6 +104,16 @@ module Partitura
 
       def add_section(section)
         @sections << section
+      end
+
+      # Build-time problems that must fail compile but should not prevent the piece
+      # from loading: views render best-effort with a banner; validate! raises them.
+      def add_deferred_error(error)
+        deferred_errors << error
+      end
+
+      def deferred_errors
+        @deferred_errors ||= []
       end
 
       def add_fill_material(material)
@@ -217,20 +229,16 @@ module Partitura
         end
       end
 
-      def timed_events(include_rests: false)
-        phrase_map = phrases
-        placements.flat_map do |placement|
-          timed_events_for_placement(placement, phrase_map, include_rests: include_rests)
-        end.sort_by { |event| [event.offset, event.part.to_s, event.pitch.to_s] }
-      end
-
       def validate!
+        raise deferred_errors.first if deferred_errors.any?
+
         validate_meter_events!
         phrase_map = phrases
         validate_spans_and_placements!(phrase_map)
         validate_degree_key_assumptions!(phrase_map)
         events = timed_events(include_rests: true)
         validate_part_ranges!(events)
+        validate_percussion_maps!(events)
         validate_authored_ties!(events)
         validate_staff_bars!(events)
         validate_tempo_events!

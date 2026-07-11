@@ -18,7 +18,8 @@ module Partitura
 
       attr_reader :dir, :state, :manifest
 
-      def self.start(dir, procedure: "dsl_composition", source: nil, miniature: false, force_new: false)
+      def self.start(dir, procedure: "dsl_composition", source: nil, miniature: false, force_new: false,
+                     brief: nil)
         state_path = File.join(dir, STATE_DIR, STATE_FILE)
         if File.exist?(state_path) && !force_new
           raise RunError, "a run already exists at #{state_path}; resume with `partitura status #{dir}` " \
@@ -28,23 +29,41 @@ module Partitura
         archive_existing(dir) if File.exist?(state_path)
         manifest = Manifest.load(procedure)
         mode = miniature ? "miniature" : "full"
+        assert_brief!(manifest, brief)
+        state = initial_state(manifest, mode, source, brief)
+        FileUtils.mkdir_p(File.join(dir, STATE_DIR))
+        run = new(dir, state, manifest)
+        run.save
+        run.append_log("run_started", procedure: manifest.id, version: manifest.version, mode: mode,
+                       source: source, brief: brief)
+        run
+      end
+
+      # The commission always comes from the caller; the tool never invents one.
+      def self.assert_brief!(manifest, brief)
+        return unless manifest.requires_brief? && brief.to_s.strip.empty?
+
+        raise RunError, "#{manifest.id} needs a commission from the caller; pass " \
+                        "--brief \"affect, form, key, tempo, style, forces\" (e.g. --brief " \
+                        "\"a giddy polka in Bb major, very fast, in the spirit of Rossini, winds forward\")"
+      end
+
+      def self.initial_state(manifest, mode, source, brief)
+        stages = manifest.stages(mode)
         state = {
           "procedure" => manifest.id,
           "procedure_version" => manifest.version,
           "mode" => mode,
+          "brief" => brief,
           "source" => source,
           "started_at" => Time.now.utc.iso8601,
-          "current_stage" => manifest.stages(mode).first.id,
-          "stages" => manifest.stages(mode).to_h { |stage| [stage.id, { "status" => "pending" }] },
+          "current_stage" => stages.first.id,
+          "stages" => stages.to_h { |stage| [stage.id, { "status" => "pending" }] },
           "units" => {},
           "closed" => nil
         }
         state["stages"][state["current_stage"]]["status"] = "in_progress"
-        FileUtils.mkdir_p(File.join(dir, STATE_DIR))
-        run = new(dir, state, manifest)
-        run.save
-        run.append_log("run_started", procedure: manifest.id, version: manifest.version, mode: mode, source: source)
-        run
+        state
       end
 
       def self.archive_existing(dir)

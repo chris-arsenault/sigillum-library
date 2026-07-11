@@ -14,7 +14,8 @@ module Partitura
     module Lint
       DEFAULTS = {
         phrase_length: { enabled: true, warn: 8, error: 24 },
-        surface_nudges: { enabled: true }
+        surface_nudges: { enabled: true },
+        anacrusis_overlaps: { enabled: true }
       }.freeze
 
       NUDGE_MIN_NOTES = 8
@@ -31,6 +32,7 @@ module Partitura
         phrases = piece.phrases
         lints.concat(phrase_length_lints(piece, phrases, config.fetch(:phrase_length)))
         lints.concat(surface_nudge_lints(phrases)) if config.fetch(:surface_nudges).fetch(:enabled)
+        lints.concat(anacrusis_overlap_lints(piece)) if config.fetch(:anacrusis_overlaps).fetch(:enabled)
         lints
       end
 
@@ -121,6 +123,31 @@ module Partitura
 
           [degrees_nudge(phrase, notes), intervals_nudge(phrase, notes)].compact
         end
+      end
+
+      def anacrusis_overlap_lints(piece)
+        pickups, others = piece.timed_events_unresolved(include_rests: false)
+                               .reject(&:rest?).partition(&:anacrusis?)
+        pickups_by_part = pickups.group_by(&:part)
+        others.filter_map do |event|
+          overlap = pickups_by_part.fetch(event.part, []).find { |pickup| overlaps?(event, pickup) }
+          anacrusis_overlap_lint(piece, event, overlap) if overlap
+        end
+      end
+
+      def anacrusis_overlap_lint(piece, event, overlap)
+        {
+          rule: "anacrusis_overlap", level: "warn", phrase: event.phrase_id,
+          message: "#{event.pitch_label} at #{piece.format_offset(event.offset)} is overwritten by " \
+                   "anacrusis #{overlap.phrase_id} at #{piece.format_offset(overlap.offset)}. " \
+                   "The anacrusis renders; shorten or relocate the prior sounding note if the collision " \
+                   "is not intended.",
+          help_topic: "phrase_placement"
+        }
+      end
+
+      def overlaps?(event, pickup)
+        event.offset < pickup.end_offset && pickup.offset < event.end_offset
       end
 
       def single_line_midis(phrase)

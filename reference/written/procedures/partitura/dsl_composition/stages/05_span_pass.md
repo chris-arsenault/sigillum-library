@@ -76,10 +76,13 @@ Use this bar/beat failure-mode checklist during span review:
   cut, or resonance wake. Abrupt reset is a special event, not the default way to change blocks.
 
 After composing that span, commit it as one unit (`partitura commit --span A-B --notes -`) before
-starting the next. The pass note must say which planned phrase-grain events were realized, which
-outputs were produced, what changed from the contract, what weakness was revised, and what got
-compositionally better (`improvements`). A first write is not a span pass until it has been
-inspected and revised or given a concrete no-change musical verdict that names what you tried.
+starting the next. The realized material is in the source - the pass note does not re-list it. It
+records `decisions` (what changed from the contract and why), `improvements` (what got
+compositionally better this pass), the `musical_verdict`, and only in `carries` anything this span
+genuinely cannot close yet - a dependency on a later span or stage, or half-finished material awaiting
+a callout. A weakness you can fix, you fix here and now; it does not go in the note. A first write is
+not a span pass until it has been inspected and revised or given a concrete no-change musical verdict
+that names what you tried.
 
 Before drafting each span, notice which dimension is leading your attention; after drafting, read
 the same bars once more with the lenses you were not using - the neglected dimensions decay while

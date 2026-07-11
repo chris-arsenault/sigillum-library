@@ -114,12 +114,17 @@ lower staff, and `notation_staff: :auto` splits the lane at middle C for grand-s
 Every part declares both its score display name and its exact `music21.instrument` class name:
 
 ```ruby
-part :english_horn, "English Horn", music21: "EnglishHorn", family: :woodwind
+part :english_horn, "English Horn", music21: "EnglishHorn", family: :woodwind,
+  abbreviation: "E. Hn."
 part :snare_drum, "Snare Drum", music21: "SnareDrum", family: :percussion
 ```
 
 The Ruby exporters do not infer instruments from part names. Missing or unknown `music21:` values
 are errors because export must preserve orchestration intent.
+
+Use optional `abbreviation:` when automatic initials would collide or become ambiguous. DSL pitches
+remain sounding pitches; MusicXML writes conventional transposed notation for supported transposing
+instruments while MIDI and analysis retain sounding pitch.
 
 A part may declare a playable range as `range: "E3-C6"`. A declared range is enforced: any placed
 note outside it is a compile error (`note_out_of_range`). Omit `range:` to skip enforcement for a

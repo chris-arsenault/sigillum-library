@@ -71,11 +71,11 @@ rescue Partitura::Guided::RunError, Partitura::Guided::ManifestError => e
 end
 
 def read_notes(path)
-  return $stdin.read if path == "-"
+  return $stdin.read.force_encoding(Encoding::UTF_8).scrub if path == "-"
 
   structured_failure("missing_notes", "commit requires --notes FILE|-",
                      "Pass the pass note file, or `-` to read it from stdin.") unless path && File.exist?(path)
-  File.read(path)
+  File.read(path, encoding: Encoding::UTF_8).scrub
 end
 
 def optional_dir(argv)
@@ -178,14 +178,16 @@ when "cards"
 
 when "start"
   guided_guard do
-    options = { procedure: "dsl_composition", source: nil, miniature: false, force_new: false }
+    options = { procedure: "dsl_composition", source: nil, miniature: false, force_new: false, brief: nil }
     OptionParser.new do |opts|
       opts.on("--procedure ID") { |value| options[:procedure] = value }
       opts.on("--source FILE") { |value| options[:source] = value }
       opts.on("--miniature") { options[:miniature] = true }
       opts.on("--force-new") { options[:force_new] = true }
+      opts.on("--brief TEXT") { |value| options[:brief] = value }
     end.parse!
-    dir = ARGV.shift or (warn "usage: partitura start <dir> [--procedure ID] [--source FILE] [--miniature]"; exit 2)
+    dir = ARGV.shift or (warn 'usage: partitura start <dir> --brief "commission" [--procedure ID] ' \
+                              "[--source FILE] [--miniature]"; exit 2)
     _run, payload = Partitura::Guided.start(dir, **options)
     puts payload
   end

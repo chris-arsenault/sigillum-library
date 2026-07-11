@@ -29,6 +29,22 @@ class ProductionSurfaceValidationErrorsTest < Minitest::Test
     assert_equal "bad_meter_change_location", zero_error.response.fetch(:code)
   end
 
+  def test_clef_changes_must_land_on_bar_boundaries
+    piece = Partitura::Production.piece("Bad clef change") do
+      meter "4/4"
+      roster { part :cello, "Cello", music21: "Violoncello", family: :string }
+      control { clef :tenor, at: "bar 1 beat 2", for: :cello }
+      section :s1, "Opening", bars: 1..1 do
+        span bars: 1..1 do
+          phrase(:line, surface: :absolute) { events "C3:4" }
+          placement :line, part: :cello, at: "bar 1 beat 1", role: :foreground
+        end
+      end
+    end
+
+    assert_equal "bad_clef_location", piece.compile_response.fetch(:code)
+  end
+
   def test_duplicate_phrase_ids_across_spans_return_structured_repair_data
     piece = Partitura::Production.piece("Duplicate phrase ids") do
       roster { part :clarinet, "Clarinet", music21: "Clarinet" }

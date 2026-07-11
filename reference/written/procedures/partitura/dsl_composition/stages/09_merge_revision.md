@@ -38,7 +38,7 @@ Also perform the merge checks imported from the agent procedure:
 - **Carry-forward.** Confirm every declared input/output is present as actual musical material, not as
   a prose label or guessed paraphrase.
 - **Divergences.** Surface every changed plan item with why it is better. Anything silently dropped is
-  either restored, replaced, or logged as an unresolved weakness.
+  restored or replaced here; log it as a `carry` only if closing it genuinely depends on a later stage.
 - **Unused commitments.** Close the unused-commitments ledger: each unused research decision, card
   influence, reserve, event, or return gets a musical reason or a replacement.
 
@@ -69,6 +69,6 @@ clarity; remove decorative events that do not.
 Run the whole merge pass in EDITING mode, not AUDIT mode: for each span, first name what its
 drafting lens was (from the span pass notes), then walk its bars with the neglected lenses and ask
 "what would make this better," keeping only as the justified exception. The payload's OPEN THREADS
-list is this pass's worklist: every weakness, output, and improvement candidate recorded by earlier
-passes is addressed, built on, or consciously carried with a reason - nothing lapses silently.
-Findings name music to compose, not only material to remove.
+list is this pass's worklist: every carry recorded by earlier passes is closed in source here, or
+consciously carried on with a reason - nothing lapses silently. Findings name music to compose, not
+only material to remove.

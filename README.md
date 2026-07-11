@@ -33,3 +33,9 @@ needs to force outputs and raw-input paths to a specific consumer repo.
 ```bash
 bin/test
 ```
+
+Slow corpus checks live under the integration target:
+
+```bash
+bin/test-integration
+```

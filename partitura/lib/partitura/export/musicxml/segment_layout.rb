@@ -52,7 +52,7 @@ module Partitura
         end
 
         def structural_tie?(context)
-          context.fetch(:pitches).any? && context.fetch(:segment).fetch(:bar_segment_count) > 1
+          context.fetch(:pitches).any? && context.fetch(:segment_count) > 1
         end
 
         def segment_tie_types(context, structural_tie)
@@ -88,8 +88,7 @@ module Partitura
 
         def tied_decomposition?(context)
           context.fetch(:pitches).any? &&
-            !duration_type_exact?(context.fetch(:duration)) &&
-            context.fetch(:duration) >= Rational(2)
+            context.fetch(:segment).fetch(:duration) < context.fetch(:duration)
         end
 
         def segment_start_tie?(context, structural_tie)
@@ -116,6 +115,7 @@ module Partitura
 
         def duration_splits(duration, measure_rest:)
           return [duration] if measure_rest
+          return triplet_slot_splits(duration) if triplet_slot_splittable?(duration)
           return [duration] if duration_type_exact?(duration)
 
           remaining = duration
@@ -137,6 +137,17 @@ module Partitura
             remaining -= value
           end
           out
+        end
+
+        def triplet_slot_splittable?(duration)
+          return false unless (duration.denominator % 3).zero?
+
+          slots = duration / Rational(1, 3)
+          slots.denominator == 1 && slots > 1
+        end
+
+        def triplet_slot_splits(duration)
+          Array.new((duration / Rational(1, 3)).to_i, Rational(1, 3))
         end
 
         def duration_type_exact?(duration)

@@ -56,6 +56,25 @@ module Partitura
         ))
       end
 
+      def clef(value, at:, **kwargs)
+        normalized = value.to_s.strip.downcase
+        unless %w[treble alto tenor bass percussion].include?(normalized)
+          raise CompileError.new(
+            code: "bad_clef",
+            message: "Unknown clef #{value.inspect}.",
+            repair_instruction: "Use clef :treble, :alto, :tenor, :bass, or :percussion at a bar boundary.",
+            help_topic: "controls",
+            docs: ["docs/architecture/partitura/surfaces/controls.md"]
+          )
+        end
+        @piece.add_control(Control.new(
+          kind: :clef,
+          value: normalized,
+          at: at,
+          target: required_target(kwargs)
+        ))
+      end
+
       # A harmonic label ("Dm", "Bbmaj7", "Dm/A"), distinct from `text`: renders as a
       # real MusicXML <harmony> chord symbol once, above the top staff — never a
       # per-instrument annotation, so it takes no `for:` target. Use `text` for

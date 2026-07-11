@@ -63,9 +63,10 @@ a "no change" musical_verdict must name what you tried to improve and why the mu
 better without the change. Edit means improve, not delete: deletion feels safe because
 new notes can be wrong - that safety is the tell - so every finding names music to
 COMPOSE, and a rest opened for breath is paired with music composed in the opened
-space. The `improvements` pass-note field records what got compositionally better (or
-the best candidate found and why it was or was not taken); it is fed back to you in
-later payloads as material to build on.
+space. The `improvements` pass-note field records what got compositionally better this
+pass. If you can see a better version, write it - a pass does not leave a real
+improvement unmade. Only an improvement that genuinely depends on a later stage belongs
+elsewhere, as a `carry`.
 
 ## The Drafting Lens Decays The Other Dimensions
 

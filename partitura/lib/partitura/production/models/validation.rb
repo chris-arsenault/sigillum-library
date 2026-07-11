@@ -159,7 +159,8 @@ module Partitura
           repair_instruction: "Adjust the durations so the segment before this `|` ends exactly at the barline " \
                               "(watch the meter and any pickup offset), or move the `|`. To hold a pitch across " \
                               "the barline as tied noteheads, split it into two events around the `|` marked " \
-                              "{tie(} / {tie)}; a single long event with no `|` also crosses legally.",
+                              "{tie(} / {tie)}; a single long event with no `|` crosses legally only when no " \
+                              "further attacks follow in the bar it enters.",
           help_topic: surface_help_topic(phrase.surface),
           docs: surface_docs(phrase.surface),
           extra: { phrase: phrase.id, part: placement.part, bar: bar }
@@ -243,6 +244,34 @@ end
         end
       end
 
+      def validate_percussion_maps!(events)
+        mapped_parts = @parts.values.reject { |part| part.percussion_map.empty? }.to_h { |part| [part.id, part] }
+        return if mapped_parts.empty?
+
+        events.each { |event| validate_event_percussion_map!(event, mapped_parts[event.part]) }
+      end
+
+      def validate_event_percussion_map!(event, part)
+        return unless part && !event.rest?
+
+        event.pitches.each { |pitch| validate_mapped_percussion_pitch!(event, part, pitch) }
+      end
+
+      def validate_mapped_percussion_pitch!(event, part, pitch)
+        return if part.percussion_map.key?(pitch)
+
+        raise compile_error(
+          code: "unmapped_percussion_pitch",
+          message: "#{pitch} at #{format_offset(event.offset)} is not declared in percussion_map for " \
+                   "part #{part.id}.",
+          repair_instruction: "Add #{pitch.inspect} to the part's percussion_map or use one of its declared " \
+                              "source pitches: #{part.percussion_map.keys.join(', ')}.",
+          help_topic: "container",
+          docs: ["docs/architecture/partitura/01_container.md"],
+          extra: { part: part.id, pitch: pitch }
+        )
+      end
+
       def declared_part_ranges
         @parts.each_value.with_object({}) do |part, out|
           out[part.id] = Production.parse_part_range(part.range, part: part.id) if part.range
@@ -314,8 +343,33 @@ end
       def validate_controls!(events)
         @controls.each do |control|
           validate_ranged_reference!(control)
+          validate_clef_control!(control) if control.kind.to_s == "clef"
           validate_control_target!(control, events)
         end
+      end
+
+      def validate_clef_control!(control)
+        unless %w[treble alto tenor bass percussion].include?(control.value.to_s)
+          raise compile_error(
+            code: "bad_clef",
+            message: "Unknown clef #{control.value.inspect}.",
+            repair_instruction: "Use treble, alto, tenor, bass, or percussion.",
+            help_topic: "controls",
+            docs: ["docs/architecture/partitura/surfaces/controls.md"]
+          )
+        end
+
+        offset = offset_for_reference(control.at)
+        bar = bar_of_reference(control.at)
+        return if offset == offset_for(bar, 1)
+
+        raise compile_error(
+          code: "bad_clef_location",
+          message: "Clef changes must land at a bar boundary, got #{control.at.inspect}.",
+          repair_instruction: "Move the clef change to bar #{bar} beat 1.",
+          help_topic: "controls",
+          docs: ["docs/architecture/partitura/surfaces/controls.md"]
+        )
       end
 
       def validate_ranged_reference!(event)

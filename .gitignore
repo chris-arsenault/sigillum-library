@@ -16,3 +16,6 @@ __pycache__/
 .venv/
 .DS_Store
 Thumbs.db
+
+# Sulion PTY paste scratch.
+.sulion-paste/

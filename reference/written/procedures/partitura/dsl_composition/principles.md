@@ -159,19 +159,27 @@ Required attention passes:
 2. **Frame pass.** Stage 3 creates a living DSL frame: sections, spans, harmony regions, controls, and
    initial source landmarks. The frame guides composition but does not lock it.
 3. **Span pass.** Stage 5 writes one musical phrase/arc at a time. A span pass owns all sounding
-   voices in that phrase, composes the active engine and support, inspects the projection, revises, and
-   records outputs or divergences before the next phrase starts.
+   voices in that phrase, composes the active engine and support, inspects the projection, and revises
+   before the next phrase starts. Realized material lives in the score, not the pass note.
 4. **Merge pass.** Stage 9 reads the whole piece after the span passes as if written by someone else:
    seams, journey, single-voice continuity, plan adherence, unused commitments, and silent divergences.
 5. **Completion pass.** Stage 10 audits the exported result, revises the DSL source, re-exports, and
    records a musical closeout verdict.
 
 Do not collapse the span pass and merge pass just because the source compiles. For very short works the
-written pass notes may be compact, but the passes still occur in order. A useful pass note names:
+written pass notes may be compact, but the passes still occur in order. A pass note is judgment and
+handoff, not an inventory of the music - what was realized is read from the score. It names:
 
 ```text
-bars | decisions | weaknesses | improvements | outputs | musical_verdict
+decisions | carries | improvements | musical_verdict
 ```
+
+- `decisions` — why this pass went the way it did, including roads considered and rejected.
+- `carries` — only what this pass genuinely cannot close: a cross-stage dependency, an unknown, or
+  half-finished material awaiting a later stage. A weakness you can fix is not a carry; fix it now.
+  Carries feed forward to later stages as OPEN THREADS until one closes them.
+- `improvements` — what got compositionally better this pass (see the improvement principle below).
+- `musical_verdict` — the one- or two-sentence judgment of the music after this pass.
 
 The old multi-agent breakdown is intentionally not imported wholesale. The DSL needs enough fresh
 attention to prevent loss of focus halfway through the work, not a separate agent for every conceptual
@@ -281,8 +289,10 @@ exception - never "is it broken," with change as the exception.
   listener notice this is BETTER" to every edit; bookkeeping shuffles that only a
   spreadsheet can hear do not count as improvement.
 - The pass note's `improvements` field records what got compositionally better this
-  pass, or the best improvement candidate you found and why you did or did not take
-  it. It comes back to you in later stage payloads; write it as material to build on.
+  pass. If you found an improvement candidate, take it - there is no reason a pass
+  that can see a better version leaves it unwritten. The only exception is an
+  improvement that genuinely depends on a later stage; that belongs in `carries`, not
+  as a deferred to-do dressed up as an improvement.
 
 ## The Drafting Lens Decays The Other Dimensions
 
