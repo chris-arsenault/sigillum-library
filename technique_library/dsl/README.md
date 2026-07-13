@@ -68,6 +68,10 @@ Core shelves:
 - `dsl:voicing` - piano voicing cards: `PV1_*` through `PV6_*`.
 - `dsl:chamberstrings` - chamber string and ground-bass cards: `GB_*`, `CS1_*`
   through `CS6_*`.
+- `dsl:chip` - NES/2A03 chiptune cards (pulse echo, arpeggio harmonic
+  compression, famichord voicing, triangle dual-duty bass/drums, noise drum kit,
+  two-pulse counterpoint, hurry-up transform, boss engine): `CT1_*` through
+  `CT8_*`. Research source: `docs/research/chiptune_nes_composition.md`.
 - `dsl:orchestral` - older broad orchestral texture cards: `O1_*` through
   `O7_*`.
 - `dsl:dialogue` - gap, relay, heterophony, regrouping, and decay cards:

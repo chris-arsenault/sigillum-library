@@ -8980,5 +8980,279 @@
         "surface": "absolute"
       }
     ]
+  },
+  {
+    "name": "CT1_PULSE_ECHO_LEAD",
+    "title": "CT1_PULSE_ECHO_LEAD",
+    "category": "chip",
+    "path": "technique_library/dsl/cards/chip/ct1_pulse_echo_lead.rb",
+    "bars": 8,
+    "meter": "4/4",
+    "key": "A minor",
+    "tempo": 120,
+    "behavior": "Follin-style pulse echo: pulse 2 restates pulse 1's lead delayed by one beat and one dynamic softer, faking delay/reverb on hardware that has none; triangle keeps a plain root-fifth bass so the echo pair stays legible",
+    "cite": "chiptune_research:pulse_echo",
+    "parts": [
+      {
+        "id": "pulse1",
+        "name": "Pulse 1",
+        "instrument": "Clarinet",
+        "surface": "split_pitch_rhythm"
+      },
+      {
+        "id": "pulse2",
+        "name": "Pulse 2",
+        "instrument": "Oboe",
+        "surface": "split_pitch_rhythm"
+      },
+      {
+        "id": "triangle",
+        "name": "Triangle",
+        "instrument": "Violoncello",
+        "surface": "split_pitch_rhythm"
+      }
+    ]
+  },
+  {
+    "name": "CT2_ARP_COMPRESSION",
+    "title": "CT2_ARP_COMPRESSION",
+    "category": "chip",
+    "path": "technique_library/dsl/cards/chip/ct2_arp_compression.rb",
+    "bars": 8,
+    "meter": "4/4",
+    "key": "A minor",
+    "tempo": 150,
+    "behavior": "harmonic compression by super-fast arpeggio: pulse 2 iterates the chord tones in constant eighths so ONE channel states the full harmony, freeing pulse 1 for a slow singing lead and the triangle for plain roots - the defining PSG idiom",
+    "cite": "chiptune_research:harmonic_compression",
+    "parts": [
+      {
+        "id": "pulse1",
+        "name": "Pulse 1",
+        "instrument": "Clarinet",
+        "surface": "split_pitch_rhythm"
+      },
+      {
+        "id": "pulse2",
+        "name": "Pulse 2",
+        "instrument": "Oboe",
+        "surface": "split_pitch_rhythm"
+      },
+      {
+        "id": "triangle",
+        "name": "Triangle",
+        "instrument": "Violoncello",
+        "surface": "split_pitch_rhythm"
+      }
+    ]
+  },
+  {
+    "name": "CT3_FAMICHORD_VOICING",
+    "title": "CT3_FAMICHORD_VOICING",
+    "category": "chip",
+    "path": "technique_library/dsl/cards/chip/ct3_famichord_voicing.rb",
+    "bars": 8,
+    "meter": "4/4",
+    "key": "C",
+    "tempo": 96,
+    "behavior": "famichord voicing (Akesson): maj7/m7 chords with the 5th omitted fit the three pitched channels - root low on triangle, 7th mid on pulse 2, 3rd HIGH on pulse 1; the wide spacing exploits the square wave's rich harmonics so three voices read as five (Kondo)",
+    "cite": "chiptune_research:famichord",
+    "parts": [
+      {
+        "id": "pulse1",
+        "name": "Pulse 1",
+        "instrument": "Clarinet",
+        "surface": "split_pitch_rhythm"
+      },
+      {
+        "id": "pulse2",
+        "name": "Pulse 2",
+        "instrument": "Oboe",
+        "surface": "split_pitch_rhythm"
+      },
+      {
+        "id": "triangle",
+        "name": "Triangle",
+        "instrument": "Violoncello",
+        "surface": "split_pitch_rhythm"
+      }
+    ]
+  },
+  {
+    "name": "CT4_TRIANGLE_BASS_DRUM",
+    "title": "CT4_TRIANGLE_BASS_DRUM",
+    "category": "chip",
+    "path": "technique_library/dsl/cards/chip/ct4_triangle_bass_drum.rb",
+    "bars": 8,
+    "meter": "4/4",
+    "key": "E minor",
+    "tempo": 138,
+    "behavior": "triangle dual duty (Follin, Silver Surfer): the triangle walks an octave-pop bass and interleaves short low C2 drops that read as kick/tom hits, so bass and drums share one channel; noise keeps hats and backbeat, and the idle pulse 2 doubles the bass an octave up",
+    "cite": "chiptune_research:triangle_dual_duty",
+    "parts": [
+      {
+        "id": "pulse1",
+        "name": "Pulse 1",
+        "instrument": "Clarinet",
+        "surface": "split_pitch_rhythm"
+      },
+      {
+        "id": "pulse2",
+        "name": "Pulse 2",
+        "instrument": "Oboe",
+        "surface": "split_pitch_rhythm"
+      },
+      {
+        "id": "triangle",
+        "name": "Triangle",
+        "instrument": "Violoncello",
+        "surface": "split_pitch_rhythm"
+      },
+      {
+        "id": "noise",
+        "name": "Noise",
+        "instrument": "Percussion",
+        "surface": "split_pitch_rhythm"
+      }
+    ]
+  },
+  {
+    "name": "CT5_NOISE_DRUMKIT",
+    "title": "CT5_NOISE_DRUMKIT",
+    "category": "chip",
+    "path": "technique_library/dsl/cards/chip/ct5_noise_drumkit.rb",
+    "bars": 8,
+    "meter": "4/4",
+    "key": "C",
+    "tempo": 140,
+    "behavior": "one noise channel plays the whole kit: kick C2, backbeat snare D2, closed hat F#2, open hat A#2; a fill every fourth bar articulates the loop seam; triangle locks the kick and pulse 1 drops sparse off-beat stabs to show the kit sitting under music",
+    "cite": "chiptune_research:noise_kit",
+    "parts": [
+      {
+        "id": "pulse1",
+        "name": "Pulse 1",
+        "instrument": "Clarinet",
+        "surface": "split_pitch_rhythm"
+      },
+      {
+        "id": "triangle",
+        "name": "Triangle",
+        "instrument": "Violoncello",
+        "surface": "split_pitch_rhythm"
+      },
+      {
+        "id": "noise",
+        "name": "Noise",
+        "instrument": "Percussion",
+        "surface": "split_pitch_rhythm"
+      }
+    ]
+  },
+  {
+    "name": "CT6_TWO_PULSE_COUNTERPOINT",
+    "title": "CT6_TWO_PULSE_COUNTERPOINT",
+    "category": "chip",
+    "path": "technique_library/dsl/cards/chip/ct6_two_pulse_counterpoint.rb",
+    "bars": 8,
+    "meter": "4/4",
+    "key": "C",
+    "tempo": 132,
+    "behavior": "Kondo-style three-part ensemble writing: pulse 1 carries a bouncy lead, pulse 2 shadows it in 6ths and answers in the lead's gap bars (call-and-response), triangle walks quarters underneath - wide intervals between the voices read as fuller harmony on squares",
+    "cite": "chiptune_research:two_pulse_ensemble",
+    "parts": [
+      {
+        "id": "pulse1",
+        "name": "Pulse 1",
+        "instrument": "Clarinet",
+        "surface": "split_pitch_rhythm"
+      },
+      {
+        "id": "pulse2",
+        "name": "Pulse 2",
+        "instrument": "Oboe",
+        "surface": "split_pitch_rhythm"
+      },
+      {
+        "id": "triangle",
+        "name": "Triangle",
+        "instrument": "Violoncello",
+        "surface": "split_pitch_rhythm"
+      }
+    ]
+  },
+  {
+    "name": "CT7_HURRYUP_TRANSFORM",
+    "title": "CT7_HURRYUP_TRANSFORM",
+    "category": "chip",
+    "path": "technique_library/dsl/cards/chip/ct7_hurryup_transform.rb",
+    "bars": 8,
+    "meter": "4/4",
+    "key": "C",
+    "tempo": 120,
+    "behavior": "NES danger-state practice: bars 1-4 state the calm theme, bars 5-8 are the SAME theme as a discrete hurry-up variant (SMB time warning, Tetris) - tempo up 40 percent, 3rds and 6ths flattened to minor, subdivision doubled to repeated eighths, noise enters",
+    "cite": "chiptune_research:hurry_up_variant",
+    "parts": [
+      {
+        "id": "pulse1",
+        "name": "Pulse 1",
+        "instrument": "Clarinet",
+        "surface": "split_pitch_rhythm"
+      },
+      {
+        "id": "pulse2",
+        "name": "Pulse 2",
+        "instrument": "Oboe",
+        "surface": "split_pitch_rhythm"
+      },
+      {
+        "id": "triangle",
+        "name": "Triangle",
+        "instrument": "Violoncello",
+        "surface": "split_pitch_rhythm"
+      },
+      {
+        "id": "noise",
+        "name": "Noise",
+        "instrument": "Percussion",
+        "surface": "split_pitch_rhythm"
+      }
+    ]
+  },
+  {
+    "name": "CT8_BOSS_ENGINE",
+    "title": "CT8_BOSS_ENGINE",
+    "category": "chip",
+    "path": "technique_library/dsl/cards/chip/ct8_boss_engine.rb",
+    "bars": 8,
+    "meter": "4/4",
+    "key": "A minor",
+    "tempo": 160,
+    "behavior": "boss-loop archetype (Mega Man 2 Wily-stage school): short hectic loop built from an invariant driving triangle ostinato, an unchanging pulse 2 riff cell as the rhythmic subject, a roller-coaster pulse 1 lead with wide leaps and a chromatic turnaround, and relentless eighth-note noise with fills at the seams",
+    "cite": "chiptune_research:boss_loop",
+    "parts": [
+      {
+        "id": "pulse1",
+        "name": "Pulse 1",
+        "instrument": "Clarinet",
+        "surface": "split_pitch_rhythm"
+      },
+      {
+        "id": "pulse2",
+        "name": "Pulse 2",
+        "instrument": "Oboe",
+        "surface": "split_pitch_rhythm"
+      },
+      {
+        "id": "triangle",
+        "name": "Triangle",
+        "instrument": "Violoncello",
+        "surface": "split_pitch_rhythm"
+      },
+      {
+        "id": "noise",
+        "name": "Noise",
+        "instrument": "Percussion",
+        "surface": "split_pitch_rhythm"
+      }
+    ]
   }
 ]

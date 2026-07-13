@@ -22,6 +22,17 @@ not for copying into a later score as final material.
 - `CS5_BARIOLAGE_MORPH` - `technique_library/dsl/cards/chamberstrings/cs5_bariolage_morph.rb` (`intervals`, `split_pitch_rhythm`)
 - `CS6_CHORALE` - `technique_library/dsl/cards/chamberstrings/cs6_chorale.rb` (`intervals`, `split_pitch_rhythm`)
 
+## chip
+
+- `CT1_PULSE_ECHO_LEAD` - `technique_library/dsl/cards/chip/ct1_pulse_echo_lead.rb` (`split_pitch_rhythm`)
+- `CT2_ARP_COMPRESSION` - `technique_library/dsl/cards/chip/ct2_arp_compression.rb` (`split_pitch_rhythm`)
+- `CT3_FAMICHORD_VOICING` - `technique_library/dsl/cards/chip/ct3_famichord_voicing.rb` (`split_pitch_rhythm`)
+- `CT4_TRIANGLE_BASS_DRUM` - `technique_library/dsl/cards/chip/ct4_triangle_bass_drum.rb` (`split_pitch_rhythm`)
+- `CT5_NOISE_DRUMKIT` - `technique_library/dsl/cards/chip/ct5_noise_drumkit.rb` (`split_pitch_rhythm`)
+- `CT6_TWO_PULSE_COUNTERPOINT` - `technique_library/dsl/cards/chip/ct6_two_pulse_counterpoint.rb` (`split_pitch_rhythm`)
+- `CT7_HURRYUP_TRANSFORM` - `technique_library/dsl/cards/chip/ct7_hurryup_transform.rb` (`split_pitch_rhythm`)
+- `CT8_BOSS_ENGINE` - `technique_library/dsl/cards/chip/ct8_boss_engine.rb` (`split_pitch_rhythm`)
+
 ## dialogue
 
 - `D9_REINFORCE_CONTRAST` - `technique_library/dsl/cards/dialogue/d9_reinforce_contrast.rb` (`intervals`, `split_pitch_rhythm`)
