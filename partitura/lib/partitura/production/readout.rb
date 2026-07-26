@@ -5,6 +5,7 @@ require_relative "readout/declared_views"
 require_relative "readout/grid"
 require_relative "readout/helpers"
 require_relative "readout/probe"
+require_relative "readout/composition_graph_views"
 
 module Partitura
   module Production
@@ -15,6 +16,7 @@ module Partitura
       include DataViews
       include Grid
       include Probe
+      include CompositionGraphViews
 
       SECONDARY_VIEWS = %i[structure roles phrases placements staff_bars foreground
                            bass_path harmony harmony_with_melody material_map gesture_map].freeze
@@ -50,6 +52,12 @@ module Partitura
         melody_analysis: ->(readout, bars:, part:) { readout.melody_analysis(part: part, bars: bars) },
         analyze_score: ->(readout, bars:, part:) { readout.melody_analysis(part: part, bars: bars) },
         melody_report: ->(readout, bars:, part:) { readout.melody_report(part: part, bars: bars) },
+        composition_graph: ->(readout, json:, **) { readout.composition_graph_view(json: json) },
+        composition_plan: ->(readout, json:, **) { readout.composition_plan_view(json: json) },
+        composition_resolution: lambda { |readout, json:, **|
+          readout.composition_resolution_view(json: json)
+        },
+        composition_snapshot: ->(readout, json:, **) { readout.composition_snapshot_view(json: json) },
         compile: ->(readout, **) { JSON.pretty_generate(readout.piece.compile_response) },
         lint: ->(readout, **) { Lint.render(readout.piece) }
       }.freeze
@@ -86,9 +94,9 @@ module Partitura
         @piece = piece
       end
 
-      def render(view, part: nil, bars: nil)
+      def render(view, part: nil, bars: nil, json: false)
         bars = Production.parse_bar_range(bars) if bars.is_a?(String)
-        body = render_view(view, part: part, bars: bars)
+        body = render_view(view, part: part, bars: bars, json: json)
         body = "#{SECONDARY_BANNER}\n#{body}" if SECONDARY_VIEWS.include?(view.to_sym)
         return body if view.to_sym == :compile || piece.deferred_errors.empty?
 
@@ -103,12 +111,14 @@ module Partitura
         lines.join("\n")
       end
 
-      def render_view(view, part: nil, bars: nil)
+      def render_view(view, part: nil, bars: nil, json: false)
         key = view.to_sym
         renderer = DECLARED_RENDERERS[key] || DATA_RENDERERS[key] || SOUNDING_RENDERERS[key]
         raise unknown_view_error(view) unless renderer
 
-        renderer.call(self, part: part, bars: bars)
+        options = { part: part, bars: bars }
+        options[:json] = json if key.to_s.start_with?("composition_")
+        renderer.call(self, **options)
       end
 
       def render_line_view(part, bars:)

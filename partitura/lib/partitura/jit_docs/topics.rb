@@ -14,7 +14,7 @@ module Partitura
           "Use `decision` before choosing a pitch/rhythm surface."
         ],
         example: "partitura_help production",
-        next_topics: %i[production decision container hybrid projections export],
+        next_topics: %i[production composition_graph decision container hybrid projections export],
         docs: ["docs/architecture/partitura/INDEX.md"]
       },
       production: {
@@ -27,13 +27,14 @@ module Partitura
           "Declare opening meter once; use `meter { change ... }` for bar-boundary meter changes.",
           "Use `pitch:` or `surface:` to declare each phrase surface.",
           "Use inline event marks for point markings and `control`/`tempo` for spans or shared markings.",
+          "For whole-score planning, add stable piece/span/placement IDs and `plan { requires ... }` declarations.",
           "Use `production_view` projections after authoring each passage.",
           "Check `production_view SOURCE.rb lint`: warn lints prompt a judgment; error lints block compile.",
           "Lint thresholds are configurable: `lint do rule :phrase_length, warn: 8, error: 24 end`.",
           "Use `production_export` for MusicXML and MIDI."
         ],
         example: <<~RUBY.strip,
-            production_piece "Study" do
+            production_piece "Study", id: :study do
               meter "7/8", beat_pattern: [3, 2, 2]
               key "F"
 
@@ -49,14 +50,14 @@ module Partitura
               roster { part :clarinet, "Clarinet", music21: "Clarinet" }
 
               section :s1, "Opening", bars: 1..2, type: :hybrid_phrase_staff do
-                span bars: 1..2, texture: :melody_over_bass do
+                span :opening, bars: 1..2, texture: :melody_over_bass do
                   phrase :call, pitch: :degrees do
                     key_context "F4"
                     degrees "5 4 3 #1 1"
                     rhythm  "1.5 .25 .25 .5 1"
                   end
 
-                  placement :call, part: :clarinet, at: "bar 1 beat 1" do
+                  placement :call, id: :call_clarinet, part: :clarinet, at: "bar 1 beat 1" do
                     role :foreground
                     realization "C5 Bb4 A4 F#4 F4"
                   end
@@ -64,7 +65,7 @@ module Partitura
               end
             end
           RUBY
-        next_topics: %i[decision degrees controls hybrid projections export compile_api],
+        next_topics: %i[composition_graph decision degrees controls hybrid projections export compile_api],
         docs: ["docs/architecture/partitura/01_container.md"]
       },
       decision: {
@@ -115,6 +116,43 @@ hybrid],
           RUBY
         next_topics: %i[decision hybrid projections],
         docs: ["docs/architecture/partitura/01_container.md"]
+      },
+      composition_graph: {
+        use_when: "Plan or recursively refine a whole score, or expose stable scopes to an external consumer.",
+        rules: [
+          "The production Ruby source remains authoritative; the Composition Graph is a derived projection.",
+          "Graph-aware source declares stable piece, span, and placement IDs.",
+          "Declare recurring non-sounding identity with `material`; exact sounding notes remain in phrases.",
+          "Use scoped `plan { requires ... }` blocks; open and partial requirements are valid during composition.",
+          "The closed requirement facets are harmony, material, role, part, texture, control, and checkpoint.",
+          "The authored relations are derives_from, returns_to, and depends_on; contains and realizes are derived.",
+          "Use `composition_graph` and `composition_resolution` to inspect plans; use " \
+          "`composition_snapshot --json` for external analysis.",
+          "A bound requirement proves authored coverage only, never musical quality."
+        ],
+        example: <<~RUBY.strip,
+            production_piece "Study", id: :study do
+              material(:theme_a) { identity pitch: "rising fourth", rhythm: "short short long" }
+              roster { part :clarinet, "Clarinet", music21: "Clarinet" }
+
+              section :opening, "Statement", bars: 1..2 do
+                span :opening_call, bars: 1..2 do
+                  plan do
+                    requires :material, :theme_a, relation: :statement
+                    requires :role, :foreground
+                  end
+                  phrase :theme_a_call, surface: :absolute,
+                          material: :theme_a, relation: :statement do
+                    events "C5:2 F5:2 | E5:4"
+                  end
+                  placement :theme_a_call, id: :theme_a_call_clarinet,
+                            part: :clarinet, role: :foreground, at: "bar 1 beat 1"
+                end
+              end
+            end
+          RUBY
+        next_topics: %i[container phrase_placement projections guided],
+        docs: ["docs/architecture/partitura/09_composition_graph.md"]
       },
       degrees: {
         use_when: "Write tonal melody where scale function and cadence tendency matter.",

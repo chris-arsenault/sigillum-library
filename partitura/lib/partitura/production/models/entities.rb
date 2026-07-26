@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../composition_graph/models"
+
 module Partitura
   module Production
     class CompileError < StandardError
@@ -94,7 +96,7 @@ module Partitura
       end
     end
 
-    TimedEvent = Struct.new(:part, :role, :phrase_id, :pitch, :duration, :offset, :source,
+    TimedEvent = Struct.new(:part, :role, :phrase_id, :placement_id, :pitch, :duration, :offset, :source,
                             :transform, :realization, :local_marks, :anacrusis, keyword_init: true) do
       include PitchEvent
 
@@ -140,18 +142,21 @@ module Partitura
     end
 
     class Phrase
-      attr_reader :id, :surface, :events, :segment_counts, :assumed_key
+      attr_reader :id, :surface, :events, :segment_counts, :assumed_key, :material_id, :material_relation
 
       # segment_counts: events per `|`-delimited segment of the authored stream, used to
       # verify that every bar marker lands on a barline once the phrase is placed.
       # assumed_key: set when a degrees phrase silently inherited the piece-level key;
       # validation checks that assumption against any key_change at placement time.
-      def initialize(id:, surface:, events:, segment_counts: nil, assumed_key: nil)
+      def initialize(id:, surface:, events:, segment_counts: nil, assumed_key: nil, material_id: nil,
+                     material_relation: nil)
         @id = id.to_sym
         @surface = surface.to_sym
         @events = events.freeze
         @segment_counts = segment_counts&.freeze
         @assumed_key = assumed_key
+        @material_id = material_id&.to_sym
+        @material_relation = material_relation&.to_sym
       end
 
       def duration
@@ -172,10 +177,11 @@ module Partitura
     end
 
     class Placement
-      attr_reader :phrase_id, :part, :role, :bar, :beat, :transform, :realization, :anacrusis, :fill
+      attr_reader :id, :phrase_id, :part, :role, :bar, :beat, :transform, :realization, :anacrusis, :fill
 
-      def initialize(phrase_id:, part:, role:, bar:, beat:, transform: nil, realization: nil,
+      def initialize(id: nil, phrase_id:, part:, role:, bar:, beat:, transform: nil, realization: nil,
                      anacrusis: nil, fill: false)
+        @id = id&.to_sym
         @phrase_id = phrase_id.to_sym
         @part = part.to_sym
         @role = role.to_sym
@@ -276,11 +282,12 @@ module Partitura
     end
 
     class Span
-      attr_reader :bars, :texture, :harmony_texts, :chord_track, :process_texts, :phrases,
+      attr_reader :id, :bars, :texture, :harmony_texts, :chord_track, :process_texts, :phrases,
                   :phrase_definitions, :placements, :staff_bars, :gestures, :phrase_anacruses,
-                  :fill_phrase_ids
+                  :fill_phrase_ids, :plan_requirements
 
-      def initialize(bars:, texture: nil)
+      def initialize(id: nil, bars:, texture: nil)
+        @id = id&.to_sym
         @bars = bars
         @texture = texture&.to_sym
         @harmony_texts = []
@@ -293,6 +300,7 @@ module Partitura
         @gestures = []
         @phrase_anacruses = {}
         @fill_phrase_ids = []
+        @plan_requirements = []
       end
 
       def add_harmony(text)
@@ -316,7 +324,8 @@ module Partitura
         anacrusis = placement.anacrusis || @phrase_anacruses[placement.phrase_id]
         fill = @fill_phrase_ids.include?(placement.phrase_id) || placement.fill
         @placements << Placement.new(
-          phrase_id: placement.phrase_id, part: placement.part, role: placement.role, bar: placement.bar,
+          id: placement.id, phrase_id: placement.phrase_id, part: placement.part, role: placement.role,
+          bar: placement.bar,
           beat: placement.beat, transform: placement.transform, realization: placement.realization,
           anacrusis: anacrusis, fill: fill
         )
@@ -337,11 +346,15 @@ module Partitura
       def add_gesture(gesture)
         @gestures << gesture
       end
+
+      def add_plan_requirement(requirement)
+        @plan_requirements << requirement
+      end
     end
 
     class Section
       attr_reader :id, :name, :bars, :type, :journey_texts, :destination_texts, :spans,
-                  :gestures
+                  :gestures, :plan_requirements
 
       def initialize(id:, name:, bars:, type: nil)
         @id = id.to_sym
@@ -352,6 +365,7 @@ module Partitura
         @destination_texts = []
         @spans = []
         @gestures = []
+        @plan_requirements = []
       end
 
       def add_journey(text)
@@ -368,6 +382,10 @@ module Partitura
 
       def add_gesture(gesture)
         @gestures << gesture
+      end
+
+      def add_plan_requirement(requirement)
+        @plan_requirements << requirement
       end
     end
   end

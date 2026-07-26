@@ -11,6 +11,7 @@ partitura view SOURCE.rb articulation_map
 partitura view SOURCE.rb breath_map
 partitura view SOURCE.rb exposed_clashes
 partitura view SOURCE.rb controls
+partitura view SOURCE.rb composition_resolution
 # secondary (declared intent): structure, roles, material_map
 partitura lint SOURCE.rb
 partitura export SOURCE.rb
@@ -86,6 +87,9 @@ The new composition pass is complete only when:
   on with a reason.
 - Any weakness discovered at any stage was revised in source and re-exported, not logged and left.
 - The DSL source compiles and exports.
+- Every declared Composition Graph requirement is mechanically bound. This is an authored-coverage
+  floor, not a musical-quality verdict; the audition and revision criteria above still decide whether
+  the composition is finished.
 
 Do not describe the result as a draft in the closeout. If it is still a draft, the procedure is not
 finished.

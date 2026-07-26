@@ -3,11 +3,13 @@
 module Partitura
   module Production
     class PhraseBuilder
-      def initialize(id, surface, default_key: nil, default_key_explicit: false)
+      def initialize(id, surface, default_key: nil, default_key_explicit: false, material: nil, relation: nil)
         @id = id
         @surface = surface&.to_sym
         @default_key = default_key
         @default_key_explicit = default_key_explicit
+        @material = material
+        @material_relation = relation
         @fields = {}
       end
 
@@ -15,7 +17,7 @@ module Partitura
         instance_eval(&block) if block
         @surface ||= infer_surface
         Phrase.new(id: @id, surface: @surface, events: build_events, segment_counts: segment_counts,
-                   assumed_key: assumed_key)
+                   assumed_key: assumed_key, material_id: @material, material_relation: @material_relation)
       rescue CompileError => e
         raise e.with_context(phrase: @id, surface: @surface)
       end

@@ -25,6 +25,7 @@ Production entry points:
 - CLI readouts: `structure`, `roles`, `phrases`, `placements`, `timed_events`, `verticals`,
   `staff_bars`, `foreground`, `bass_path`, `line`, `harmony`, `harmony_with_melody`,
   `harmony_check`, `range_check`, `lint`, `controls`, `material_map`, `gesture_map`,
+  `composition_graph`, `composition_plan`, `composition_resolution`, `composition_snapshot`,
   `compile` (run `production_view` with no arguments for the full view list)
 - CLI export: `production_export SOURCE.rb --stem STEM`
 - Ruby framework registry build: `partitura_build REGISTRY.rb [movement|all]`
@@ -38,6 +39,8 @@ Production entry points:
 4. If writing source, read `01_container.md` plus the relevant surface file.
 5. If asking the runtime for help, read `03_jit_docs_api.md`.
 6. If importing a user's hand-edited MusicXML, read `07_hand_edit_import.md`.
+7. If planning a whole score, recursive refinement, or an external ML consumer, read
+   `09_composition_graph.md`.
 
 ## Core Files
 
@@ -50,6 +53,10 @@ Production entry points:
 - `06_ruby_framework.md` - Ruby build/audit layer and Python writer boundary.
 - `07_hand_edit_import.md` - importing hand-edited MusicXML back into DSL
   source with `Production::MusicXMLImport` (convert + zero-diff verify gate).
+- `08_cli_and_guided_runs.md` - consolidated CLI and resumable, mechanically gated composition
+  procedures.
+- `09_composition_graph.md` - implemented stable plan/realization graph for recursive whole-score
+  composition and external ML consumers.
 
 ## Composition Procedure
 

@@ -29,8 +29,12 @@ module Partitura
         @section.add_destination(text)
       end
 
-      def span(bars:, texture: nil, &block)
-        span = Span.new(bars: bars, texture: texture)
+      def plan(&block)
+        PlanBuilder.new(@section).build(&block)
+      end
+
+      def span(id = nil, bars:, texture: nil, &block)
+        span = Span.new(id: id, bars: bars, texture: texture)
         SpanBuilder.new(@piece, span, default_key: @default_key,
                                       default_key_explicit: @key_explicit).build(&block)
         @section.add_span(span)
@@ -89,18 +93,25 @@ module Partitura
         @span.add_process(text)
       end
 
-      def phrase(id, surface: nil, pitch: nil, &block)
+      def plan(&block)
+        PlanBuilder.new(@span).build(&block)
+      end
+
+      def phrase(id, surface: nil, pitch: nil, material: nil, relation: nil, &block)
         builder = PhraseBuilder.new(id, surface || pitch, default_key: @default_key,
-                                                          default_key_explicit: @key_explicit)
+                                                          default_key_explicit: @key_explicit,
+                                                          material: material, relation: relation)
         phrase = builder.build(&block)
         @span.add_phrase(phrase)
         @span.set_phrase_anacrusis(phrase.id, builder.anacrusis_value) if builder.anacrusis_value
         phrase
       end
 
-      def placement(phrase_id, part:, at:, role: nil, transform: nil, realization: nil, anacrusis: nil, &block)
+      def placement(phrase_id, id: nil, part:, at:, role: nil, transform: nil, realization: nil, anacrusis: nil,
+                    &block)
         bar, beat = Production.parse_location(at)
         placement = PlacementBuilder.new(
+          id: id,
           phrase_id: phrase_id,
           part: part,
           role: role,
@@ -120,7 +131,8 @@ module Partitura
           validate_realized_fill_duration!(phrase(id, surface: surface, pitch: pitch, &block), :inline)
         end
         @span.mark_fill(id)
-        placement(id, part: part, at: at, role: role, realization: kwargs[:realization],
+        placement(id, id: :"#{id}_#{part}_placement", part: part, at: at, role: role,
+                      realization: kwargs[:realization],
                       anacrusis: kwargs[:anacrusis])
       end
 
@@ -200,7 +212,8 @@ module Partitura
     end
 
     class PlacementBuilder
-      def initialize(phrase_id:, part:, role:, bar:, beat:, transform:, realization:, anacrusis:)
+      def initialize(id:, phrase_id:, part:, role:, bar:, beat:, transform:, realization:, anacrusis:)
+        @id = id
         @phrase_id = phrase_id
         @part = part
         @role = role
@@ -216,6 +229,7 @@ module Partitura
         missing_role! unless @role
 
         Placement.new(
+          id: @id,
           phrase_id: @phrase_id,
           part: @part,
           role: @role,

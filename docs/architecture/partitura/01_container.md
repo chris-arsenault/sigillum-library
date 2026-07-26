@@ -67,6 +67,8 @@ end
 - `piece`: movement/passage-level context.
 - `section`: form-level unit with bars and structural type.
 - `span`: local texture/composing unit.
+- `material`: optional non-sounding identity shared by one or more explicit phrase realizations.
+- `plan`: optional scoped, machine-readable requirements for recursive composition.
 - `chords`: the span's declared per-bar chord track, `"b1:F b2:Bb b3-4:C7"`. Symbols are
   letter chords (root, optional `#`/`b`, quality such as m/7/m7/maj7/dim/dim7/aug/m7b5/
   6/m6/sus4/sus2, optional /bass). This is the machine-comparable harmony declaration:
@@ -89,6 +91,43 @@ end
 - `tempo`: score tempo timeline.
 - `control`: scoped dynamics, hairpins, pedal, and text timeline.
 - `projection`: an LLM reading view.
+
+## Composition Graph Identity
+
+Whole-score planning and recursive refinement use the optional Composition Graph extension:
+
+```ruby
+production_piece "Study", id: :study do
+  material(:theme_a) { identity pitch: "rising fourth", rhythm: "short short long" }
+
+  section :opening, "Opening", bars: 1..4 do
+    span :opening_call, bars: 1..4 do
+      plan do
+        requires :material, :theme_a, relation: :statement
+        requires :role, :foreground
+      end
+
+      phrase :theme_a_call, surface: :absolute,
+              material: :theme_a, relation: :statement do
+        events "C5:2 F5:2"
+      end
+
+      placement :theme_a_call, id: :theme_a_call_first,
+                part: :clarinet, role: :foreground, at: "bar 1 beat 1"
+    end
+  end
+end
+```
+
+The Ruby source remains authoritative. `Partitura.composition_graph(piece)` derives stable typed
+paths, relations, and `open`/`partial`/`bound` requirement states without generating or changing
+notes. Graph-aware source declares piece, span, and ordinary placement IDs explicitly. Placements
+created internally by the existing `texture` and `fill` DSLs receive deterministic IDs from their
+authored phrase and part identities.
+
+Legacy source without graph declarations remains valid and receives unstable generated paths in a
+graph readout. Read `09_composition_graph.md` before adding plans, cross-relations, or an external
+consumer.
 
 ## Roster Notation Metadata
 

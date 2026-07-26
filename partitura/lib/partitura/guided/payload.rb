@@ -52,6 +52,7 @@ module Partitura
           artifacts: stage.artifacts,
           gates: stage.gates,
           pass_note_fields: run.manifest.pass_note_fields,
+          optional_pass_note_fields: PassNote::OPTIONAL_FIELDS,
           open_flags: open_flags(run),
           open_threads: open_threads(run)
             .map { |origin, field, value| { origin: origin, field: field, value: value } },
@@ -182,6 +183,7 @@ module Partitura
         lines = [
           "",
           "pass_note_schema: #{run.manifest.pass_note_fields.join(' | ')}",
+          "optional_pass_note_fields: #{PassNote::OPTIONAL_FIELDS.join(' | ')}",
           "  (carries feed forward to later stages as OPEN THREADS - record only what genuinely " \
           "cannot be closed here, e.g. a cross-stage dependency or half-finished material; fix " \
           "anything fixable now rather than logging it. Realized material lives in the score, " \

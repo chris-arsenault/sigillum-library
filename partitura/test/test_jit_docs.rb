@@ -50,6 +50,19 @@ class JITDocsTest < Minitest::Test
     assert_includes data[:docs], "docs/architecture/partitura/surfaces/hybrid.md"
   end
 
+  def test_composition_graph_response_locks_plan_and_realization_boundary
+    data = Partitura.help_data(:composition_graph)
+
+    assert_equal :composition_graph, data[:topic]
+    assert_includes data[:rules],
+                    "The production Ruby source remains authoritative; the Composition Graph is a derived projection."
+    assert_includes data[:rules], "A bound requirement proves authored coverage only, never musical quality."
+    assert_includes data[:example], "plan do"
+    assert_includes data[:example], "material: :theme_a"
+    assert_includes data[:docs], "docs/architecture/partitura/09_composition_graph.md"
+    assert_equal :composition_graph, Partitura.help_data(:score_tree)[:topic]
+  end
+
   def test_json_renderer_returns_parseable_response
     parsed = JSON.parse(Partitura::JITDocs.render_json(:staff_grid))
 

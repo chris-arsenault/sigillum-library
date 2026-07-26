@@ -7,3 +7,5 @@ Durable architecture records for the engine's subsystems (technical, not the mus
 - `feature_extraction.md` — the musical feature-extraction subsystem (`Production::MelodyAnalysis`).
 - `partitura.md` - LLM-first Partitura design summary.
 - `partitura/INDEX.md` - modular Partitura docs; start here for focused retrieval.
+- `partitura/09_composition_graph.md` - stable plan/realization graph for recursive whole-score
+  composition.

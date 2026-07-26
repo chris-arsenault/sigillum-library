@@ -286,6 +286,8 @@ Small, mechanical, closed (extended only in the manifest schema, not per-piece):
 | `artifact_exists:<id>` | the manifest-declared artifact file exists and is non-empty |
 | `pass_note_complete` | pass note parses and required fields are non-empty |
 | `source_compiles` | `partitura compile` returns ok |
+| `composition_graph_valid` | the source's Composition Graph has no invalid identities, declarations, references, or cycles |
+| `composition_graph_bound` | every declared plan requirement is mechanically bound |
 | `lint_max:<level>` | no lints at or above `<level>` (ties into review Area 1 linter) |
 | `export_current` | export artifacts exist and are newer than the source |
 | `tests_pass` | repo test suite passes (closeout) |
@@ -294,6 +296,11 @@ Small, mechanical, closed (extended only in the manifest schema, not per-piece):
 
 Explicitly out of scope: any gate that scores musical quality. The runtime enforces
 that judgment was *recorded*, never what it concluded.
+
+The composition procedure uses `composition_graph_valid` while open and partial requirements are
+expected, then adds `composition_graph_bound` at closeout. Bound means only that declared coverage
+exists. Pass notes may include an optional `graph_paths:` field to point back to exact piece,
+section, span, material, phrase, or placement paths; the accepted music remains in source.
 
 ### Procedure manifests (D4)
 

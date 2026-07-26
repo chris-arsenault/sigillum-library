@@ -38,12 +38,12 @@ module Partitura
     JITDocs.data(topic)
   end
 
-  def hybrid_piece(title, &block)
-    Production.piece(title, &block)
+  def hybrid_piece(title, id: nil, &block)
+    Production.piece(title, id: id, &block)
   end
 
-  def production_piece(title, &block)
-    Production.piece(title, &block)
+  def production_piece(title, id: nil, &block)
+    Production.piece(title, id: id, &block)
   end
 
   def load_hybrid_file(path)
@@ -60,6 +60,14 @@ module Partitura
 
   def production_metrics(piece)
     Production::Metrics.for_piece(piece).to_h
+  end
+
+  def composition_graph(piece)
+    Production.composition_graph(piece)
+  end
+
+  def composition_snapshot(piece)
+    Production.composition_snapshot(piece)
   end
 
   def production_melody_analysis(piece, **options)

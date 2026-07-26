@@ -1,6 +1,6 @@
 {
   "id": "dsl_composition",
-  "version": 4,
+  "version": 5,
   "title": "DSL new-composition procedure",
   "principles": "principles.md",
   "pass_note_fields": [
@@ -61,6 +61,7 @@
       "doc": "stages/03_frame.md",
       "gates": [
         "source_compiles",
+        "composition_graph_valid",
         "pass_note_complete"
       ]
     },
@@ -70,6 +71,7 @@
       "doc": "stages/04_primary_materials.md",
       "gates": [
         "source_compiles",
+        "composition_graph_valid",
         "pass_note_complete"
       ]
     },
@@ -81,10 +83,12 @@
       "unit": "span",
       "gates": [
         "source_compiles",
+        "composition_graph_valid",
         "pass_note_complete"
       ],
       "stage_complete_gates": [
         "source_compiles",
+        "composition_graph_valid",
         "lint_max:error",
         "units_cover_source_bars",
         "pass_note_complete"
@@ -96,6 +100,7 @@
       "doc": "stages/06_interleave.md",
       "gates": [
         "source_compiles",
+        "composition_graph_valid",
         "pass_note_complete"
       ]
     },
@@ -112,6 +117,7 @@
       "gates": [
         "artifact_exists:return_ledger",
         "source_compiles",
+        "composition_graph_valid",
         "pass_note_complete"
       ]
     },
@@ -121,6 +127,7 @@
       "doc": "stages/08_harmony_verticals.md",
       "gates": [
         "source_compiles",
+        "composition_graph_valid",
         "pass_note_complete"
       ]
     },
@@ -130,6 +137,7 @@
       "doc": "stages/09_merge_revision.md",
       "gates": [
         "source_compiles",
+        "composition_graph_valid",
         "pass_note_complete"
       ],
       "threads": "all"
@@ -140,6 +148,7 @@
       "doc": "stages/10_export_audition_close.md",
       "gates": [
         "source_compiles",
+        "composition_graph_valid",
         "export_current",
         "pass_note_complete"
       ],
@@ -147,6 +156,8 @@
       "unit": "audit",
       "stage_complete_gates": [
         "source_compiles",
+        "composition_graph_valid",
+        "composition_graph_bound",
         "export_current",
         "min_units:1",
         "no_open_skips",

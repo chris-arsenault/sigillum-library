@@ -32,6 +32,8 @@ module Partitura
           "context; commit --notes - advances; next/back/log/abandon manage exceptions.",
           "Pass notes are `field: value` lines, one per schema field (later lines without a key continue the " \
           "previous field). \"none\" is legal for a field with truly nothing to report; absence is not.",
+          "Use the optional `graph_paths:` field to reference exact Composition Graph scopes without copying " \
+          "realized music into the pass note.",
           "weaknesses/outputs/improvements feed forward to later payloads as OPEN THREADS.",
           "Gate glossary: artifact_exists (named file written), pass_note_complete (all schema fields present), " \
           "source_compiles, lint_max (no lints at/above level), export_current (export newer than source), " \
@@ -44,6 +46,7 @@ module Partitura
         example: <<~TEXT.strip,
             bars: 5-8
             decisions: viola takes the call's tail as a countermelody; cello holds the ground
+            graph_paths: span:development_5_8, material:call_tail
             weaknesses: bar 7 downbeat is the third homorhythmic attack in a row
             improvements: composed an off-beat entry for the viola at b6.5 (was a stamped pad)
             outputs: countermelody cell (b6) available for the return

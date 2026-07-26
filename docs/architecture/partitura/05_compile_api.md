@@ -66,7 +66,14 @@ partitura/bin/production_export experiments/partitura/production_hybrid_study.rb
 
 ## Transport Shape
 
-Exporters consume the compiled model directly. Use `Partitura.production_musicxml(piece)` and `Partitura.production_midi(piece)`; there is no serialized JSON handoff.
+Exporters consume the compiled model directly. Use `Partitura.production_musicxml(piece)` and
+`Partitura.production_midi(piece)`; there is no serialized JSON handoff between the production
+model and those exporters.
+
+`Partitura.composition_snapshot(piece)` is a separate, versioned, read-only JSON projection for
+analysis and external consumers. It includes the Composition Graph, concrete score records, stable
+phrase/placement provenance, and deterministic graph/snapshot digests. It is not an authoring
+format and is not used by the MusicXML or MIDI exporters. See `09_composition_graph.md`.
 
 ## Related JIT Help
 

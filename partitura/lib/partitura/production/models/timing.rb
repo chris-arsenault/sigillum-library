@@ -45,6 +45,7 @@ module Partitura
           part: placement.part,
           role: placement.role,
           phrase_id: phrase.id,
+          placement_id: placement.id,
           pitch: event.pitch,
           duration: event.duration,
           offset: offset,

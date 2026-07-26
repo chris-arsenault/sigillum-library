@@ -19,13 +19,14 @@ module Partitura
       include CheckpointValidation
       include TieValidation
 
-      attr_reader :title, :meter_value, :beat_pattern, :bar_length, :key_value, :tempo_marks,
+      attr_reader :id, :title, :meter_value, :beat_pattern, :bar_length, :key_value, :tempo_marks,
                   :meter_changes, :tempo_events, :anchors, :controls, :key_changes, :parts, :sections,
-                  :fill_materials
+                  :fill_materials, :materials, :graph_relations, :plan_requirements
       attr_accessor :lint_config
 
-      def initialize(title)
+      def initialize(title, id: nil)
         @lint_config = {}
+        @id = id&.to_sym
         @title = title
         @meter_value = "4/4"
         @beat_pattern = nil
@@ -40,6 +41,9 @@ module Partitura
         @parts = {}
         @sections = []
         @fill_materials = {}
+        @materials = {}
+        @graph_relations = []
+        @plan_requirements = []
       end
 
       def set_meter(value, beat_pattern: nil)
@@ -118,6 +122,38 @@ module Partitura
 
       def add_fill_material(material)
         @fill_materials[material.id] = material
+      end
+
+      def add_material(material)
+        if @materials.key?(material.id)
+          raise compile_error(
+            code: "duplicate_material_id",
+            message: "Material id #{material.id} is defined more than once.",
+            repair_instruction: "Keep one material declaration for each id.",
+            help_topic: "composition_graph",
+            docs: ["docs/architecture/partitura/09_composition_graph.md"]
+          )
+        end
+
+        @materials[material.id] = material
+      end
+
+      def add_graph_relation(relation)
+        @graph_relations << relation
+      end
+
+      def add_plan_requirement(requirement)
+        @plan_requirements << requirement
+      end
+
+      def graph_enabled?
+        !id.nil? || !materials.empty? || !graph_relations.empty? || !plan_requirements.empty? ||
+          sections.any? do |section|
+            section.plan_requirements.any? ||
+              section.spans.any? do |span|
+                span.plan_requirements.any? || span.phrase_definitions.any? { |phrase| phrase.material_id }
+              end
+          end
       end
 
       def fill_material(id)

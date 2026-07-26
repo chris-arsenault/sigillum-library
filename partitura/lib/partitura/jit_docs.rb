@@ -51,7 +51,8 @@ module Partitura
     ALIASES = { chords: :harmony, harmony_check: :harmony, run: :guided, workflow: :guided,
                 score_grid: :texture, score: :texture,
                 fill: :phrase_placement, fill_material: :phrase_placement,
-                anacrusis: :phrase_placement, placement: :phrase_placement }.freeze
+                anacrusis: :phrase_placement, placement: :phrase_placement,
+                graph: :composition_graph, score_tree: :composition_graph }.freeze
 
     def normalize(topic)
       key = topic.to_s.tr("-", "_").to_sym

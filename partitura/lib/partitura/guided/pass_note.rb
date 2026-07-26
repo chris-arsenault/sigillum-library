@@ -10,6 +10,8 @@ module Partitura
     module PassNote
       module_function
 
+      OPTIONAL_FIELDS = %w[graph_paths].freeze
+
       def parse(text, required_fields)
         fields = parse_fields(text)
         missing = required_fields.reject { |field| fields[field] && !fields[field].strip.empty? }

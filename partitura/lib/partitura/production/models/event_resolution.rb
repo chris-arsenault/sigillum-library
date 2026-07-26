@@ -51,9 +51,10 @@ module Partitura
         return nil unless duration.positive?
 
         TimedEvent.new(
-          part: event.part, role: event.role, phrase_id: event.phrase_id, pitch: event.pitch,
-          duration: duration, offset: from, source: event.source, transform: event.transform,
-          realization: event.realization, local_marks: event.local_marks, anacrusis: event.anacrusis
+          part: event.part, role: event.role, phrase_id: event.phrase_id, placement_id: event.placement_id,
+          pitch: event.pitch, duration: duration, offset: from, source: event.source,
+          transform: event.transform, realization: event.realization, local_marks: event.local_marks,
+          anacrusis: event.anacrusis
         )
       end
     end

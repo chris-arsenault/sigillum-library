@@ -15,6 +15,8 @@ module Partitura
         "artifact_exists" => ->(run:, stage:, argument:, **) { artifact_exists(run, stage, argument) },
         "pass_note_complete" => ->(gate:, note:, **) { pass_note_complete(gate, note) },
         "source_compiles" => ->(run:, **) { source_compiles(run) },
+        "composition_graph_valid" => ->(run:, **) { composition_graph_valid(run) },
+        "composition_graph_bound" => ->(run:, **) { composition_graph_bound(run) },
         "lint_max" => ->(run:, argument:, **) { lint_max(run, argument) },
         "export_current" => ->(run:, **) { export_current(run) },
         "no_open_skips" => ->(run:, gate:, **) { no_flagged_stages(run, "skipped", gate) },
@@ -67,6 +69,43 @@ module Partitura
         Result.new(gate: gate, ok: ok,
                    detail: ok ? nil : "compile error #{response[:code] || response['code']}: " \
                                       "#{response[:message] || response['message']}")
+      end
+
+      def composition_graph_valid(run)
+        gate = "composition_graph_valid"
+        source = graph_source(run, gate)
+        return source if source.is_a?(Result)
+
+        Partitura.composition_graph(Partitura.load_production_file(source))
+        Result.new(gate: gate, ok: true)
+      rescue Partitura::Production::CompileError => e
+        Result.new(
+          gate: gate,
+          ok: false,
+          detail: "graph error #{e.response[:code]}: #{e.response[:message]}"
+        )
+      end
+
+      def composition_graph_bound(run)
+        gate = "composition_graph_bound"
+        source = graph_source(run, gate)
+        return source if source.is_a?(Result)
+
+        graph = Partitura.composition_graph(Partitura.load_production_file(source))
+        unbound = graph.requirements.reject { |requirement| requirement.state == :bound }
+        Result.new(
+          gate: gate,
+          ok: unbound.empty?,
+          detail: unbound.empty? ? nil : "unbound requirements: #{unbound.map { |requirement|
+            "#{requirement.owner} #{requirement.facet}:#{requirement.selector || '-'}=#{requirement.state}"
+          }.join(', ')}"
+        )
+      rescue Partitura::Production::CompileError => e
+        Result.new(
+          gate: gate,
+          ok: false,
+          detail: "graph error #{e.response[:code]}: #{e.response[:message]}"
+        )
       end
 
       def lint_max(run, level)
@@ -167,6 +206,15 @@ module Partitura
         Partitura.load_production_file(source).compile_response
       rescue Partitura::Production::CompileError => e
         e.response
+      end
+
+      def graph_source(run, gate)
+        source = run.source_path
+        return Result.new(gate: gate, ok: false, detail: "no source registered; rerun with --source PATH") unless
+          source
+        return Result.new(gate: gate, ok: false, detail: "source #{source} does not exist") unless File.exist?(source)
+
+        source
       end
     end
   end

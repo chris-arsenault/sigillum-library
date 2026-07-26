@@ -64,7 +64,8 @@ module Partitura
       def add_texture_placement(phrase_id, part, role, anacrusis: nil, realization: nil)
         @parts << part.to_sym
         @span.add_placement(Placement.new(
-          phrase_id: phrase_id, part: part, role: role, bar: @bars.begin, beat: 1,
+          id: :"#{phrase_id}_#{part}_placement", phrase_id: phrase_id, part: part, role: role,
+          bar: @bars.begin, beat: 1,
           realization: realization || "texture #{@id}", anacrusis: anacrusis
         ))
       end

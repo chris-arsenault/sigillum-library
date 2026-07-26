@@ -50,3 +50,7 @@ relation, rhythm, silence, or orchestration causes one passage to become the nex
 The form contract is binding, not infallible. A later musical pass may change it only by documenting a
 divergence with why the change is better for the piece. Silent drift from the contract is a failed pass.
 
+At Stage 3, migrate machine-addressable commitments from this narrative contract into the production
+source's Composition Graph declarations: stable piece/span/placement IDs, named `material`, and scoped
+`plan { requires ... }` blocks. Keep the artifact as the musical rationale; do not duplicate exact notes
+or guided-run history into it.

@@ -19,11 +19,13 @@ module Partitura
     def export_header(piece)
       {
         source_model: "production_hybrid",
+        id: piece.id&.to_s,
+        graph_path: piece.id && "piece:#{piece.id}",
         title: piece.title,
         meter: piece.meter_value,
         beat_pattern: piece.beat_pattern,
         bar_length_ql: rational_number(piece.bar_length)
-      }
+      }.compact
     end
 
     def export_timeline(piece)
@@ -92,6 +94,7 @@ module Partitura
     def export_section(section, piece)
       {
         id: section.id.to_s,
+        graph_path: "section:#{section.id}",
         name: section.name,
         type: section.type&.to_s,
         bars: range_data(section.bars),
@@ -106,6 +109,8 @@ module Partitura
 
     def export_span(span, piece)
       {
+        id: span.id&.to_s,
+        graph_path: span.id && "span:#{span.id}",
         bars: range_data(span.bars),
         start_offset_ql: rational_number(piece.offset_for(span.bars.begin, 1)),
         end_offset_ql: rational_number(piece.offset_for(span.bars.end + 1, 1)),
@@ -122,7 +127,10 @@ module Partitura
     def export_phrase(phrase)
       {
         id: phrase.id.to_s,
+        graph_path: "phrase:#{phrase.id}",
         surface: phrase.surface.to_s,
+        material_id: phrase.material_id&.to_s,
+        material_relation: phrase.material_relation&.to_s,
         duration_ql: rational_number(phrase.duration),
         events: phrase.events.map.with_index do |event, index|
           {
@@ -137,7 +145,7 @@ module Partitura
             local_marks: event.marks
           }
         end
-      }
+      }.compact
     end
 
     def export_placements(piece)
@@ -156,7 +164,10 @@ module Partitura
     def export_placement(piece, placement)
       offset = piece.placement_start_offset(placement)
       {
+        id: placement.id&.to_s,
+        graph_path: placement.id && "placement:#{placement.id}",
         phrase_id: placement.phrase_id.to_s,
+        phrase_path: "phrase:#{placement.phrase_id}",
         part: placement.part.to_s,
         role: placement.role.to_s,
         bar: placement.bar,
@@ -175,6 +186,9 @@ module Partitura
         part: event.part.to_s,
         role: event.role.to_s,
         phrase_id: event.phrase_id.to_s,
+        phrase_path: "phrase:#{event.phrase_id}",
+        placement_id: event.placement_id&.to_s,
+        placement_path: event.placement_id && "placement:#{event.placement_id}",
         pitch: event.pitch,
         pitches: event.pitches,
         pitch_label: event.pitch_label,

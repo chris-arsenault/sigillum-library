@@ -32,7 +32,7 @@ def usage
                  runs [<root>]
       author     compile SOURCE
                  lint SOURCE
-                 view SOURCE [view] [--part ID] [--bars A-B]
+             view SOURCE [view] [--part ID] [--bars A-B] [--json]
                  help [topic] [--json]
       library    cards <query terms> | cards show <ID> | cards terms
       output     export SOURCE [--stem STEM]
@@ -95,10 +95,11 @@ when "help"
 
 when "view"
   require_partitura
-  options = {}
+  options = { json: false }
   parser = OptionParser.new do |opts|
     opts.on("--part PART") { |value| options[:part] = value.to_sym }
     opts.on("--bars RANGE") { |value| options[:bars] = value }
+    opts.on("--json") { options[:json] = true }
   end
   parser.parse!
   source = ARGV.shift

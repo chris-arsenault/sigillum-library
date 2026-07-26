@@ -3,8 +3,8 @@
 module Partitura
   module Production
     class PieceBuilder
-      def initialize(title)
-        @piece = Piece.new(title)
+      def initialize(title, id: nil)
+        @piece = Piece.new(title, id: id)
       end
 
       def build(&block)
@@ -30,6 +30,24 @@ module Partitura
 
       def lint(&block)
         LintConfigBuilder.new(@piece).build(&block)
+      end
+
+      def plan(&block)
+        PlanBuilder.new(@piece).build(&block)
+      end
+
+      def material(id, &block)
+        value = MaterialBuilder.new(CompositionGraph::Material.new(id)).build(&block)
+        @piece.add_material(value)
+        value
+      end
+
+      def ref(type, id)
+        CompositionGraph::Reference.new(type, id)
+      end
+
+      def relation(kind, from:, to:, **metadata)
+        @piece.add_graph_relation(CompositionGraph::Relation.new(kind, from: from, to: to, **metadata))
       end
 
       def tempo(text = nil, &block)

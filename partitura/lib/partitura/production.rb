@@ -11,6 +11,7 @@ require_relative "production/tie_merge"
 require_relative "production/builders"
 require_relative "production/sounding"
 require_relative "production/export_data"
+require_relative "production/composition_graph"
 require_relative "production/metrics"
 require_relative "production/melody_analysis"
 require_relative "production/musicxml_import"
@@ -20,26 +21,34 @@ module Partitura
   module Production
     module_function
 
-    def piece(title, &block)
-      PieceBuilder.new(title).build(&block)
+    def piece(title, id: nil, &block)
+      PieceBuilder.new(title, id: id).build(&block)
     end
 
     def load_file(path)
       context = Object.new
-      context.define_singleton_method(:hybrid_piece) do |title, &block|
-        Production.piece(title, &block)
+      context.define_singleton_method(:hybrid_piece) do |title, **options, &block|
+        Production.piece(title, **options, &block)
       end
-      context.define_singleton_method(:production_piece) do |title, &block|
-        Production.piece(title, &block)
+      context.define_singleton_method(:production_piece) do |title, **options, &block|
+        Production.piece(title, **options, &block)
       end
-      context.define_singleton_method(:piece) do |title, &block|
-        Production.piece(title, &block)
+      context.define_singleton_method(:piece) do |title, **options, &block|
+        Production.piece(title, **options, &block)
       end
       context.instance_eval(File.read(path), path.to_s)
     end
 
     def readout(piece, view = :structure, **options)
       Readout.new(piece).render(view, **options)
+    end
+
+    def composition_graph(piece)
+      CompositionGraph.build(piece)
+    end
+
+    def composition_snapshot(piece)
+      CompositionGraph.snapshot(piece)
     end
   end
 end

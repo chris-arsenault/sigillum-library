@@ -33,6 +33,21 @@ class GuidedRunsTest < Minitest::Test
     end
   RUBY
 
+  GRAPH_OPEN_SOURCE = <<~RUBY
+    production_piece "Guided Graph", id: :guided_graph do
+      roster { part :fl, "Flute", music21: "Flute" }
+      section :s1, "One", bars: 1..2 do
+        span :opening, bars: 1..2 do
+          plan { requires :role, :foreground, coverage: :all_bars }
+          phrase(:line, surface: :absolute) { events "C5:4" }
+          placement :line, id: :line_flute, part: :fl, at: "bar 1 beat 1", role: :foreground
+        end
+      end
+    end
+  RUBY
+
+  GRAPH_BOUND_SOURCE = GRAPH_OPEN_SOURCE.sub('events "C5:4"', 'events "C5:4 | D5:4"')
+
   def test_start_status_commit_flow_with_gates
     with_run do |dir|
       run, payload = Partitura::Guided.status(dir)
@@ -159,14 +174,46 @@ class GuidedRunsTest < Minitest::Test
     end
   end
 
+  def test_composition_graph_gates_distinguish_valid_from_bound
+    with_run do |dir|
+      source = File.join(dir, "dsl", "piece.rb")
+      File.write(source, GRAPH_OPEN_SOURCE)
+      run = Partitura::Guided::Run.locate(dir)
+      results = Partitura::Guided::Gates.evaluate(
+        %w[composition_graph_valid composition_graph_bound],
+        run: run,
+        stage: run.current_stage,
+        note: {}
+      )
+
+      assert results.first.ok
+      refute results.last.ok
+      assert_includes results.last.detail, "span:opening role:foreground=partial"
+
+      File.write(source, GRAPH_BOUND_SOURCE)
+      bound = Partitura::Guided::Gates.evaluate(
+        ["composition_graph_bound"],
+        run: run,
+        stage: run.current_stage,
+        note: {}
+      ).first
+      assert bound.ok, bound.detail
+    end
+  end
+
   def test_run_log_is_append_only_jsonl
     with_run do |dir|
       File.write(File.join(dir, "procedure", "brief.md"), "brief")
-      Partitura::Guided.commit(dir: dir, notes: PASS_NOTE)
+      note = "#{PASS_NOTE}graph_paths: span:opening, material:theme_a\n"
+      Partitura::Guided.commit(dir: dir, notes: note)
       run = Partitura::Guided::Run.locate(dir)
       events = run.log_entries.map { |entry| entry.fetch("event") }
       assert_equal %w[run_started stage_committed], events
       assert_equal "test decision", run.log_entries.last.dig("pass_note", "decisions")
+      assert_equal "span:opening, material:theme_a", run.log_entries.last.dig("pass_note", "graph_paths")
+
+      data = Partitura::Guided::Payload.data(run)
+      assert_equal %w[graph_paths], data.fetch(:optional_pass_note_fields)
     end
   end
 
