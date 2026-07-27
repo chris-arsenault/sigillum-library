@@ -10,6 +10,8 @@ require_relative "partitura/jit_docs"
 require_relative "partitura/production"
 require_relative "partitura/guided"
 require_relative "partitura/export"
+require_relative "partitura/score_observation"
+require_relative "partitura/annotation_observation"
 
 module Partitura
   module_function
@@ -88,5 +90,17 @@ module Partitura
 
   def production_midi(piece)
     Export::MIDI.render(piece)
+  end
+
+  def score_observation(path)
+    ScoreObservation.from_path(path)
+  end
+
+  def annotation_observation(score_observation_path, profile:, annotations:)
+    AnnotationObservation.from_paths(
+      score_observation_path,
+      profile:,
+      annotations:
+    )
   end
 end

@@ -6,6 +6,8 @@ GEM
     language_server-protocol (3.17.0.6)
     lint_roller (1.1.0)
     minitest (5.27.0)
+    nokogiri (1.19.4-x86_64-linux-gnu)
+      racc (~> 1.4)
     parallel (2.1.0)
     parser (3.3.11.1)
       ast (~> 2.4.1)
@@ -35,6 +37,7 @@ GEM
       rubocop (>= 1.75.0, < 2.0)
       rubocop-ast (>= 1.38.0, < 2.0)
     ruby-progressbar (1.13.0)
+    rubyzip (3.4.1)
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.2.0)
@@ -45,10 +48,12 @@ PLATFORMS
 
 DEPENDENCIES
   minitest (~> 5.25)
+  nokogiri (~> 1.19)
   rake (~> 13.2)
   rexml (~> 3.4)
   rubocop (~> 1.70)
   rubocop-minitest (~> 0.36)
+  rubyzip (~> 3.4)
 
 BUNDLED WITH
    2.6.7

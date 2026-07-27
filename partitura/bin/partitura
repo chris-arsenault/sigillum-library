@@ -30,6 +30,23 @@ def usage
                  log [<dir>] [--json]
                  abandon [<dir>] --reason TEXT
                  runs [<root>]
+                 observe SOURCE --trajectory FILE
+                 evaluate SOURCE --trajectory FILE --proposals FILE|-
+                 step SOURCE --trajectory FILE --proposals FILE [--selection FILE]
+                 review --trajectory FILE --reviews FILE --output DIR
+                        --transition ID --candidate ID --against original|ID --scale SCALE
+                 preference --reviews FILE --preferences FILE --review ID
+                            --outcome a|b|tie|abstain --rater ID
+                            --purpose training|held_out_evaluation --reason TEXT
+      evaluate   benchmark-score SOURCE
+                 score-observation MUSICXML|MXL
+                 annotation-observation SCORE_OBSERVATION.json --profile PROFILE
+                                        --annotation KIND=FILE [--annotation KIND=FILE ...]
+                 benchmark-review LEFT_SOURCE RIGHT_SOURCE --left-run ID --right-run ID
+                                  --benchmark ID --case ID --criterion CRITERION
+                                  --reviews FILE --output DIR
+                 benchmark-preference --reviews FILE --preferences FILE --review ID
+                                      --outcome a|b|tie|abstain --rater ID --reason TEXT
       author     compile SOURCE
                  lint SOURCE
              view SOURCE [view] [--part ID] [--bars A-B] [--json]
@@ -68,6 +85,181 @@ rescue Partitura::Guided::PassNoteError => e
                      "Write the pass note as `field: value` lines and rerun the commit.")
 rescue Partitura::Guided::RunError, Partitura::Guided::ManifestError => e
   structured_failure("run_error", e.message, "Follow the message; `partitura status` shows the current stage.")
+end
+
+def workflow_guard
+  require_partitura
+  yield
+rescue Partitura::Production::CompositionWorkflow::Error => e
+  emit_error(e.to_h)
+rescue Partitura::Production::CompileError => e
+  emit_error(e.response)
+end
+
+def evaluation_guard
+  require_partitura
+  yield
+rescue Partitura::Production::Evaluation::Error => e
+  emit_error(e.to_h)
+end
+
+def score_observation_guard
+  require_partitura
+  yield
+rescue Partitura::ScoreObservation::Error => e
+  emit_error(e.to_h)
+end
+
+def annotation_observation_guard
+  require_partitura
+  yield
+rescue Partitura::AnnotationObservation::Error => e
+  emit_error(e.to_h)
+end
+
+def annotation_observation_options(argv)
+  options = { profile: nil, annotations: [] }
+  OptionParser.new do |opts|
+    opts.on("--profile PROFILE") { |value| options[:profile] = value }
+    opts.on("--annotation KIND=FILE") do |value|
+      kind, path = value.split("=", 2)
+      unless kind && path && !kind.empty? && !path.empty?
+        raise OptionParser::InvalidArgument, "--annotation must be KIND=FILE"
+      end
+      options[:annotations] << { kind:, path: }
+    end
+  end.parse!(argv)
+  options
+end
+
+def workflow_options(argv, selection: false)
+  options = {
+    trajectory: nil, proposals: nil, selection: nil, export: true,
+    trajectory_origin: nil, trajectory_quality: nil, run_id: nil
+  }
+  OptionParser.new do |opts|
+    opts.on("--trajectory FILE") { |value| options[:trajectory] = value }
+    opts.on("--proposals FILE") { |value| options[:proposals] = value }
+    opts.on("--selection FILE") { |value| options[:selection] = value } if selection
+    opts.on("--trajectory-origin ORIGIN") { |value| options[:trajectory_origin] = value }
+    opts.on("--trajectory-quality QUALITY") { |value| options[:trajectory_quality] = value }
+    opts.on("--run-id ID") { |value| options[:run_id] = value }
+    opts.on("--no-export") { options[:export] = false }
+  end.parse!(argv)
+  options
+end
+
+def workflow_loop(options)
+  workflow = Partitura::Production::CompositionWorkflow
+  context_options = [
+    options[:trajectory_origin], options[:trajectory_quality], options[:run_id]
+  ]
+  context = if context_options.any?
+              origin = options[:trajectory_origin] || "deterministic"
+              quality = options[:trajectory_quality] || (origin == "agent" ? "medium" : "unrated")
+              path_digest = Digest::SHA256.hexdigest(File.expand_path(options.fetch(:trajectory)))
+              workflow::TrajectoryContext.new(
+                run_id: options[:run_id] || "run:#{path_digest[0, 20]}",
+                origin: origin,
+                quality_label: quality
+              )
+            end
+  store = workflow::TrajectoryStore.new(options.fetch(:trajectory), context: context)
+  workflow::CompositionLoop.new(
+    trajectory_store: store,
+    export_candidates: options.fetch(:export)
+  )
+end
+
+def require_workflow_option(options, key, command)
+  return options.fetch(key) if options[key]
+
+  raise Partitura::Production::CompositionWorkflow::Error.new(
+    "missing_option", "#{command} requires --#{key.to_s.tr('_', '-')} FILE"
+  )
+end
+
+def review_options(argv)
+  options = {
+    trajectory: nil, reviews: nil, output: nil, transition: nil,
+    candidate: nil, against: nil, scale: nil, seed: "default"
+  }
+  OptionParser.new do |opts|
+    opts.on("--trajectory FILE") { |value| options[:trajectory] = value }
+    opts.on("--reviews FILE") { |value| options[:reviews] = value }
+    opts.on("--output DIR") { |value| options[:output] = value }
+    opts.on("--transition ID") { |value| options[:transition] = value }
+    opts.on("--candidate ID") { |value| options[:candidate] = value }
+    opts.on("--against ID") { |value| options[:against] = value }
+    opts.on("--scale SCALE") { |value| options[:scale] = value }
+    opts.on("--seed TEXT") { |value| options[:seed] = value }
+  end.parse!(argv)
+  options
+end
+
+def preference_options(argv)
+  options = {
+    reviews: nil, preferences: nil, review: nil, outcome: nil,
+    rater: nil, purpose: nil, reason: nil, confidence: nil
+  }
+  OptionParser.new do |opts|
+    opts.on("--reviews FILE") { |value| options[:reviews] = value }
+    opts.on("--preferences FILE") { |value| options[:preferences] = value }
+    opts.on("--review ID") { |value| options[:review] = value }
+    opts.on("--outcome OUTCOME") { |value| options[:outcome] = value }
+    opts.on("--rater ID") { |value| options[:rater] = value }
+    opts.on("--purpose PURPOSE") { |value| options[:purpose] = value }
+    opts.on("--reason TEXT") { |value| options[:reason] = value }
+    opts.on("--confidence NUMBER", Float) { |value| options[:confidence] = value }
+  end.parse!(argv)
+  options
+end
+
+def require_options(options, keys, command)
+  keys.each_with_object({}) do |key, required|
+    value = options[key]
+    unless value
+      raise Partitura::Production::CompositionWorkflow::Error.new(
+        "missing_option", "#{command} requires --#{key.to_s.tr('_', '-')}"
+      )
+    end
+    required[key] = value
+  end
+end
+
+def benchmark_review_options(argv)
+  options = {
+    left_run: nil, right_run: nil, benchmark: nil, case: nil,
+    criterion: nil, reviews: nil, output: nil, seed: "default"
+  }
+  OptionParser.new do |opts|
+    opts.on("--left-run ID") { |value| options[:left_run] = value }
+    opts.on("--right-run ID") { |value| options[:right_run] = value }
+    opts.on("--benchmark ID") { |value| options[:benchmark] = value }
+    opts.on("--case ID") { |value| options[:case] = value }
+    opts.on("--criterion CRITERION") { |value| options[:criterion] = value }
+    opts.on("--reviews FILE") { |value| options[:reviews] = value }
+    opts.on("--output DIR") { |value| options[:output] = value }
+    opts.on("--seed TEXT") { |value| options[:seed] = value }
+  end.parse!(argv)
+  options
+end
+
+def benchmark_preference_options(argv)
+  options = {
+    reviews: nil, preferences: nil, review: nil, outcome: nil,
+    rater: nil, reason: nil, confidence: nil
+  }
+  OptionParser.new do |opts|
+    opts.on("--reviews FILE") { |value| options[:reviews] = value }
+    opts.on("--preferences FILE") { |value| options[:preferences] = value }
+    opts.on("--review ID") { |value| options[:review] = value }
+    opts.on("--outcome OUTCOME") { |value| options[:outcome] = value }
+    opts.on("--rater ID") { |value| options[:rater] = value }
+    opts.on("--reason TEXT") { |value| options[:reason] = value }
+    opts.on("--confidence NUMBER", Float) { |value| options[:confidence] = value }
+  end.parse!(argv)
+  options
 end
 
 def read_notes(path)
@@ -121,6 +313,248 @@ when "view"
       exit 0
     end
     emit_error(e.response)
+  end
+
+when "observe"
+  workflow_guard do
+    options = workflow_options(ARGV)
+    source = ARGV.shift or (warn "usage: partitura observe SOURCE.rb --trajectory FILE"; exit 2)
+    require_workflow_option(options, :trajectory, "observe")
+    loop = workflow_loop(options)
+    state = loop.load_state(source_path: source)
+    observation = loop.observe(state, source_path: source)
+    payload = observation.proposal_request&.to_h || observation.to_h
+    puts JSON.pretty_generate(payload)
+  end
+
+when "evaluate"
+  workflow_guard do
+    options = workflow_options(ARGV)
+    source = ARGV.shift or (
+      warn "usage: partitura evaluate SOURCE.rb --trajectory FILE --proposals FILE|-"
+      exit 2
+    )
+    require_workflow_option(options, :trajectory, "evaluate")
+    proposals_path = require_workflow_option(options, :proposals, "evaluate")
+    workflow = Partitura::Production::CompositionWorkflow
+    loop = workflow_loop(options)
+    state = loop.load_state(source_path: source)
+    observation = loop.observe(state, source_path: source)
+    unless observation.proposal_request
+      puts JSON.pretty_generate(observation.to_h)
+      next
+    end
+    response = workflow::ProposalResponse.from_h(
+      workflow::Protocol.read_json(proposals_path)
+    )
+    evaluation = loop.evaluate(
+      state,
+      source_path: source,
+      proposal_request: observation.proposal_request,
+      proposal_response: response
+    )
+    payload = evaluation.selection_request&.to_h || {
+      status: "deferred",
+      proposal_request_id: observation.proposal_request.request_id,
+      candidate_count: 0
+    }
+    puts JSON.pretty_generate(payload)
+  end
+
+when "step"
+  workflow_guard do
+    options = workflow_options(ARGV, selection: true)
+    source = ARGV.shift or (
+      warn "usage: partitura step SOURCE.rb --trajectory FILE --proposals FILE [--selection FILE]"
+      exit 2
+    )
+    require_workflow_option(options, :trajectory, "step")
+    proposals_path = require_workflow_option(options, :proposals, "step")
+    workflow = Partitura::Production::CompositionWorkflow
+    loop = workflow_loop(options)
+    state = loop.load_state(source_path: source)
+    observation = loop.observe(state, source_path: source)
+    unless observation.proposal_request
+      puts JSON.pretty_generate(observation.to_h)
+      next
+    end
+    proposal = workflow::ProposalResponse.from_h(
+      workflow::Protocol.read_json(proposals_path)
+    )
+    evaluation = loop.evaluate(
+      state,
+      source_path: source,
+      proposal_request: observation.proposal_request,
+      proposal_response: proposal
+    )
+    selection = if evaluation.selection_request
+                  selection_path = require_workflow_option(options, :selection, "step")
+                  workflow::SelectionResponse.from_h(
+                    workflow::Protocol.read_json(selection_path)
+                  )
+                end
+    result = loop.commit(
+      state,
+      source_path: source,
+      evaluation: evaluation,
+      selection_response: selection
+    )
+    puts JSON.pretty_generate(result.to_h)
+  end
+
+when "review"
+  workflow_guard do
+    options = review_options(ARGV)
+    required = require_options(
+      options,
+      %i[trajectory reviews output transition candidate against scale],
+      "review"
+    )
+    workflow = Partitura::Production::CompositionWorkflow
+    transition = workflow::TrajectoryStore.new(required.fetch(:trajectory))
+                                              .load
+                                              .find do |item|
+      item.transition_id == required.fetch(:transition)
+    end
+    unless transition
+      raise workflow::Error.new(
+        "unknown_transition", "#{required.fetch(:transition)} is absent from the trajectory"
+      )
+    end
+    bundle = workflow::PairwiseReviewBuilder.new.build(
+      transition: transition,
+      candidate_id: required.fetch(:candidate),
+      against_id: required.fetch(:against),
+      scale: required.fetch(:scale),
+      seed: options.fetch(:seed)
+    )
+    review_store = workflow::ReviewStore.new(required.fetch(:reviews))
+    if review_store.load.any? { |item| item.review_id == bundle.review.review_id }
+      raise workflow::Error.new(
+        "duplicate_review", "#{bundle.review.review_id} is already stored"
+      )
+    end
+    bundle_path = bundle.write(required.fetch(:output))
+    review_store.append(bundle.review)
+    puts JSON.pretty_generate(bundle.review.public_h.merge(bundle: bundle_path))
+  end
+
+when "preference"
+  workflow_guard do
+    options = preference_options(ARGV)
+    required = require_options(
+      options,
+      %i[reviews preferences review outcome rater purpose reason],
+      "preference"
+    )
+    workflow = Partitura::Production::CompositionWorkflow
+    review = workflow::ReviewStore.new(required.fetch(:reviews))
+                                    .fetch(required.fetch(:review))
+    preference = workflow::PreferenceRecord.create(
+      review: review,
+      outcome: required.fetch(:outcome),
+      rater_id: required.fetch(:rater),
+      purpose: required.fetch(:purpose),
+      reason: required.fetch(:reason),
+      confidence: options[:confidence]
+    )
+    workflow::PreferenceStore.new(required.fetch(:preferences)).append(preference)
+    puts JSON.pretty_generate(preference.to_h)
+  end
+
+when "benchmark-score"
+  evaluation_guard do
+    source = ARGV.shift or (
+      warn "usage: partitura benchmark-score SOURCE.rb"
+      exit 2
+    )
+    profile = Partitura::Production::Evaluation::ScoreMeasurement.from_source(source)
+    puts JSON.pretty_generate(profile)
+  end
+
+when "score-observation"
+  score_observation_guard do
+    source = ARGV.shift or (
+      warn "usage: partitura score-observation SCORE.musicxml|SCORE.mxl"
+      exit 2
+    )
+    puts JSON.pretty_generate(Partitura.score_observation(source))
+  end
+
+when "annotation-observation"
+  annotation_observation_guard do
+    options = annotation_observation_options(ARGV)
+    observation = ARGV.shift
+    unless observation && options[:profile] && options[:annotations].any?
+      warn "usage: partitura annotation-observation SCORE_OBSERVATION.json " \
+           "--profile PROFILE --annotation KIND=FILE [...]"
+      exit 2
+    end
+    puts JSON.pretty_generate(
+      Partitura.annotation_observation(
+        observation,
+        profile: options.fetch(:profile),
+        annotations: options.fetch(:annotations)
+      )
+    )
+  end
+
+when "benchmark-review"
+  evaluation_guard do
+    options = benchmark_review_options(ARGV)
+    left_source = ARGV.shift
+    right_source = ARGV.shift
+    unless left_source && right_source
+      warn "usage: partitura benchmark-review LEFT.rb RIGHT.rb [options]"
+      exit 2
+    end
+    required = require_options(
+      options,
+      %i[left_run right_run benchmark case criterion reviews output],
+      "benchmark-review"
+    )
+    evaluation = Partitura::Production::Evaluation
+    bundle = evaluation::ScoreReviewBuilder.new.build(
+      benchmark_id: required.fetch(:benchmark),
+      case_id: required.fetch(:case),
+      criterion: required.fetch(:criterion),
+      left_run_id: required.fetch(:left_run),
+      left_source: left_source,
+      right_run_id: required.fetch(:right_run),
+      right_source: right_source,
+      seed: options.fetch(:seed)
+    )
+    store = evaluation::ScoreReviewStore.new(required.fetch(:reviews))
+    if store.load.any? { |item| item.review_id == bundle.review.review_id }
+      raise evaluation::Error.new(
+        "duplicate_evaluation_review", "#{bundle.review.review_id} is already stored"
+      )
+    end
+    bundle_path = bundle.write(required.fetch(:output))
+    store.append(bundle.review)
+    puts JSON.pretty_generate(bundle.review.public_h.merge(bundle: bundle_path))
+  end
+
+when "benchmark-preference"
+  evaluation_guard do
+    options = benchmark_preference_options(ARGV)
+    required = require_options(
+      options,
+      %i[reviews preferences review outcome rater reason],
+      "benchmark-preference"
+    )
+    evaluation = Partitura::Production::Evaluation
+    review = evaluation::ScoreReviewStore.new(required.fetch(:reviews))
+                                             .fetch(required.fetch(:review))
+    preference = evaluation::ScorePreference.create(
+      review: review,
+      outcome: required.fetch(:outcome),
+      rater_id: required.fetch(:rater),
+      reason: required.fetch(:reason),
+      confidence: options[:confidence]
+    )
+    evaluation::ScorePreferenceStore.new(required.fetch(:preferences)).append(preference)
+    puts JSON.pretty_generate(preference.to_h)
   end
 
 when "compile", "lint"

@@ -11,6 +11,11 @@ the focused topic files it names. Card search: `partitura/bin/partitura cards <t
 Composing a piece end-to-end: `partitura/bin/partitura start <piece_dir>` (guided,
 stage at a time).
 
+For graph-addressed ML composition, Partitura also owns the non-learned runtime:
+`observe` emits a scheduled request, `evaluate` validates ML proposals in
+sandboxes, and `step` promotes or retains the source and records the trajectory.
+Python implementations remain behind that JSON boundary.
+
 ## Layout
 
 - `partitura/` - Ruby Partitura library, commands, tests, MusicXML export, and MIDI export

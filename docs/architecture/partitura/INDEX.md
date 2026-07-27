@@ -41,6 +41,10 @@ Production entry points:
 6. If importing a user's hand-edited MusicXML, read `07_hand_edit_import.md`.
 7. If planning a whole score, recursive refinement, or an external ML consumer, read
    `09_composition_graph.md`.
+8. If validating an external MusicXML/MXL corpus score, read
+   `10_score_observation.md`.
+9. If binding external analytical annotations to a validated score, read
+   `11_annotation_observation.md`.
 
 ## Core Files
 
@@ -55,8 +59,13 @@ Production entry points:
   source with `Production::MusicXMLImport` (convert + zero-diff verify gate).
 - `08_cli_and_guided_runs.md` - consolidated CLI and resumable, mechanically gated composition
   procedures.
-- `09_composition_graph.md` - implemented stable plan/realization graph for recursive whole-score
-  composition and external ML consumers.
+- `09_composition_graph.md` - implemented stable plan/realization graph and
+  Ruby-owned recursive composition workflow, with a versioned boundary for
+  external ML proposers, critics, and policies.
+- `10_score_observation.md` - deterministic, content-addressed observation
+  projection for external MusicXML and compressed MXL scores.
+- `11_annotation_observation.md` - versioned binding of supported analytical
+  annotations to canonical Partitura score observations.
 
 ## Composition Procedure
 

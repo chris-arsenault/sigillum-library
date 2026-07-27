@@ -1,6 +1,7 @@
 # The `partitura` Command And Guided Procedure Runs
 
-Status: IMPLEMENTED (2026-07-07) through milestone M3 plus the M4 doc rewiring.
+Status: IMPLEMENTED (2026-07-27), including guided runs and the separate
+whole-score ML exchange described below.
 
 - `partitura/bin/partitura` is the consolidated CLI (all verbs below); the old bins are
   exec shims. Engine: `partitura/lib/partitura/guided/` (manifest, run, gates,
@@ -215,6 +216,70 @@ partitura log [--json] [--stage sN]
 partitura abandon --reason TEXT
 partitura runs        # list runs under the project root
 ```
+
+The whole-score composition workflow uses the same binary but a separate,
+digest-bound protocol. It does not advance guided procedure stages:
+
+```bash
+partitura observe SOURCE.rb --trajectory TRAJECTORY.jsonl
+partitura evaluate SOURCE.rb --trajectory TRAJECTORY.jsonl \
+  --proposals PROPOSAL_RESPONSE.json
+partitura step SOURCE.rb --trajectory TRAJECTORY.jsonl \
+  --proposals PROPOSAL_RESPONSE.json --selection SELECTION_RESPONSE.json
+partitura review --trajectory TRAJECTORY.jsonl --reviews REVIEWS.jsonl \
+  --output REVIEW_BUNDLES --transition TRANSITION_ID \
+  --candidate CANDIDATE_ID --against original --scale global
+partitura preference --reviews REVIEWS.jsonl --preferences PREFERENCES.jsonl \
+  --review REVIEW_ID --outcome a --rater OPAQUE_RATER_ID \
+  --purpose training --reason "A preserves the return more clearly"
+partitura benchmark-score COMPLETED_SOURCE.rb
+partitura benchmark-review LEFT.rb RIGHT.rb \
+  --left-run RUN_A --right-run RUN_B --benchmark BENCHMARK_ID --case CASE_ID \
+  --criterion coherence --reviews EVALUATION_REVIEWS.jsonl --output BUNDLES
+partitura benchmark-preference --reviews EVALUATION_REVIEWS.jsonl \
+  --preferences EVALUATION_PREFERENCES.jsonl --review REVIEW_ID \
+  --outcome a --rater OPAQUE_RATER_ID --reason "A has the clearer whole arc"
+```
+
+- `observe` rebuilds the Ruby Composition Graph, schedules one action, and emits
+  a versioned `proposal_request`.
+- `evaluate` validates the request-bound proposals, applies every patch to an
+  isolated source, compiles and optionally exports it, and emits a
+  `selection_request`. Python never performs mechanical validation.
+- `step` repeats validation against live source, accepts an explicit candidate
+  or the explicit `original`, atomically promotes validated bytes when needed,
+  and appends one contiguous transition to the requested trajectory file.
+- `review` reconstructs the transition's exact pre-edit source, verifies its
+  full composition snapshot, replays a mechanically valid candidate, and
+  emits anonymous A/B MusicXML and MIDI. The public bundle does not contain
+  candidate IDs; the private review JSONL retains the blind mapping.
+- `preference` appends one blinded A/B/tie/abstain judgment. `--purpose` is
+  mandatory and separates training from held-out evaluation; the same review
+  cannot be entered in both sets.
+- `benchmark-score` compiles and exports a completed source and reports
+  mechanical validity plus exact structural, identity, boundary, reserve, and
+  fingerprint diagnostics. The diagnostics are descriptive measurements, not
+  musical-quality scores.
+- `benchmark-review` accepts completed sources from two opaque evaluation run
+  IDs and emits an anonymous A/B MusicXML/MIDI bundle. Its private JSONL mapping
+  is separate from the public reviewer manifest.
+- `benchmark-preference` records one held-out, criterion-specific evaluation
+  decision. Unlike transition preferences, score-evaluation preferences cannot
+  be marked as training data.
+- `--no-export` is available for fast mechanical experiments. Normal operation
+  exports candidate MusicXML and MIDI before selection.
+
+Trajectory schema v2 stores the full pre-edit snapshot and exact Ruby source,
+not only digests, together with all accepted and rejected candidate evidence.
+Use `--trajectory-origin agent` for agent-driven runs; Partitura assigns and
+enforces their known `medium` quality label. Deterministic trajectories are
+`unrated`. `--run-id` supplies a stable experiment identity when the
+path-derived default is not appropriate.
+
+The trajectory, private-review, preference, and bundle paths are explicit
+because active candidates and learned evidence are generated experiment state
+and normally stay out of Git. The accepted musical authority remains the
+production Ruby source.
 
 - **`start`** creates `procedure/`, writes `run.json`, logs `run_started`, emits the
   Stage 0 payload and nothing else. Refuses if a run already exists (resume with

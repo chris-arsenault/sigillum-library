@@ -86,6 +86,24 @@ module Partitura
           JSON
         next_topics: %i[index decision projections export],
         docs: ["docs/architecture/partitura/05_compile_api.md"]
+      },
+      score_observation: {
+        use_when: "Validate external MusicXML or MXL and project sounding score facts for analysis.",
+        rules: [
+          "Use `score-observation` for accepted external scores; do not convert them into DSL source first.",
+          "The projection is versioned, deterministic, read-only, and content-addressed.",
+          "Partitura resolves MXL, polyphony, voices, staves, transposition, ties, rests, and rational timing.",
+          "The projection reports score facts, not inferred form, orchestral quality, or training labels.",
+          "Use `annotation-observation` to bind supported external annotations to a score-observation digest.",
+          "Annotation profiles preserve source labels and compute factual span features; they do not assign quality.",
+          "Keep source selection, dataset splits, learned features, and weights outside Partitura."
+        ],
+        example: "partitura/bin/partitura score-observation path/to/score.mxl",
+        next_topics: %i[composition_graph projections compile_api],
+        docs: [
+          "docs/architecture/partitura/10_score_observation.md",
+          "docs/architecture/partitura/11_annotation_observation.md"
+        ]
       }
     }.freeze
   end

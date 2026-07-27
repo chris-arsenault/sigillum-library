@@ -14,7 +14,7 @@ module Partitura
           "Use `decision` before choosing a pitch/rhythm surface."
         ],
         example: "partitura_help production",
-        next_topics: %i[production composition_graph decision container hybrid projections export],
+        next_topics: %i[production composition_graph score_observation decision container hybrid projections export],
         docs: ["docs/architecture/partitura/INDEX.md"]
       },
       production: {
