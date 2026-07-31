@@ -39,6 +39,15 @@ class CompositionWorkflowTest < Minitest::Test
       assert execution.passed
       assert execution.score_changed?
       assert_equal %i[musicxml midi], execution.artifacts.map(&:kind)
+      musicxml = execution.artifacts.find { |artifact| artifact.kind == :musicxml }
+      assert_equal(
+        musicxml.digest,
+        execution.score_observation.dig("source", "source_digest")
+      )
+      assert_match(
+        /\Asha256:[0-9a-f]{64}\z/,
+        execution.score_observation.fetch("observation_digest")
+      )
       assert_match(/\Asha256:[0-9a-f]{64}\z/, execution.candidate_source_digest)
       assert_includes execution.candidate_source, 'pitch_bars "C3 G2 | B2 G2"'
       assert_equal original, File.binread(source)
@@ -56,6 +65,7 @@ class CompositionWorkflowTest < Minitest::Test
       )
 
       refute execution.passed
+      assert_nil execution.score_observation
       assert_equal :compile, execution.stage
       assert_equal "compile_failed", execution.failure_code
       refute execution.mechanical_result(action).passed

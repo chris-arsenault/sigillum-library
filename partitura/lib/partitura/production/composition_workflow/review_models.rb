@@ -6,9 +6,10 @@ require_relative "state_models"
 module Partitura
   module Production
     module CompositionWorkflow
-      REVIEW_SCHEMA_VERSION = 1
-      PREFERENCE_SCHEMA_VERSION = 1
+      REVIEW_SCHEMA_VERSION = 2
+      PREFERENCE_SCHEMA_VERSION = 2
       HUMAN_REVIEW_SCALES = %i[local seam section global export].freeze
+      HUMAN_REVIEW_CRITERIA = %i[coherence identity seams orchestration reserve].freeze
       PREFERENCE_OUTCOMES = %i[a b tie abstain].freeze
       PREFERENCE_PURPOSES = %i[training held_out_evaluation].freeze
 
@@ -73,15 +74,18 @@ module Partitura
       end
 
       class PairwiseReview
-        attr_reader :schema_version, :review_id, :transition_id, :scale,
+        attr_reader :schema_version, :review_id, :transition_id, :scale, :criterion,
                     :seed_digest, :bundle_name, :variants, :recorded_at
 
-        def initialize(schema_version:, review_id:, transition_id:, scale:, seed_digest:,
-                       bundle_name:, variants:, recorded_at:)
+        def initialize(schema_version:, review_id:, transition_id:, scale:, criterion:,
+                       seed_digest:, bundle_name:, variants:, recorded_at:)
           @schema_version = Integer(schema_version)
           @review_id = Validation.text(review_id, "review_id")
           @transition_id = Validation.text(transition_id, "review transition_id")
           @scale = Validation.enum(scale, HUMAN_REVIEW_SCALES, "review scale")
+          @criterion = Validation.enum(
+            criterion, HUMAN_REVIEW_CRITERIA, "review criterion"
+          )
           @seed_digest = Validation.digest(seed_digest, "review seed digest")
           @bundle_name = safe_bundle_name(bundle_name)
           @variants = variants.freeze
@@ -90,10 +94,11 @@ module Partitura
           freeze
         end
 
-        def self.create(transition_id:, scale:, seed_digest:, variants:)
+        def self.create(transition_id:, scale:, criterion:, seed_digest:, variants:)
           identity = {
             transition_id: transition_id,
             scale: scale,
+            criterion: criterion,
             seed_digest: seed_digest,
             variants: variants.map { |variant| [variant.label, variant.candidate_id] }
           }
@@ -104,6 +109,7 @@ module Partitura
             review_id: review_id,
             transition_id: transition_id,
             scale: scale,
+            criterion: criterion,
             seed_digest: seed_digest,
             bundle_name: review_id.tr(":", "-"),
             variants: variants,
@@ -121,6 +127,7 @@ module Partitura
             review_id: data.fetch(:review_id),
             transition_id: data.fetch(:transition_id),
             scale: data.fetch(:scale),
+            criterion: data.fetch(:criterion),
             seed_digest: data.fetch(:seed_digest),
             bundle_name: data.fetch(:bundle_name),
             variants: data.fetch(:variants).map { |item| ReviewVariant.from_h(item) },
@@ -141,6 +148,7 @@ module Partitura
             review_id: review_id,
             transition_id: transition_id,
             scale: scale,
+            criterion: criterion,
             seed_digest: seed_digest,
             bundle_name: bundle_name,
             blind: true,
@@ -155,6 +163,7 @@ module Partitura
             kind: "blinded_pairwise_review",
             review_id: review_id,
             scale: scale,
+            criterion: criterion,
             blind: true,
             variants: variants.map(&:public_h)
           }
@@ -184,10 +193,11 @@ module Partitura
       class PreferenceRecord
         attr_reader :schema_version, :preference_id, :review_id, :transition_id,
                     :outcome, :preferred_candidate_id, :other_candidate_id,
-                    :scale, :rater_id, :purpose, :reason, :confidence, :recorded_at
+                    :scale, :criterion, :rater_id, :purpose, :reason, :confidence,
+                    :recorded_at
 
         def initialize(schema_version:, preference_id:, review_id:, transition_id:, outcome:,
-                       scale:, rater_id:, purpose:, reason:, recorded_at:,
+                       scale:, criterion:, rater_id:, purpose:, reason:, recorded_at:,
                        preferred_candidate_id: nil, other_candidate_id: nil, confidence: nil)
           @schema_version = Integer(schema_version)
           @preference_id = Validation.text(preference_id, "preference_id")
@@ -197,6 +207,9 @@ module Partitura
           @preferred_candidate_id = preferred_candidate_id&.to_s
           @other_candidate_id = other_candidate_id&.to_s
           @scale = Validation.enum(scale, HUMAN_REVIEW_SCALES, "preference scale")
+          @criterion = Validation.enum(
+            criterion, HUMAN_REVIEW_CRITERIA, "preference criterion"
+          )
           @rater_id = Validation.text(rater_id, "preference rater_id")
           @purpose = Validation.enum(purpose, PREFERENCE_PURPOSES, "preference purpose")
           @reason = Validation.text(reason, "preference reason")
@@ -228,6 +241,7 @@ module Partitura
             preferred_candidate_id: preferred,
             other_candidate_id: other,
             scale: review.scale,
+            criterion: review.criterion,
             rater_id: rater_id,
             purpose: purpose,
             reason: reason,
@@ -243,7 +257,7 @@ module Partitura
           end
           new(**data.slice(
             :schema_version, :preference_id, :review_id, :transition_id, :outcome,
-            :preferred_candidate_id, :other_candidate_id, :scale, :rater_id,
+            :preferred_candidate_id, :other_candidate_id, :scale, :criterion, :rater_id,
             :purpose, :reason, :confidence, :recorded_at
           ))
         end
@@ -259,6 +273,7 @@ module Partitura
             preferred_candidate_id: preferred_candidate_id,
             other_candidate_id: other_candidate_id,
             scale: scale,
+            criterion: criterion,
             rater_id: rater_id,
             purpose: purpose,
             reason: reason,

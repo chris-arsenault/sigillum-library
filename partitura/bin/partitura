@@ -34,7 +34,8 @@ def usage
                  evaluate SOURCE --trajectory FILE --proposals FILE|-
                  step SOURCE --trajectory FILE --proposals FILE [--selection FILE]
                  review --trajectory FILE --reviews FILE --output DIR
-                        --transition ID --candidate ID --against original|ID --scale SCALE
+                        --transition ID --candidate ID --against original|ID
+                        --scale SCALE --criterion CRITERION
                  preference --reviews FILE --preferences FILE --review ID
                             --outcome a|b|tie|abstain --rater ID
                             --purpose training|held_out_evaluation --reason TEXT
@@ -182,7 +183,7 @@ end
 def review_options(argv)
   options = {
     trajectory: nil, reviews: nil, output: nil, transition: nil,
-    candidate: nil, against: nil, scale: nil, seed: "default"
+    candidate: nil, against: nil, scale: nil, criterion: nil, seed: "default"
   }
   OptionParser.new do |opts|
     opts.on("--trajectory FILE") { |value| options[:trajectory] = value }
@@ -192,6 +193,7 @@ def review_options(argv)
     opts.on("--candidate ID") { |value| options[:candidate] = value }
     opts.on("--against ID") { |value| options[:against] = value }
     opts.on("--scale SCALE") { |value| options[:scale] = value }
+    opts.on("--criterion CRITERION") { |value| options[:criterion] = value }
     opts.on("--seed TEXT") { |value| options[:seed] = value }
   end.parse!(argv)
   options
@@ -407,7 +409,7 @@ when "review"
     options = review_options(ARGV)
     required = require_options(
       options,
-      %i[trajectory reviews output transition candidate against scale],
+      %i[trajectory reviews output transition candidate against scale criterion],
       "review"
     )
     workflow = Partitura::Production::CompositionWorkflow
@@ -426,6 +428,7 @@ when "review"
       candidate_id: required.fetch(:candidate),
       against_id: required.fetch(:against),
       scale: required.fetch(:scale),
+      criterion: required.fetch(:criterion),
       seed: options.fetch(:seed)
     )
     review_store = workflow::ReviewStore.new(required.fetch(:reviews))

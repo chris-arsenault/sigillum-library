@@ -24,18 +24,23 @@ module Partitura
           @executor = executor
         end
 
-        def build(transition:, candidate_id:, against_id:, scale:, seed: "default")
+        def build(transition:, candidate_id:, against_id:, scale:, criterion:, seed: "default")
           candidate_ids = validate_candidate_ids(candidate_id, against_id)
           review_scale = Validation.enum(scale, HUMAN_REVIEW_SCALES, "review scale")
+          review_criterion = Validation.enum(
+            criterion, HUMAN_REVIEW_CRITERIA, "review criterion"
+          )
           seed_digest = Validation.source_digest(Validation.text(seed, "review seed"))
           ordered_ids = blinded_order(
-            transition.transition_id, candidate_ids, review_scale, seed_digest
+            transition.transition_id, candidate_ids, review_scale, review_criterion,
+            seed_digest
           )
           rendered = render_variants(transition, ordered_ids)
           variants = review_variants(rendered)
           review = PairwiseReview.create(
             transition_id: transition.transition_id,
             scale: review_scale,
+            criterion: review_criterion,
             seed_digest: seed_digest,
             variants: variants
           )
@@ -57,9 +62,9 @@ module Partitura
           raise Error.new("invalid_review", "pairwise review requires two distinct candidates")
         end
 
-        def blinded_order(transition_id, candidate_ids, scale, seed_digest)
+        def blinded_order(transition_id, candidate_ids, scale, criterion, seed_digest)
           sorted = candidate_ids.sort
-          identity = [transition_id, sorted, scale, seed_digest]
+          identity = [transition_id, sorted, scale, criterion, seed_digest]
           digest = CompositionGraph::Canonical.digest(identity)
           digest[-1].to_i(16).odd? ? sorted.reverse : sorted
         end

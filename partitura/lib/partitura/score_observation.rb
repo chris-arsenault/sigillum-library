@@ -32,7 +32,14 @@ module Partitura
     module_function
 
     def from_path(path)
-      source = SourceReader.read(path)
+      from_source(SourceReader.read(path))
+    end
+
+    def from_musicxml(value)
+      from_source(SourceReader.read_musicxml(value))
+    end
+
+    def from_source(source)
       parsed = Parser.new(source.xml).parse
       payload = {
         schema_version: SCHEMA_VERSION,

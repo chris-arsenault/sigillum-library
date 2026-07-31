@@ -197,10 +197,12 @@ module Partitura
 
       class SelectionRequest
         attr_reader :schema_version, :kind, :request_id, :proposal_request_id,
-                    :snapshot, :action, :original_candidate_id, :assessments
+                    :snapshot, :action, :original_candidate_id, :assessments,
+                    :candidate_observations
 
         def initialize(schema_version:, kind:, request_id:, proposal_request_id:, snapshot:,
-                       action:, original_candidate_id:, assessments:)
+                       action:, original_candidate_id:, assessments:,
+                       candidate_observations: {})
           @schema_version = Integer(schema_version)
           @kind = kind.to_s.freeze
           @request_id = Validation.text(request_id, "selection request_id")
@@ -215,19 +217,23 @@ module Partitura
           @assessments = CompositionGraph::Canonical.immutable(
             CompositionGraph::Canonical.value(assessments)
           )
+          @candidate_observations = CompositionGraph::Canonical.immutable(
+            CompositionGraph::Canonical.value(candidate_observations)
+          )
           validate_request
           freeze
         rescue ArgumentError, TypeError
           raise Error.new("invalid_protocol_message", "selection schema_version must be an integer")
         end
 
-        def self.create(proposal_request:, assessments:)
+        def self.create(proposal_request:, assessments:, candidate_observations: {})
           payload = {
             proposal_request_id: proposal_request.request_id,
             snapshot: proposal_request.snapshot,
             action: proposal_request.action.to_h,
             original_candidate_id: Protocol::ORIGINAL_CANDIDATE_ID,
-            assessments: assessments.map { |item| item.to_h(include_source: false) }
+            assessments: assessments.map { |item| item.to_h(include_source: false) },
+            candidate_observations: candidate_observations
           }
           new(
             schema_version: SCHEMA_VERSION,
@@ -237,7 +243,8 @@ module Partitura
             snapshot: proposal_request.snapshot,
             action: proposal_request.action,
             original_candidate_id: Protocol::ORIGINAL_CANDIDATE_ID,
-            assessments: payload.fetch(:assessments)
+            assessments: payload.fetch(:assessments),
+            candidate_observations: payload.fetch(:candidate_observations)
           )
         end
 
@@ -254,7 +261,8 @@ module Partitura
             snapshot: snapshot,
             action: action.to_h,
             original_candidate_id: original_candidate_id,
-            assessments: assessments
+            assessments: assessments,
+            candidate_observations: candidate_observations
           }
         end
 
@@ -269,7 +277,8 @@ module Partitura
             snapshot: data.fetch(:snapshot),
             action: Action.from_h(data.fetch(:action)),
             original_candidate_id: data.fetch(:original_candidate_id),
-            assessments: data.fetch(:assessments)
+            assessments: data.fetch(:assessments),
+            candidate_observations: data.fetch(:candidate_observations, {})
           )
         rescue KeyError => e
           raise Error.new("invalid_protocol_message", "selection request lacks #{e.key}")
@@ -295,13 +304,30 @@ module Partitura
               raise Error.new("protocol_mismatch", "selection candidate does not implement the action")
             end
           end
+          unknown_observations = candidate_observations.keys - ids
+          unless unknown_observations.empty?
+            raise Error.new(
+              "invalid_protocol_message",
+              "selection observations name unknown candidates: #{unknown_observations.join(', ')}"
+            )
+          end
+          candidate_observations.each_value do |observation|
+            unless observation.fetch("schema_version") == ScoreObservation::SCHEMA_VERSION &&
+                   DIGEST_PATTERN.match?(observation.fetch("observation_digest"))
+              raise Error.new(
+                "invalid_protocol_message",
+                "selection candidate observation is invalid"
+              )
+            end
+          end
           expected = Protocol.request_id(
             kind,
             proposal_request_id: proposal_request_id,
             snapshot: snapshot,
             action: action.to_h,
             original_candidate_id: original_candidate_id,
-            assessments: assessments
+            assessments: assessments,
+            candidate_observations: candidate_observations
           )
           raise Error.new("protocol_mismatch", "selection request_id is invalid") unless request_id == expected
         rescue KeyError => e

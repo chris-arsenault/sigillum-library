@@ -50,6 +50,50 @@ class CompositionWorkflowProtocolTest < Minitest::Test
     end
   end
 
+  def test_selection_request_carries_ephemeral_candidate_observations
+    with_source do |source|
+      executor = Workflow::CandidateExecutor.new
+      snapshot = executor.load_snapshot(source)
+      request = proposal_request(source, snapshot)
+      candidate = inline_candidate(request.action)
+      execution = executor.execute(
+        source_path: source,
+        snapshot: snapshot,
+        action: request.action,
+        candidate: candidate,
+        export: true
+      )
+      assessment = Workflow::Assessment.new(
+        candidate: candidate,
+        critic_results: [execution.mechanical_result(request.action)],
+        candidate_snapshot: execution.after_snapshot.to_h,
+        artifact_digests: execution.artifacts.to_h do |artifact|
+          [artifact.kind, artifact.digest]
+        end
+      )
+
+      selection = Workflow::SelectionRequest.create(
+        proposal_request: request,
+        assessments: [assessment],
+        candidate_observations: {
+          candidate.candidate_id => execution.score_observation
+        }
+      )
+      round_trip = Workflow::SelectionRequest.from_h(
+        JSON.parse(JSON.generate(selection.to_h))
+      )
+
+      assert_equal selection.to_h, round_trip.to_h
+      assert_equal(
+        execution.score_observation.fetch("observation_digest"),
+        selection.candidate_observations
+          .fetch(candidate.candidate_id)
+          .fetch("observation_digest")
+      )
+      refute selection.assessments.first.key?("candidate_observation")
+    end
+  end
+
   private
 
   def protocol_records(source)

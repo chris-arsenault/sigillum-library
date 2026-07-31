@@ -2,6 +2,7 @@
 
 source "https://rubygems.org"
 
+gem "csv", "~> 3.3"
 gem "minitest", "~> 5.25"
 gem "nokogiri", "~> 1.19"
 gem "rake", "~> 13.2"

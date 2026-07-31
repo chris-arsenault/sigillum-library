@@ -124,7 +124,9 @@ module Partitura
             proposal_response: proposal_response,
             executions: executions,
             assessments: assessments,
-            selection_request: selection_request(proposal_request, assessments)
+            selection_request: selection_request(
+              proposal_request, assessments, executions
+            )
           )
         end
 
@@ -218,12 +220,17 @@ module Partitura
           end
         end
 
-        def selection_request(proposal_request, assessments)
+        def selection_request(proposal_request, assessments, executions)
           return if assessments.empty?
 
           SelectionRequest.create(
             proposal_request: proposal_request,
-            assessments: assessments
+            assessments: assessments,
+            candidate_observations: executions.filter_map do |execution|
+              if execution.score_observation
+                [execution.candidate_id, execution.score_observation]
+              end
+            end.to_h
           )
         end
 

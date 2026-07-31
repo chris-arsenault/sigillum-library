@@ -654,7 +654,8 @@ partitura step SOURCE.rb --trajectory TRAJECTORY.jsonl \
   --proposals PROPOSAL.json --selection SELECTION.json
 partitura review --trajectory TRAJECTORY.jsonl --reviews REVIEWS.jsonl \
   --output BUNDLES --transition TRANSITION_ID \
-  --candidate CANDIDATE_ID --against original --scale global
+  --candidate CANDIDATE_ID --against original --scale global \
+  --criterion coherence
 partitura preference --reviews REVIEWS.jsonl --preferences PREFERENCES.jsonl \
   --review REVIEW_ID --outcome a --rater RATER_ID \
   --purpose held_out_evaluation --reason "A sustains the whole-score arc"
@@ -664,6 +665,11 @@ partitura preference --reviews REVIEWS.jsonl --preferences PREFERENCES.jsonl \
 after Ruby-owned sandbox validation; and `step` validates the ML response,
 promotes or retains the score, and appends one transition. Request IDs bind
 every response to exact source, graph, snapshot, action, and candidate evidence.
+When export is enabled, the selection request also carries a canonical score
+observation for each successfully exported candidate. These observations let
+Python critics run inference without parsing MusicXML. They are request-scoped:
+failed candidates have none, and observations are not duplicated into
+persisted trajectory assessments.
 
 Trajectory records use their own schema version. V2 includes the complete
 pre-edit snapshot and exact Ruby source, source digest, run origin and quality
@@ -671,6 +677,12 @@ label, action, every candidate patch and critic result, decision, after digests,
 and unresolved paths. Agent-origin runs are always labeled `medium`;
 deterministic runs are `unrated`. These labels describe provenance and must not
 be treated as expert musical rewards.
+
+Pairwise review and preference records use schema v2. Each review declares one
+of `coherence`, `identity`, `seams`, `orchestration`, or `reserve` separately
+from its local/seam/section/global/export scale, and its preference inherits the
+same criterion. This prevents free-text reasons and workflow acceptance from
+being relabeled as critic supervision.
 
 Human comparison remains a Partitura operation because reconstructing score
 variants is music-runtime work. `review` replays the exact stored evidence and

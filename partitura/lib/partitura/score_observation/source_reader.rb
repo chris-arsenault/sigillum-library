@@ -53,6 +53,19 @@ module Partitura
           raise Error.new("invalid_mxl", error.message), cause: error
         end
 
+        def read_musicxml(value)
+          xml = String(value).b
+          validate_size!(xml)
+          digest_value = digest(xml)
+          Source.new(
+            format: "musicxml",
+            source_digest: digest_value,
+            document_digest: digest_value,
+            member: nil,
+            xml: xml
+          )
+        end
+
         private
 
         def read_mxl(path)

@@ -88,6 +88,7 @@ class CompositionWorkflowReviewTest < Minitest::Test
       candidate_id: candidate_id,
       against_id: Workflow::Protocol::ORIGINAL_CANDIDATE_ID,
       scale: :global,
+      criterion: :coherence,
       seed: "review-test"
     )
   end
@@ -110,6 +111,7 @@ class CompositionWorkflowReviewTest < Minitest::Test
     stored = store.fetch(review.review_id)
     expected = [candidate_id, Workflow::Protocol::ORIGINAL_CANDIDATE_ID].sort
     assert_equal expected, stored.variants.map(&:candidate_id).sort
+    assert_equal :coherence, stored.criterion
     stored
   end
 
@@ -123,6 +125,7 @@ class CompositionWorkflowReviewTest < Minitest::Test
     store.append(preference)
     loaded = store.load.fetch(0)
     assert_equal :held_out_evaluation, loaded.purpose
+    assert_equal :coherence, loaded.criterion
     assert_equal review.variant("A").candidate_id, loaded.preferred_candidate_id
     assert_equal review.variant("B").candidate_id, loaded.other_candidate_id
     assert loaded.to_h.fetch(:blind)

@@ -94,6 +94,22 @@ class ScoreObservationTest < Minitest::Test
     end
   end
 
+  def test_in_memory_musicxml_uses_the_same_canonical_projection
+    Dir.mktmpdir do |directory|
+      path = File.join(directory, "score.musicxml")
+      File.write(path, SCORE)
+
+      from_path = Partitura.score_observation(path)
+      from_memory = Partitura.score_observation_from_musicxml(SCORE)
+
+      assert_equal from_path, from_memory
+      assert_equal(
+        from_memory.dig("source", "source_digest"),
+        from_memory.dig("source", "document_digest")
+      )
+    end
+  end
+
   def test_mxl_rejects_rootfile_traversal
     Dir.mktmpdir do |directory|
       path = File.join(directory, "unsafe.mxl")

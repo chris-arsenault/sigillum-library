@@ -96,6 +96,10 @@ module Partitura
     ScoreObservation.from_path(path)
   end
 
+  def score_observation_from_musicxml(value)
+    ScoreObservation.from_musicxml(value)
+  end
+
   def annotation_observation(score_observation_path, profile:, annotations:)
     AnnotationObservation.from_paths(
       score_observation_path,

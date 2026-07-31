@@ -3,6 +3,7 @@
 require "fileutils"
 require "open3"
 require "tmpdir"
+require_relative "../../score_observation"
 require_relative "models"
 
 module Partitura
@@ -27,12 +28,13 @@ module Partitura
       class Execution
         attr_reader :candidate_id, :passed, :stage, :before_snapshot, :after_snapshot,
                     :accepted_source_digest, :candidate_source_digest, :candidate_source,
-                    :compile_response, :artifacts, :commands, :failure_code, :failure_message
+                    :compile_response, :artifacts, :score_observation, :commands,
+                    :failure_code, :failure_message
 
         def initialize(candidate_id:, passed:, stage:, before_snapshot:, after_snapshot: nil,
                        accepted_source_digest: nil, candidate_source_digest: nil,
                        candidate_source: nil, compile_response: {}, artifacts: [], commands: [],
-                       failure_code: nil, failure_message: nil)
+                       score_observation: nil, failure_code: nil, failure_message: nil)
           @candidate_id = candidate_id.to_s.freeze
           @passed = passed
           @stage = stage.to_sym
@@ -43,6 +45,8 @@ module Partitura
           @candidate_source = candidate_source&.b&.freeze
           @compile_response = CompositionGraph::Canonical.immutable(compile_response)
           @artifacts = artifacts.freeze
+          @score_observation = score_observation &&
+                               CompositionGraph::Canonical.immutable(score_observation)
           @commands = commands.freeze
           @failure_code = failure_code&.to_s
           @failure_message = failure_message&.to_s
@@ -199,6 +203,7 @@ module Partitura
 
         def complete_execution(candidate, snapshot, commands, accepted, source,
                                source_digest, piece, response, export)
+          artifacts = export ? render_artifacts(piece) : []
           Execution.new(
             candidate_id: candidate.candidate_id,
             passed: true,
@@ -209,7 +214,8 @@ module Partitura
             candidate_source_digest: source_digest,
             candidate_source: source,
             compile_response: response,
-            artifacts: export ? render_artifacts(piece) : [],
+            artifacts: artifacts,
+            score_observation: score_observation(artifacts),
             commands: commands
           )
         rescue Error, Production::CompileError => e
@@ -348,6 +354,13 @@ module Partitura
           ]
         rescue Production::CompileError => e
           raise Error.new("export_failed", e.message, details: e.response)
+        end
+
+        def score_observation(artifacts)
+          musicxml = artifacts.find { |artifact| artifact.kind == :musicxml }
+          return unless musicxml
+
+          ScoreObservation.from_musicxml(musicxml.content)
         end
 
         def failure(candidate, snapshot, stage, code, message, commands, **provenance)

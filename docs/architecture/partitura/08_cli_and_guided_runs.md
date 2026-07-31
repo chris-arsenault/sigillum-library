@@ -228,7 +228,8 @@ partitura step SOURCE.rb --trajectory TRAJECTORY.jsonl \
   --proposals PROPOSAL_RESPONSE.json --selection SELECTION_RESPONSE.json
 partitura review --trajectory TRAJECTORY.jsonl --reviews REVIEWS.jsonl \
   --output REVIEW_BUNDLES --transition TRANSITION_ID \
-  --candidate CANDIDATE_ID --against original --scale global
+  --candidate CANDIDATE_ID --against original --scale global \
+  --criterion coherence
 partitura preference --reviews REVIEWS.jsonl --preferences PREFERENCES.jsonl \
   --review REVIEW_ID --outcome a --rater OPAQUE_RATER_ID \
   --purpose training --reason "A preserves the return more clearly"
@@ -252,10 +253,13 @@ partitura benchmark-preference --reviews EVALUATION_REVIEWS.jsonl \
 - `review` reconstructs the transition's exact pre-edit source, verifies its
   full composition snapshot, replays a mechanically valid candidate, and
   emits anonymous A/B MusicXML and MIDI. The public bundle does not contain
-  candidate IDs; the private review JSONL retains the blind mapping.
+  candidate IDs; the private review JSONL retains the blind mapping. Review
+  schema v2 requires one explicit coherence, identity, seams, orchestration,
+  or reserve criterion independently from review scale.
 - `preference` appends one blinded A/B/tie/abstain judgment. `--purpose` is
   mandatory and separates training from held-out evaluation; the same review
-  cannot be entered in both sets.
+  cannot be entered in both sets. The preference inherits the review criterion
+  rather than attempting to infer it from the rater's prose.
 - `benchmark-score` compiles and exports a completed source and reports
   mechanical validity plus exact structural, identity, boundary, reserve, and
   fingerprint diagnostics. The diagnostics are descriptive measurements, not
