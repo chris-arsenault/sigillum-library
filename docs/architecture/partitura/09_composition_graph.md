@@ -3,7 +3,7 @@
 Status: implemented through the completed-score evaluation surface (M1-M7).
 Proposal, assessment, and selection strategies remain consumer-owned.
 
-This design adds a general planning and refinement model to Partitura. It supports
+The Composition Graph adds a general planning and refinement model to Partitura. It supports
 whole-score composition and recursive coarse-to-fine authoring without turning Partitura into a
 consumer-strategy framework, a graph database, or a second score language.
 
@@ -73,9 +73,8 @@ The design borrows narrow ideas from the following primary exemplars.
 | Exemplar | Useful idea | Adopt | Deliberately reject |
 |---|---|---|---|
 | [OpenMusic maquettes](https://support.ircam.fr/docs/om/om6-manual/co/Maquettes.html) | Nested temporal containers can hold other containers and preserve local position and duration. | Hierarchical structural traversal and explicit temporal scope. | Executable patch semantics and context-generated hidden musical values. |
-| [Whole-Song Hierarchical Generation](https://arxiv.org/html/2405.09901v1) | Form, reduced lead sheet, lead sheet, and accompaniment form interpretable coarse-to-fine realizations. | Upper-level constraints condition lower-level work. | One fixed four-level hierarchy, pop-specific representations, and piano-roll source authority. |
 | [music21 stream hierarchy](https://music21.org/music21docs/usersGuide/usersGuide_06_stream2.html) | A score can retain nested structure while exposing flattened reading views. | Keep containment authoritative and graph/flat views derived. | Replacing Partitura's authoring container with a generic event stream. |
-| [MEI relations](https://music-encoding.org/guidelines/dev/mei-all_anyStart/elements/relationList.html) and [scholarly variants](https://music-encoding.org/guidelines/v4/content/scholarlyediting.html) | Stable IDs support robust cross-links; alternatives and derivations are explicit. | Typed stable identity and explicit cross-relations. | Inline apparatus for every generated candidate in the accepted score source. |
+| [MEI relations](https://music-encoding.org/guidelines/v5/elements/relationList.html) and [scholarly variants](https://music-encoding.org/guidelines/v5/content/scholarlyediting.html) | Stable IDs support robust cross-links; alternatives and derivations are explicit. | Typed stable identity and explicit cross-relations. | Inline apparatus for every generated candidate in the accepted score source. |
 | [Muster: Topological querying of music scores](https://doi.org/10.1016/j.datak.2024.102340) | A score graph can combine rhythmic hierarchy with event flow and support remote structural queries. | A graph-shaped read model for containment and cross-links. | Note-level graph storage, Neo4j, and a second comprehensive score representation. |
 | [W3C PROV](https://www.w3.org/TR/prov-o/) | Plans and entities are distinct from the activities that use and generate them. | Keep source entities, semantic derivation, and guided-run activity history separate. | RDF/OWL and a general provenance ontology. |
 | [OpenUSD composition](https://openusd.org/22.08/glossary.html) | Stable scene paths, references, and non-destructive variants make large nested structures addressable. | Stable typed paths and explicit references. | Layer strengths, override resolution, composition arcs, and variant sets in v1. |
@@ -626,6 +625,10 @@ after digests, and unresolved paths. Agent-origin runs are always labeled `mediu
 deterministic runs are `unrated`. These labels describe provenance, not musical
 judgment.
 
+`critic_results` is the retained v1 wire name for assessment records, including
+Partitura's deterministic mechanical checks. It does not name or imply an in-library
+learned critic.
+
 Pairwise review and preference records use schema v2. Each review declares one
 of `coherence`, `identity`, `seams`, `orchestration`, or `reserve` separately
 from its local/seam/section/global/export scale, and its preference inherits the
@@ -787,7 +790,7 @@ alternatives in one source. Do not pre-install layer-strength or override semant
 
 ## Acceptance Criteria
 
-Implementation is complete when:
+The implemented graph and workflow satisfy these criteria:
 
 - existing production sources compile and export unchanged;
 - a graph-enabled source has stable piece, section, span, material, phrase, and placement paths;
@@ -802,5 +805,5 @@ Implementation is complete when:
 - an external consumer can join derived records to graph nodes and detect stale snapshots without
   Partitura interpreting the consumer's data.
 
-At that point the Composition Graph is useful for human or LLM whole-score planning,
-analysis, and external automation through the same public contract.
+The Composition Graph therefore supports human or LLM whole-score planning, analysis,
+and external automation through the same public contract.

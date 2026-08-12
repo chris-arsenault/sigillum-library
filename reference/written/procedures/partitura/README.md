@@ -3,11 +3,10 @@
 This folder contains the default new-composition procedure for scores whose source of truth is the
 Ruby production DSL.
 
-The older procedures in `reference/written/procedures/` remain useful craft law, especially
-`unified_procedure.md`, `composition_method.md`, `orchestration_procedure.md`, `merge_procedure.md`,
-and `post_merge_cypher_fractalization_procedure.md`. They are still symphony/Python-shaped in their
-mechanics. This procedure keeps their musical standards but replaces their source model with
-`production_piece`, typed surfaces, projections, transport, and export.
+The reusable craft annexes under `reference/written/craft/` and
+`reference/written/surveys/` supply the musical standards. This procedure binds them to
+`production_piece`, typed surfaces, projections, transport, and export without importing a
+consumer project's source layout or historical runbooks.
 
 ## Start Here
 

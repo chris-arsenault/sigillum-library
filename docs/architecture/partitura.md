@@ -7,8 +7,9 @@ Partitura gives an LLM a score source in which melody, harmony, texture,
 orchestration, formal identity, and dramatic intent remain inspectable together. It
 also gives the agent a way to discover only the domain guidance needed for its current
 decision. The broader inference-time capability pattern is documented in
-`partitura/LLM_CONTEXT_ARCHITECTURE.md`; active tasks should enter through
-the JIT help index. `partitura/INDEX.md` remains an optional expanded catalogue.
+`docs/architecture/partitura/LLM_CONTEXT_ARCHITECTURE.md`; active tasks should enter
+through the JIT help index. `docs/architecture/partitura/INDEX.md` remains an optional
+expanded catalogue.
 
 ```bash
 partitura/bin/partitura
@@ -64,9 +65,9 @@ source.
 3. **Use typed locality.** Different musical jobs need different notation surfaces.
    Each phrase declares its surface, and untyped mixing is rejected.
 
-4. **Keep sounding material explicit.** Score sources do not hide notes behind loops,
-   repeaters, transposers, or pattern generators. Transform metadata explains
-   provenance; it does not replace the realized notes.
+4. **Keep sounding material explicit.** Score sources do not hide notes behind helpers,
+   loops, comprehensions, repeaters, transposers, or pattern generators. Transform metadata explains
+   provenance; it does not replace the realized notes in source.
 
 5. **Attach prose to audible mechanism.** A dramatic claim identifies the rhythm,
    timing, register, contour, harmony, orchestration, density, relation, or silence that
@@ -191,8 +192,8 @@ partitura/bin/partitura step SOURCE.rb --trajectory TRAJECTORY.jsonl \
 ```
 
 The guided procedure, the accepted score, the derived graph, and the external workflow
-have distinct authority. See `partitura/08_cli_and_guided_runs.md` and
-`partitura/09_composition_graph.md`.
+have distinct authority. See `docs/architecture/partitura/08_cli_and_guided_runs.md` and
+`docs/architecture/partitura/09_composition_graph.md`.
 
 ## Export And External Observation
 

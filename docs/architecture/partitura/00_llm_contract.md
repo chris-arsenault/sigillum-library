@@ -19,8 +19,9 @@ See `LLM_CONTEXT_ARCHITECTURE.md` for the general design.
 - Use the surface that fits the musical job; do not force all music into one notation.
 - Dramatic text must attach to audible mechanism: rhythm, timing, register, contour, harmony,
   orchestration, density, entrance timing, or silence.
-- Phrase placement must not become hidden stamping. The placed/transformed result must be
-  inspectable or materialized.
+- A placement attaches one explicit phrase to its part and location. In newly composed
+  source, write a separate note list for every sounding occurrence instead of reusing or
+  transforming a phrase or fill to produce more notes.
 - Projections are reading tools, not pass/fail musical validations. SOUNDING projections
   (note-derived: adjacency_profile, recurrence_map, peak_axes, rhythm_profile, articulation_map,
   breath_map, implied_harmony, harmony_check, ensemble_grid, exposed_clashes, composite_stalls,
@@ -34,7 +35,8 @@ See `LLM_CONTEXT_ARCHITECTURE.md` for the general design.
 
 - Unmarked mixed notation inside one phrase.
 - Free-floating evocative prose.
-- Hidden loops or repeaters that generate sounding music.
+- Helpers, loops, comprehensions, repeaters, transposers, pattern expanders, reusable
+  fills, or repeated placements that generate finished sounding music.
 - Choosing the old fused `pitch:duration` note-list surface as the default.
 - Loading the full documentation set when one topic file is enough.
 - Treating prose, a projection, or a saved JSON observation as a second editable source of truth.

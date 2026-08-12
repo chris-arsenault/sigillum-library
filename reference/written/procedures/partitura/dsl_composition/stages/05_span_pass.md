@@ -26,7 +26,7 @@ Use the surface that exposes the job:
 - texture + score grid to create composite vertical mechanisms (engines, distributed chords, swells)
 - staff grid for dense vertical inspection
 - phrase placement for entrances, handoffs, and returns (anacrusis: for pickups)
-- fill / fill_material for sub-bar figures in phrase gaps and seams
+- explicit short phrases for figures in gaps and seams, one written note list per occurrence
 - hybrid for mixed orchestral or multi-role passages
 
 After each span or small section, run the loop:
@@ -89,4 +89,3 @@ the same bars once more with the lenses you were not using - the neglected dimen
 you compose, and this traversal is where they are brought back up. The stage cannot close until
 every bar of every section belongs to some committed span unit (the `units_cover_source_bars` gate)
 - coverage of attention is enforced; the quality of that attention is yours to prove in the notes.
-

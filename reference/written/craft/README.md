@@ -24,6 +24,3 @@ points here; the procedures name them).
 - `melody_progression_exemplars.md` — corpus exemplars of melody → implied progression.
 - `exposing_the_progression.md` — how a single line exposes/implies its harmony.
 - `MELODY_CRAFT_DOCTRINE.md` — the distilled melody-writing stance (guidance, not law).
-
-**Diagnostic**
-- `texture_diagnosis.md` — the texture-crisis evidence + diagnostic (cautionary reference).

@@ -44,8 +44,8 @@ module Partitura
           "editable duplicate summaries.",
           "Guided state, stable graph paths, schema versions, and content digests preserve " \
           "specificity across contexts.",
-          "Mechanical validation prevents representational errors; it does not prove musical " \
-          "quality or expertise."
+          "Mechanical validation rejects the representational errors covered by its contracts; it does not " \
+          "detect arbitrary Ruby generation or prove musical quality or expertise."
         ],
         example: <<~TEXT.strip,
             partitura/bin/partitura help index

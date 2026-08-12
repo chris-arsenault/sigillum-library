@@ -1,9 +1,9 @@
 # Texture Craft — the explicit pass stack (research round 2)
 
 Sources: four research reports (ornamentation; orchestral rhythm; chord scoring; dialogue +
-doubling), distilled to operational passes. ORDER MATTERS. Passes run AFTER the structural
-layer (composition_method sec A steps 1-5: cast, line, counterline, bass, inner motion) and BEFORE gates.
-Each pass is applied to a whole movement in one sitting, with its own checklist.
+doubling), distilled to operational passes. ORDER MATTERS. Run these passes after the structural
+layer (cast, primary line, counterline, bass, inner motion) and before final gates. Apply each pass
+to the whole piece in one sitting, with its own checklist.
 
 ## P1 — ORNAMENTATION PASS (the lead lines become spoken)
 
@@ -102,7 +102,7 @@ brass offbeat reattacks) / festive coda(converge to homorhythm).
   max two timbres on the line at any instant.
 - Heterophony: plain sustained version (strings/horn) + florid ornamented version (solo wind)
   of the SAME line, structural tones synchronized — dialogue and doubling at once; the maqam/
-  Debussy device, first-class for M3.
+  Debussy device, useful when the same identity must sound both stable and florid.
 
 ## P5 — STRATEGIC DOUBLING PASS (color as vocabulary, not mass)
 
@@ -122,20 +122,21 @@ brass offbeat reattacks) / festive coda(converge to homorhythm).
 
 ## P6 — VARIATION-OF-RETURN PASS
 Every restatement differs: ornamented reprise (P1 recipes), re-register, new countermelody,
-re-harmonization (H7), echo conversion (P4), or relay re-coloring (P4/P5). Statement
-identity = G3/G6 gates.
+re-harmonization, echo conversion (P4), or relay re-coloring (P4/P5). Preserve enough of the
+source phrase's identity that the return remains audible.
 
-## P7 — GATE CHECK (verify.py) then present.
+## P7 — GATE CHECK
 
-## Planned gate extensions
-- G8 ornament density on solo lines within caps; G9 complementary-rhythm coverage (union-of-
-  attacks continuity + per-layer share); G10 fill-answer rate on long notes (>=50%);
-  G11 vertical audit sampling (low-interval-limit violations = 0).
+Compile, inspect the relevant Partitura views, export, and audition before presenting the result.
 
-## SUPERSEDED FOR EXECUTION
-The applicable runbook is reference/written/procedures/unified_procedure.md; this document remains the recipe annex.
+## Candidate future diagnostics (not implemented)
 
-## NOTE
-This condensed version lost research fidelity. The binding references are the
-VERBATIM annexes ornamentation (ornamentation), orchestral_rhythm (orchestral rhythm), chord_scoring (chord scoring),
-dialogue_doubling (dialogue & doubling). reference/written/procedures/unified_procedure.md binds to those, not to this file.
+- ornament density on solo lines within caps;
+- complementary-rhythm coverage (union-of-attacks continuity plus per-layer share);
+- fill-answer rate on long notes;
+- sampled low-interval-limit violations.
+
+## Source fidelity
+
+This is a condensed recipe annex. When a summary conflicts with the full craft, use
+`ornamentation.md`, `orchestral_rhythm.md`, `chord_scoring.md`, and `dialogue_doubling.md`.

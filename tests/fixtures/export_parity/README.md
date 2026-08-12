@@ -4,7 +4,7 @@ These fixtures are the current export target for the Ruby MusicXML and MIDI
 ports.
 
 They were rendered from the four canonical exploration DSL sources in
-`../sigillum-explorations` using the current `production_export` path:
+`../sigillum-explorations` using the export path now exposed as `partitura export`:
 
 - `explorations/banner_recursion_dsl/dsl/banner_recursion_canonical.rb`
 - `explorations/basin_aria_dsl/dsl/basin_aria.rb`

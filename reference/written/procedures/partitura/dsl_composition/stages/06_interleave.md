@@ -41,10 +41,10 @@ Possible local actions:
 - counterline answer
 - accompaniment borrowing the foreground tail
 
-The DSL constructs for most of these are `anacrusis:` on a placement (pickups, early
-starts, cross-seam entries) and `fill`/`fill_material` (gap-fill answers, turns,
-handoff figures - sub-bar, reusable across voices, transposable per entrance).
+Use `anacrusis:` on a placement for pickups, early starts, and cross-seam entries. Write
+gap answers, turns, and handoff figures as explicit short phrases with a separate note
+list at each occurrence. Do not use `fill`, `fill_material`, placement reuse, or transform
+helpers to generate their finished sounding notes.
 
 The purpose is not density. The purpose is local causality: each bar should sound like it follows
 from the piece, not from a template. If an incident does not clarify the form, remove it.
-

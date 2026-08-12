@@ -38,7 +38,10 @@ class JITDocsTest < Minitest::Test
     assert_equal :production, data[:topic]
     assert_includes data[:rules], "Use `production_piece` in source files loaded by `load_production_file`."
     assert_includes data[:rules], "Use `partitura/bin/partitura export` for MusicXML and MIDI."
-    assert(data[:rules].any? { |rule| rule.include?("do not use helpers, loops, repeaters") })
+    explicit_rule = data[:rules].find { |rule| rule.include?("finished notes") }
+    %w[helpers loops comprehensions repeaters transposers].each do |term|
+      assert_includes explicit_rule, term
+    end
     assert_includes data[:example], "production_piece"
     assert_includes data[:example], "meter do"
     assert_includes data[:example], "change \"4/4\", at: \"bar 9\""
@@ -66,6 +69,8 @@ class JITDocsTest < Minitest::Test
     assert_includes roster[:rules].join(" "), "music21:"
     assert_includes cards[:example], "cards terms"
     assert_includes cards[:docs], "technique_library/dsl/README.md"
+    assert_includes cards[:docs], "reference/written/procedures/card_writing_procedure.md"
+    assert(cards[:rules].any? { |rule| rule.include?("authoring a new card") })
     assert_includes examples[:example], "catalog examples"
     assert_includes examples[:docs], "docs/architecture/partitura/04_examples_manifest.md"
     assert_includes build[:example], "partitura/bin/partitura build"
@@ -157,10 +162,16 @@ class JITDocsTest < Minitest::Test
     assert_equal :llm_design, data[:topic]
     assert_includes data[:rules],
                     "Partitura supplies domain capability at inference time; it does not change model weights."
-    assert_includes data[:rules],
-                    "Mechanical validation prevents representational errors; it does not prove musical " \
-                    "quality or expertise."
+    assert(data[:rules].any? { |rule| rule.include?("does not detect arbitrary Ruby generation") })
     assert_equal :llm_design, Partitura.help_data(:architecture)[:topic]
+  end
+
+  def test_phrase_placement_keeps_new_composition_notes_explicit
+    data = Partitura.help_data(:phrase_placement)
+
+    assert(data[:rules].any? { |rule| rule.include?("separate phrase note list for every sounding occurrence") })
+    assert(data[:rules].any? { |rule| rule.include?("readable compatibility constructs") })
+    assert_equal :unknown, Partitura.help_data(:ml_workflow)[:topic]
   end
 
   def test_guided_topic_matches_current_pass_note_manifest
@@ -202,6 +213,16 @@ class JITDocsTest < Minitest::Test
         assert File.file?(File.join(REPOSITORY_ROOT, doc)), "#{topic} points to missing doc #{doc}"
       end
     end
+  end
+
+  def test_every_core_architecture_document_has_a_focused_jit_route
+    routed = Partitura::JITDocs::TOPICS.values.flat_map { |data| data.fetch(:docs) }.uniq
+    core_docs = Dir.glob(File.join(REPOSITORY_ROOT, "docs/architecture/partitura/[0-9][0-9]_*.md")) +
+                Dir.glob(File.join(REPOSITORY_ROOT, "docs/architecture/partitura/surfaces/*.md")) +
+                [File.join(REPOSITORY_ROOT, "docs/architecture/partitura/LLM_CONTEXT_ARCHITECTURE.md")]
+    relative = core_docs.map { |path| path.delete_prefix("#{REPOSITORY_ROOT}/") }
+
+    assert_empty relative - routed
   end
 
   def test_jit_command_examples_use_the_consolidated_cli

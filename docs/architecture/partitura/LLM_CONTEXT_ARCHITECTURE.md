@@ -45,6 +45,8 @@ need?" An agent does not need a memorized repository map before it can begin.
 
 Every help topic has the same response fields:
 
+- `schema_version`: version of the machine-readable response contract;
+- `topic`: normalized identifier for the returned topic;
 - `use_when`: the decision that should trigger this topic;
 - `rules`: the small set of constraints that must remain in working context;
 - `example`: a minimal executable shape;
@@ -68,6 +70,11 @@ The compiler can therefore reject unknown references, bad pitch spellings, misma
 pitch/rhythm streams, invalid bar boundaries, unstable graph targets, and similar errors.
 Its structured error response supplies a repair instruction and the focused help topic to
 request next. Markdown explains the contract; the runtime enforces the mechanical part.
+
+The production source is executable Ruby, so the rule against helper-generated sounding
+material is an authoring and review contract, not a claim that static validation can detect
+every loop or metaprogramming path. The compiler checks the closed DSL values and musical
+invariants it owns. Newly composed source must still show each finished note list explicitly.
 
 ### 4. Projections let the agent revisit the same source from another angle
 

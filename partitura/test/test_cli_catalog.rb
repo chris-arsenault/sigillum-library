@@ -45,6 +45,15 @@ class CLICatalogTest < Minitest::Test
     end
   end
 
+  def test_every_command_routes_to_a_focused_jit_topic
+    Partitura::Catalog.data("commands").fetch(:commands).each do |command|
+      focused = command.fetch(:help_topic).to_sym
+
+      assert Partitura::JITDocs::TOPICS.key?(focused),
+             "#{command.fetch(:name)} routes to unknown JIT topic #{focused}"
+    end
+  end
+
   def test_command_enums_match_runtime_contracts
     review = command("review")
     preference = command("preference")

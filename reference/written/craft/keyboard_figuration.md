@@ -1,8 +1,7 @@
 # ANNEX keyboard_figuration — Keyboard Writing & Figuration Craft (the missing reference layer)
 
-Why this exists: the texture crisis (reference/written/craft/texture_diagnosis.md). "Rachmaninoff bell
-voicing" entered the pipeline as prose and exited as root-fifth-third quarters.
-This annex records the NOTE-LEVEL standard. It feeds the canonical technique library
+This annex records a note-level standard for avoiding thin, repetitive keyboard writing when a
+brief names a richer model but does not encode its mechanics. It feeds the canonical technique library
 (`technique_library/INDEX.md`); cards cite sections here. For orchestral rhythm/
 dialogue/doubling/voicing research see orchestral_rhythm/chord_scoring/dialogue_doubling (not duplicated).
 
@@ -194,10 +193,9 @@ standard, applied per section when composing and at review:
 6. DIALECT CONSISTENCY DOCTRINE: rhythmic consistency is GOOD — a complex rhythm
    needs repetition to be learnable — so each movement picks a SMALL set of
    signature sentence-shapes and complexity dialects AND DERIVES THEM FROM ITS OWN
-   THEMES (the movement's melody cells generate its sentence rhythms: M5's cells
-   -> V's sentences; M4's riff cells -> III's). The V sentence-shape belongs to V.
-   Movements do not inherit another movement's signature shapes; at each new
-   movement's Stage 0 the dialect set is declared fresh.
+   THEMES: a movement's melody cells generate its sentence rhythms. Each sentence-shape belongs to
+   the movement that derived it. Movements do not inherit another movement's signature shapes; at
+   each new movement's first planning stage, declare the dialect set afresh.
 
 ## 6g. DIALOGUE FORMS — AN OPEN FIELD, NOT A LIST
 (rev 2 after the user: "i wasn't trying to give you laws to implement, i was trying
@@ -227,9 +225,9 @@ below is a starting harvest, never a boundary:
 - SMALL-VS-MASS (concertino/ripieno): dialogue of scales and weights, not phrases.
 - RESPONSORIAL vs ANTIPHONAL: soloist-to-choir vs choir-to-choir are different
   dramas; collective grooves can ANSWER a lead (second-line logic).
-- AND THE MOVEMENT'S OWN: every movement derives dialogue forms from its
-  dramaturgy (IV: teller/tale/listeners — narration vs ENACTMENT; the tale getting
-  ahead of its teller; listeners who stop answering).
+- AND THE MOVEMENT'S OWN: every movement derives dialogue forms from its dramaturgy. Narration can
+  alternate with enactment, the enacted material can overtake its narrator, or a fixed response can
+  stop arriving.
 The one principle kept from rev 1: an answer that parrots is not an answer.
 Everything else here is vocabulary to be exceeded.
 

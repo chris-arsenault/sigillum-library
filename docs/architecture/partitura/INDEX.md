@@ -27,6 +27,7 @@ directory by default.
 |---|---|---|
 | Inspect exact command arguments or side effects | `partitura commands COMMAND --json` | `08_cli_and_guided_runs.md` |
 | Discover current runtime values | `partitura catalog` | `03_jit_docs_api.md` |
+| Find a current example by status | `partitura help examples` | `04_examples_manifest.md` |
 | Explain the LLM-context design | `partitura help llm_design` | `LLM_CONTEXT_ARCHITECTURE.md` |
 | Author or inspect source | `partitura help production` | `00_llm_contract.md`, `01_container.md` |
 | Declare instruments or notation staves | `partitura help roster` | `01_container.md` |
@@ -40,6 +41,7 @@ directory by default.
 | Observe external MusicXML/MXL | `partitura help score_observation` | `10_score_observation.md` |
 | Bind supported external annotations | `partitura help annotation_observation` | `11_annotation_observation.md` |
 | Find a technique card | `partitura cards <term>` | `technique_library/dsl/README.md` |
+| Export MusicXML and MIDI | `partitura help export` | `05_compile_api.md`, `06_ruby_framework.md` |
 | Build a framework registry | `partitura help build` | `06_ruby_framework.md` |
 
 The commands in this table omit the repository-relative prefix for readability. From the

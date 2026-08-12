@@ -6,8 +6,7 @@ cross instrument call and response, to rhythmic interplay between voices and bey
 
 ## Canonical layout
 
-This top-level library is reusable across works. The symphony may use it, but it
-is not owned by the symphony.
+This top-level library is reusable across consumer scores and contains no project-specific plan.
 
 - `technique_library/INDEX.md` - this index, spec, workflow, and reference list.
 - `technique_library/dsl/README.md` - production-DSL card source rules.
@@ -35,8 +34,8 @@ P-card complexity bar. (No pre-baked single-axis checklist -- what matters comes
 ## Finding cards for DSL work
 The card specimens are `production_piece` files under
 `technique_library/dsl/cards/`; the index is
-`technique_library/dsl/cards/INDEX.md`. `tools/lib.rb` remains the search front
-door by category/facet and now reports the DSL specimen path for matching cards.
+`technique_library/dsl/cards/INDEX.md`. Use `partitura/bin/partitura cards` as the
+search front door by category, facet, and behavior.
 The per-card prose further down is illustrative and may lag the DSL source index
 (e.g. the old `keyboard` shelf is now merged into `piano`, and voicing has its
 own `voicing` shelf). Older `tc_*.musicxml/.mid` filenames are superseded by
@@ -129,14 +128,14 @@ CATEGORY K — KEYBOARD FIGURATION (keyboard_figuration s1-s4)
 - K6 CADENZA_BURST: 4 bars. Written-out quasi-cadenza: anchor -> unmeasured-feel run
   -> chordal landing (Scheherazade recipe on keyboard, ornamentation s2).
 
-CATEGORY O — ORCHESTRAL VOICING & ACCOMPANIMENT (chord_scoring; composition_method A.4-A.5; keyboard_figuration s5)
+CATEGORY O — ORCHESTRAL VOICING & ACCOMPANIMENT (chord_scoring; keyboard_figuration s5)
 - O1 PP_LUMINOSO: 6 bars. One-per-pitch luminous spacing + harp doubling + a moving
   inner voice (the pad that is not a pad).
 - O2 BRASS_CHORALE: 6 bars. Interlocked hns+tbns, suspensions chained at every
   change (chord_scoring s6: re-attack + re-voice; suspension in ONE audible color).
 - O3 FFF_PYRAMID: 4 bars. The chord_scoring tutti recipe realized: every section internally
   complete, seams overlapped, 3 octaves of melody, timp+cym at the peak only.
-- O4 BASS_AS_LINE: 8 bars. The composition_method A.4 law as a specimen: walking low strings under a
+- O4 BASS_AS_LINE: 8 bars. A walking low-string line under a
   sustained upper texture — passing tones, anticipations, register event at the
   phrase boundary. (The anti-ROOTQ card.)
 - O5 INNER_AGITATION: 8 bars. Brahms law: outer voices hold, inner voices animate in
@@ -147,7 +146,7 @@ CATEGORY O — ORCHESTRAL VOICING & ACCOMPANIMENT (chord_scoring; composition_me
 - O7 SYNC_CHORDS: 6 bars. Brahms syncopated-chord field (chords off-beat only) over
   an on-beat bass LINE, tied variant in bars 5-6 blurring the barline.
 
-CATEGORY D — DIALOGUE, INTERPLAY, TRANSITIONS (dialogue_doubling; orchestral_rhythm s3-s4; composition_method A.8)
+CATEGORY D — DIALOGUE, INTERPLAY, TRANSITIONS (dialogue_doubling; orchestral_rhythm s3-s4)
 - D1 GAP_FILL_PAIR: 8 bars. Melody with built-in long notes; ONE consistent answerer
   (different family+register) fills every gap, exits before the melody moves.
 - D2 ANTIPHONAL_COMPRESSION: 8 bars. Two choirs trade 4-bar -> 2-bar -> 1-bar ->
@@ -185,7 +184,7 @@ movement's figuration layers, and adjacent sections never reuse a type in a role
   the rhythm IS the figure. (type 7)
 - F8 DISPLACED_CELL: non-chordal melodic cell, length/accent shifted each
   repetition, second desk offset half a cell. (type 8)
-Audition: tc_figuration.musicxml/.mid.
+Audition the individual `dsl:figuration` card sources with `partitura/bin/partitura export`.
 
 CATEGORY P — PIANO TECHNIQUE UNIVERSE (keyboard_figuration s6c; user: "focus only on getting the
 piano right for now... missing an entire universe of techniques")
@@ -226,7 +225,7 @@ piano right for now... missing an entire universe of techniques")
   the treble comps) / hocket / suspension resolved across voices.
 - P19 BROKEN_COMP: the comp speaks mixed rhythm — 8th chords, 16th double-strikes,
   rests INSIDE the gesture, dotted snaps, 16th pickups; bass lives in the RH rests.
-Audition: tc_piano.musicxml/.mid (normalized to 3 piano staves).
+Audition the individual `dsl:piano` card sources with `partitura/bin/partitura export`.
 
 CATEGORY ELEGY — grief & slow-fabric techniques (keyboard_figuration s6d/s6e; P17-19 = the
 complexity bar, applied as JUDGMENT per keyboard_figuration s6e). Mode-neutral examples.
@@ -256,7 +255,7 @@ may exceed 8 bars)
 - X3 FOUR_CHAIN (10b): caller + three repeaters in turn, each repeat COLORED
   (ornamented / tail-inverted / augmented), overlapping a beat; final cycle =
   1-beat stagger micro-canon -> homorhythmic cadence.
-Audition: tc_callresponse.musicxml/.mid.
+Audition the individual `dsl:callresponse` card sources with `partitura/bin/partitura export`.
 
 CATEGORY FORMS — narrator & duet form techniques (general dialogue / frame / duet forms;
 mode-neutral).
@@ -279,15 +278,11 @@ inversion, qawwali heat-escalation, organum vertical dialogue, kotekan interlock
 concertino/ripieno, responsorial/antiphonal, second-line) + the standing
 instruction that each movement INVENTS its own forms from its dramaturgy. X1-X3
 are three entries in the field, not its definition.
-DEFERRED to the II run: the orchestral idiom set (string divisi/trem/pizz textures,
-wind breath-phrase fills, brass weight rhetoric, tutti assembly/release) — the
-library grows one movement ahead, not four.
-
 CATEGORY CS — CHAMBER STRINGS (4-voice string quartet; reference/written/surveys/string_techniques.md
 "CHAMBER 4-VOICE FILTER"). USER-APPROVED + locked as production-DSL card
 sources under `technique_library/dsl/cards/chamberstrings/` (the FIRST locked
 cards). Each technique is re-cast in the idiom where it commonly LIVES — so the library teaches the
-technique, not one movement's style — and re-fits to D-Phrygian for M4 (Storyteller) at threading.
+technique rather than one consumer score's style.
 Roles = Vn1/Vn2/Va/Vc; each card carries its own key/meter/tempo, so it auditions PER-CARD
 (via the production DSL exporter, which honors each card's own ts/tempo -- not the old 4/4 union render).
 - CS1 ROLE_ROTATION (8b, A minor andante): the melody passes Vn1->Va->Vc; the others stratified
@@ -302,11 +297,11 @@ Roles = Vn1/Vn2/Va/Vc; each card carries its own key/meter/tempo, so it audition
   riff engine + sul-pont->ord->tasto morph + biting motif. Film/contemporary tension idiom.
 - CS6 CHORALE (8b, F major adagio): SATB hymn with MOVEMENT — walking-quarter bass + soprano w/
   passing 8ths over held inner harmony, cadences. Tonal hymn idiom (not the exotic Phrygian).
-Auditions: tc_cs1_role_rotation.* ... tc_cs6_chorale.* (one file per card).
+Audition each source under `technique_library/dsl/cards/chamberstrings/` separately.
 
 ## PV — Piano Voicing (category `piano`; theory ref the piano-voicing survey) — HAND-COMPOSED
-Built after the Movement IV C audition exposed bad piano voicing (low close 4-note clumps in block
-half-notes with a low 4th in the bass). NOT engine-generated — a voicing-generator function stamps
+Built to prevent low, close four-note clumps in block half-notes with a low fourth in the bass.
+NOT engine-generated — a voicing-generator function stamps
 the same shape and IS the bland-repetition failure; every chord here is hand-voiced. Each card
 DEMONSTRATES one voicing mechanic IN LIVING RHYTHM (orchestral_rhythm/melody_primacy/MELODY_CRAFT: rhythm is theory — no
 held-chord recitals/60BPM dirges; mixed values, syncopation, interlock, complementary rhythm):
@@ -323,10 +318,10 @@ held-chord recitals/60BPM dirges; mixed values, syncopation, interlock, compleme
   inversions, tops E5-C5-A4-G4, the dropped voice walking down in the LH) + a drop-2 ii-V-I.
 - PV6 COMP_RHYTHM (8b, C): the same rootless ii-V-I voicings, but the point is RHYTHM — Charleston,
   anticipations, space; a different comp figure each bar, LH bass low / RH voicing mid (clean gap).
-Audition: tc_pianovoicing.* (also within tc_piano.*).
+Audition each source under `technique_library/dsl/cards/voicing/` separately.
 (The answer-in-the-gap / complementary-rhythm technique is an ENSEMBLE device, not piano-only — it
-lives in the dialogue category as **D9_REINFORCE_CONTRAST** (clarinet lead + piano comp; the complementary-rhythm survey),
-audition tc_d9_reinforce_contrast.*. Cousin of D1 GAP_FILL_PAIR.)
+lives in the dialogue category as **D9_REINFORCE_CONTRAST** (clarinet lead + piano comp; the complementary-rhythm survey).
+It is a cousin of D1 GAP_FILL_PAIR.)
 
 ## THE DEPLOYMENT LAW (keyboard_figuration s6d — cards vs pieces)
 The one-technique-per-card format is EXPOSITION ONLY. In movements, textures mix at

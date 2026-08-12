@@ -11,8 +11,8 @@ another):
 - split pitch/rhythm or `absolute` streams - editable long lines, register-bound material
 - `texture` + `score` grid - composite vertical mechanisms: engines, ostinati,
   distributed chords, swells (the grid IS the source)
-- `fill` / `fill_material` - reusable sub-bar figures, transposed/inverted/retrograded
-  per entrance
+- an explicit short phrase and placement - gap figures and turns, with the finished note
+  list written separately for each occurrence
 - `anacrusis:` - pickups (`at:` stays the arrival downbeat)
 - `chords "bN:X"` - declared harmony per bar; `harmony_check` closes the loop
 
@@ -53,4 +53,3 @@ The material is accepted only when it has a clear identity without relying on ac
 No clause may be rhythmically uniform bar-to-bar unless uniformity is the declared engine: ostinato,
 passacaglia, ritual, chant, mechanical fixation, or exposed proclamation. Variation is structured,
 not random: a phrase should state, answer, develop, compress, broaden, pause, or hand off.
-

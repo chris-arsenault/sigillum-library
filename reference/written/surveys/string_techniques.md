@@ -657,14 +657,14 @@ TOTAL: 78 candidate techniques across 7 families.
 
 ---
 
-## CHAMBER (4-VOICE) FILTER — M4 "Storyteller" string quartet (Vn1 / Vn2 / Va / Vc)
+## CHAMBER (4-VOICE) FILTER — string quartet (Vn1 / Vn2 / Va / Vc)
 
-The survey above is scoped to a full ORCHESTRAL string body. M4 is chamber: the 4-piece core is a
-string quartet — Vn1, Vn2, Viola, Cello (the current movement also carries a Solo Violin + Contrabass
-as extras; the Cb is available if a deeper bass floor is wanted, i.e. Vn/Va/Vc/Cb). SATB mapping:
+The survey above is scoped to a full ORCHESTRAL string body. For a four-piece core of Vn1, Vn2,
+Viola, and Cello, use this chamber filter. A contrabass can replace the cello when a deeper bass
+floor is required. SATB mapping:
 Vn1=soprano, Vn2=alto, Va=tenor, Vc=bass. The defining constraint is FOUR INDEPENDENT VOICES, no mass:
 techniques that depend on many players per part do NOT apply; per-voice and 4-part-texture techniques do.
-This filter is the source for M4's string cards (alongside the existing IV1-IV5 + X1-X3).
+This filter is the source for the chamber-string card family.
 
 ### APPLIES (re-cast for 4 independent voices)
 - **A Bowing — ALL 11.** Every stroke lives on one instrument; at 4 voices the "section chatter/buzz/
@@ -705,7 +705,7 @@ section-scoped survey:
    pulse / inner line; the melody PASSES between players across the phrase.
 2. **4-part chorale homophony** — all four move together in block harmony (the hymn / SATB chorale).
 3. **Conversational motive-passing** — a motive handed / overlapped / interrupted among the four (the
-   quartet "argument"; extends IV1 DUET_CONVERSATION & the X call/response cards).
+   quartet "argument"; extends the duet-conversation and call/response card families).
 4. **Double-stop self-harmonization** — each player stops two notes -> four players imply up to EIGHT
    voices: the chamber tutti/climax that sounds bigger than four.
 5. **Antiphonal pairs** — Vn1+Vn2 answered by Va+Vc (two duos trading).
@@ -717,4 +717,4 @@ section-scoped survey:
 10. **Unison / octave power-of-four** — all four in unison/octaves for one forceful line (the chamber ff
     unison).
 
-These 10 + the APPLIES items above = the source pool for M4's string-card batch.
+These 10 plus the APPLIES items above form the source pool for chamber-string cards.

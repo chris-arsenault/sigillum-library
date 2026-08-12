@@ -122,6 +122,10 @@ Related catalogues:
 
 ## Card Source Standard
 
+When adding a card, follow
+`reference/written/procedures/card_writing_procedure.md` for research, source authoring,
+manifest registration, inspection, export, and audition.
+
 A card source must have:
 
 - a `production_piece` source containing auditionable note material;

@@ -36,7 +36,9 @@ module Partitura
           "Use `cards terms` to discover current categories and facets, and `cards show <ID>` for one card.",
           "Cite DSL cards as `dsl:<category>/<id>`.",
           "Treat a card as an auditionable model or dialect seed; adapt it and write the resulting sounding " \
-          "material explicitly instead of stamping or repeating the specimen."
+          "material explicitly instead of stamping or repeating the specimen.",
+          "When authoring a new card, follow the card-writing procedure and register its standalone " \
+          "`production_piece` source in the card manifest."
         ],
         example: <<~BASH.strip,
             partitura/bin/partitura cards tender strings
@@ -44,7 +46,10 @@ module Partitura
             partitura/bin/partitura cards show dsl:chamberstrings/CS1_ROLE_ROTATION
           BASH
         next_topics: %i[production decision phrase_placement projections],
-        docs: ["technique_library/dsl/README.md"]
+        docs: [
+          "technique_library/dsl/README.md",
+          "reference/written/procedures/card_writing_procedure.md"
+        ]
       },
       examples: {
         use_when: "Find a canonical production example, exploratory surface study, or contract fixture.",

@@ -18,7 +18,8 @@ module Partitura
           "For whole-score planning, add stable piece/span/placement IDs and `plan { requires ... }` declarations.",
           "Use `partitura/bin/partitura view` projections after authoring each passage.",
           "Write committed sounding pitches, rhythms, chords, rests, and controls explicitly; do not use " \
-          "helpers, loops, repeaters, transposers, or pattern expanders to generate the finished notes.",
+          "helpers, loops, comprehensions, repeaters, transposers, or pattern expanders to generate the " \
+          "finished notes.",
           "Check `partitura/bin/partitura lint SOURCE.rb`: warn lints prompt a judgment; " \
           "error lints block compile.",
           "Lint thresholds are configurable: `lint do rule :phrase_length, warn: 8, error: 24 end`.",
@@ -317,20 +318,24 @@ hybrid],
         docs: ["docs/architecture/partitura/surfaces/staff_grid.md"]
       },
       phrase_placement: {
-        use_when: "Place named material into instruments, bars, beats, or transformed entrances.",
+        use_when: "Place one explicitly written phrase into an instrument, bar, beat, or pickup.",
         rules: [
           "Every placement states part, location, and role.",
+          "For newly composed source, write a separate phrase note list for every sounding occurrence; do not " \
+          "reuse placements or transforms to generate repeats, returns, or fills.",
           "Use `anacrusis` for pickups: `at:` is the arrival downbeat, and sounding starts earlier by that length.",
-          "`fill_material` defines reusable sub-bar material; `fill from:` realizes it across voices with " \
-          "transpose_to/transpose_by/invert/retrograde/key_match and role :fill.",
-          "Repeated placements need distinct musical jobs.",
-          "Transformed placements must be inspectable or materialized.",
+          "`fill`, `fill_material`, placement reuse, and transform helpers remain readable compatibility " \
+          "constructs for existing sources, not new-composition authoring tools.",
+          "Projections make generated events inspectable, but that does not satisfy the explicit-source rule.",
           "Do not use placement as hidden stamping."
         ],
         example: <<~RUBY.strip,
+            phrase :call_8, surface: :absolute do
+              events "C5:1 Bb4:.5 A4:.5 F4:2"
+            end
+
             placement :call_8, part: :clarinet, at: "bar 1 beat 1" do
               role :foreground
-              realization "materialized/readable result is available"
             end
           RUBY
         next_topics: %i[hybrid staff_grid controls projections],

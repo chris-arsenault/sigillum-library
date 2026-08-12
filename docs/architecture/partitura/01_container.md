@@ -79,9 +79,9 @@ end
   form is routed to the chord track automatically).
 - `phrase`: melodic, rhythmic, bass, or figural material.
 - `placement`: where a phrase enters (`anacrusis:` starts a pickup before the downbeat).
-- `fill_material`/`fill`: reusable sub-bar figures defined once at piece level and
-  realized per entrance (transpose/invert/retrograde/key_match), always materialized
-  and capped below one bar.
+- `fill_material`/`fill`: implemented compatibility constructs for existing sources.
+  They materialize sub-bar transforms in projections, but newly composed source writes
+  each fill's note list explicitly instead of generating it through reuse or transforms.
 - `texture`: a sounding composite mechanism inside a span - a vertical `score` grid
   (one token per slot; creates sound) plus embedded `line` phrases and texture-scoped
   `control`s. Distinct from the span's `texture:` label, which is prose metadata.

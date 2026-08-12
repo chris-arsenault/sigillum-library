@@ -32,6 +32,20 @@ side-effect class. Runtime catalogues expose values that otherwise drift when co
 into prose. `view` without a source is also successful discovery; add `--json` for its
 machine-readable catalogue.
 
+### Protocol response tooling
+
+```text
+protocol template proposal-response PROPOSAL_REQUEST.json --producer ID
+         [--patch DIFF] [--description TEXT] [--candidate-id ID]
+protocol template selection-response SELECTION_REQUEST.json --producer ID
+         [--select original|ID] [--reason TEXT]
+protocol validate MESSAGE.json [--against REQUEST.json]
+```
+
+Templates copy request bindings and compute candidate digests rather than asking a
+consumer to duplicate them by hand. Validation with `--against` checks those bindings,
+not only the message shape.
+
 ### Authoring and discovery
 
 ```text
@@ -45,7 +59,9 @@ cards terms
 export SOURCE.rb [--stem STEM]
 build REGISTRY.rb [movement|all]
 import-musicxml HAND.musicxml [--bars A-B] [--segments SPEC] [--beats N]
+                [--perc-map FROM=TO] [--json]
 verify-musicxml-import HAND.musicxml EXPORT.musicxml [--bars A-B] [--beats N]
+                       [--perc-map FROM=TO] [--json]
 ```
 
 - `help` returns the fixed JIT response contract. Unknown topics return the complete
@@ -61,6 +77,10 @@ verify-musicxml-import HAND.musicxml EXPORT.musicxml [--bars A-B] [--beats N]
 - `export` validates the source and writes MusicXML and MIDI under
   `<source_repo>/outputs/<source_relative_directory>/<stem>/`.
 - `build` exports one or all entries from a Ruby framework registry.
+- `import-musicxml` converts one authoritative hand-edited range to paste-ready event
+  bodies and control metadata; it does not invent the surrounding DSL structure.
+- `verify-musicxml-import` compares sounding pitch after tie merging and exits nonzero
+  until the requested range has zero differing bars.
 
 `surface_view` remains a separate exploratory command because the surface lab is not a
 production authoring API.
@@ -87,18 +107,18 @@ does not invent a commission. `section_recomposition` does not require one.
 
 ```text
 observe SOURCE.rb --trajectory FILE
-evaluate SOURCE.rb --trajectory FILE --proposals FILE|-
-step SOURCE.rb --trajectory FILE --proposals FILE [--selection FILE]
+evaluate SOURCE.rb --trajectory FILE --proposals FILE|- [--no-export]
+step SOURCE.rb --trajectory FILE --proposals FILE [--selection FILE] [--no-export]
 review --trajectory FILE --reviews FILE --output DIR
        --transition ID --candidate ID --against original|ID
-       --scale SCALE --criterion CRITERION
+       --scale SCALE --criterion CRITERION [--seed N]
 preference --reviews FILE --preferences FILE --review ID
            --outcome a|b|tie|abstain --rater ID
-           --purpose LABEL --reason TEXT
+           --purpose LABEL --reason TEXT [--confidence NUMBER]
 ```
 
-`observe`, `evaluate`, and `step` accept `--no-export`, `--trajectory-origin`,
-`--trajectory-quality`, and `--run-id` where the workflow parser applies them. Agent
+`observe`, `evaluate`, and `step` accept `--trajectory-origin`,
+`--trajectory-quality`, and `--run-id`; `evaluate` and `step` also accept `--no-export`. Agent
 origin is paired with the enforced `medium` provenance label; deterministic origin uses
 `unrated`. These labels describe source provenance, not musical quality.
 `step` requires `--selection` whenever evaluation emits a selection request; it may be
@@ -113,9 +133,10 @@ annotation-observation SCORE_OBSERVATION.json --profile PROFILE
 benchmark-score SOURCE.rb
 benchmark-review LEFT.rb RIGHT.rb --left-run ID --right-run ID
                  --benchmark ID --case ID --criterion CRITERION
-                 --reviews FILE --output DIR
+                 --reviews FILE --output DIR [--seed N]
 benchmark-preference --reviews FILE --preferences FILE --review ID
                      --outcome a|b|tie|abstain --rater ID --reason TEXT
+                     [--confidence NUMBER]
 ```
 
 ## Error Boundary

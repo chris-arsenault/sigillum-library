@@ -63,7 +63,7 @@ module Partitura
                 fill: :phrase_placement, fill_material: :phrase_placement,
                 anacrusis: :phrase_placement, placement: :phrase_placement,
                 graph: :composition_graph, score_tree: :composition_graph,
-                composition_loop: :composition_workflow, ml_workflow: :composition_workflow,
+                composition_loop: :composition_workflow,
                 benchmark: :evaluation, annotations: :annotation_observation }.freeze
 
     def normalize(topic)

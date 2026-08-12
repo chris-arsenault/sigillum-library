@@ -186,8 +186,6 @@ Load research by musical job. Do not cite a document unless it changes the music
 
 **Form and large-scale process**
 
-- `reference/written/procedures/unified_procedure.md`
-- `reference/written/procedures/composition_method.md`
 - `reference/written/craft/texture_identity_contrast_ledger.md`
 - `reference/written/surveys/ground_bass.md`
 - `technique_library/dsl/README.md` categories `dsl:forms`, `dsl:callresponse`, `dsl:dialogue`
@@ -220,7 +218,6 @@ harmonic implication.
 
 - `reference/written/craft/orchestral_rhythm.md`
 - `reference/written/craft/keyboard_figuration.md`
-- `reference/written/craft/texture_diagnosis.md`
 - `reference/written/surveys/complementary_rhythm.md`
 - `reference/written/surveys/running_counterpoint.md`
 - `reference/written/surveys/sixteenth_deployment.md`
