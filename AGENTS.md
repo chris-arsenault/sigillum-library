@@ -3,8 +3,10 @@
 ## Start Here
 
 - One CLI for everything: run `partitura/bin/partitura` bare for the verb map, then
-  `partitura/bin/partitura help index` and read `docs/architecture/partitura/INDEX.md`.
-  Load only the focused topic docs it names, not the whole documentation set.
+  `partitura/bin/partitura help index`. Follow the focused topic whose `use_when`
+  matches the current decision, and load only its named docs when the short response
+  is insufficient. Use `partitura/bin/partitura help documentation_index` only for
+  the expanded Markdown catalogue.
 - Explaining the LLM-facing architecture? Run `partitura/bin/partitura help llm_design`
   and read `docs/architecture/partitura/LLM_CONTEXT_ARCHITECTURE.md`.
 - Composing a new piece end-to-end? Do NOT read the whole procedure - run it:

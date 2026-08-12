@@ -14,15 +14,17 @@ to treat a large wiki as working memory. See
 ## Start Here (LLM agents)
 
 Run `partitura/bin/partitura` bare for the verb map, then run
-`partitura/bin/partitura help index`. Read
-`docs/architecture/partitura/INDEX.md` only when the focused response points to it,
-and load only the topic files needed for the current decision.
+`partitura/bin/partitura help index`. Follow the focused topic whose `use_when`
+matches the current decision and load its Markdown references only when its short
+response is insufficient. Use `partitura/bin/partitura help documentation_index`
+only when the expanded documentation catalogue is itself needed.
 
 Useful entry points:
 
 ```bash
 partitura/bin/partitura help llm_design
 partitura/bin/partitura help production
+partitura/bin/partitura help roster
 partitura/bin/partitura cards <term>
 partitura/bin/partitura start <piece_dir> --source <SOURCE.rb> --brief "<commission>"
 partitura/bin/partitura status <piece_dir>

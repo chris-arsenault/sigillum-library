@@ -74,26 +74,20 @@ The reason is musical: when the notes are only produced indirectly, the agent ca
 passage has become blocky, unplayable, harmonically unsupported, or generic.
 
 
-## Read Order
+## Runtime Routing
 
-For a new DSL composition, read in this order:
-
-1. `docs/architecture/partitura/INDEX.md`
-2. `docs/architecture/partitura/00_llm_contract.md`
-3. `docs/architecture/partitura/01_container.md`
-4. `docs/architecture/partitura/02_surface_decision.md`
-5. `docs/architecture/partitura/05_compile_api.md`
-6. the relevant surface files under `docs/architecture/partitura/surfaces/`
-
-Before authoring, also ask the runtime what the current DSL supports:
+Do not preload the architecture index, contracts, or surface directory. Ask the runtime
+for the current decision-time rules:
 
 ```bash
 partitura/bin/partitura help production
 partitura/bin/partitura help decision
 ```
 
-If using an unfamiliar surface or export path, call the focused help topic before writing that part
-of the source.
+Follow one `next_topics` edge when a new decision appears. Load a topic's Markdown file only
+when its short rules and example are insufficient. Use `help roster`, `help controls`, or the
+chosen surface topic immediately before that specialized work, rather than retaining all of
+their rules throughout the composition.
 
 The default authoring shape is:
 

@@ -17,8 +17,9 @@ partitura/bin/partitura
 partitura/bin/partitura help index
 ```
 
-Load only the topic files named by the response. Do not load this entire directory by
-default.
+This file is the optional expanded catalogue. Normal tasks should follow the focused JIT
+topic and load only the files named by that response. Do not load this file or the entire
+directory by default.
 
 ## Task Routes
 
@@ -26,6 +27,7 @@ default.
 |---|---|---|
 | Explain the LLM-context design | `partitura help llm_design` | `LLM_CONTEXT_ARCHITECTURE.md` |
 | Author or inspect source | `partitura help production` | `00_llm_contract.md`, `01_container.md` |
+| Declare instruments or notation staves | `partitura help roster` | `01_container.md` |
 | Choose a notation surface | `partitura help decision` | `02_surface_decision.md` |
 | Run a composition procedure | `partitura help guided` | `08_cli_and_guided_runs.md` |
 | Plan or address whole-score structure | `partitura help composition_graph` | `09_composition_graph.md` |
@@ -34,6 +36,7 @@ default.
 | Observe external MusicXML/MXL | `partitura help score_observation` | `10_score_observation.md` |
 | Bind supported external annotations | `partitura help annotation_observation` | `11_annotation_observation.md` |
 | Find a technique card | `partitura cards <term>` | `technique_library/dsl/README.md` |
+| Build a framework registry | `partitura help build` | `06_ruby_framework.md` |
 
 The commands in this table omit the repository-relative prefix for readability. From the
 repository root, run them as `partitura/bin/partitura ...`.

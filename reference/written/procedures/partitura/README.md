@@ -31,17 +31,13 @@ partitura/bin/partitura start <piece_dir> --source <SOURCE.rb> --brief "<commiss
 
 ## Binding Source Model
 
-This procedure assumes the production Ruby DSL documented in:
-
-- `docs/architecture/partitura/00_llm_contract.md`
-- `docs/architecture/partitura/01_container.md`
-- `docs/architecture/partitura/02_surface_decision.md`
-- `docs/architecture/partitura/05_compile_api.md`
-
-Use the DSL runtime as a reading tool while composing:
+This procedure assumes the production Ruby DSL exposed through focused JIT topics.
+Use the runtime as the primary reading and repair tool while composing; load a topic's
+named Markdown only when the short response is insufficient:
 
 ```bash
 partitura/bin/partitura help production
+partitura/bin/partitura help decision
 partitura/bin/partitura compile SOURCE.rb
 partitura/bin/partitura view SOURCE.rb structure
 partitura/bin/partitura view SOURCE.rb roles

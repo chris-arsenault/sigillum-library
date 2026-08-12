@@ -161,8 +161,11 @@ module Partitura
         example: <<~'BASH'.strip,
             partitura/bin/partitura export experiments/partitura/production_hybrid_study.rb --stem production_hybrid_study
           BASH
-        next_topics: %i[compile_api projections],
-        docs: ["docs/architecture/partitura/05_compile_api.md"]
+        next_topics: %i[compile_api projections build],
+        docs: [
+          "docs/architecture/partitura/05_compile_api.md",
+          "docs/architecture/partitura/06_ruby_framework.md"
+        ]
       },
       compile_api: {
         use_when: "Consume production authoring compile responses and error repairs.",

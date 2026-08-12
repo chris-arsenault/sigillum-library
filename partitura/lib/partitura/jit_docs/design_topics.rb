@@ -11,11 +11,24 @@ module Partitura
           "Use the production surface for new DSL source; surface_lab is exploratory only.",
           "Standardize the container; choose the local surface by musical job.",
           "Use `guided` for stage-at-a-time procedures and `composition_workflow` for external proposals.",
-          "Use `score_observation` or `annotation_observation` for accepted external scores."
+          "Use `score_observation` or `annotation_observation` for accepted external scores.",
+          "Use `documentation_index` only when you need the expanded Markdown catalogue."
         ],
         example: "partitura/bin/partitura help production",
-        next_topics: %i[llm_design production decision guided composition_graph composition_workflow evaluation
-                        score_observation annotation_observation projections export],
+        next_topics: %i[llm_design production decision roster cards guided composition_graph
+                        composition_workflow evaluation score_observation annotation_observation projections
+                        export build documentation_index],
+        docs: []
+      },
+      documentation_index: {
+        use_when: "Browse the complete Partitura documentation map after focused JIT routing is insufficient.",
+        rules: [
+          "This is an expanded catalogue, not required startup context.",
+          "Return to focused JIT topics before acting; do not load the whole documentation directory.",
+          "Treat runtime catalogues and compiler responses as authoritative when prose and code differ."
+        ],
+        example: "docs/architecture/partitura/INDEX.md",
+        next_topics: %i[index llm_design production guided composition_workflow],
         docs: ["docs/architecture/partitura/INDEX.md"]
       },
       llm_design: {
@@ -39,7 +52,10 @@ module Partitura
             partitura/bin/partitura status <piece_dir>
           TEXT
         next_topics: %i[production guided composition_graph composition_workflow score_observation compile_api],
-        docs: ["docs/architecture/partitura/LLM_CONTEXT_ARCHITECTURE.md"]
+        docs: [
+          "docs/architecture/partitura/LLM_CONTEXT_ARCHITECTURE.md",
+          "docs/architecture/partitura/03_jit_docs_api.md"
+        ]
       }
     }.freeze
   end

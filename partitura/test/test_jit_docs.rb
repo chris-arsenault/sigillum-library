@@ -13,6 +13,7 @@ class JITDocsTest < Minitest::Test
   def test_index_response_has_required_contract_fields
     data = Partitura.help_data(:index)
 
+    assert_equal 1, data[:schema_version]
     assert_equal :index, data[:topic]
     assert_includes data.keys, :use_when
     assert_includes data.keys, :rules
@@ -37,11 +38,35 @@ class JITDocsTest < Minitest::Test
     assert_equal :production, data[:topic]
     assert_includes data[:rules], "Use `production_piece` in source files loaded by `load_production_file`."
     assert_includes data[:rules], "Use `partitura/bin/partitura export` for MusicXML and MIDI."
+    assert(data[:rules].any? { |rule| rule.include?("do not use helpers, loops, repeaters") })
     assert_includes data[:example], "production_piece"
     assert_includes data[:example], "meter do"
     assert_includes data[:example], "change \"4/4\", at: \"bar 9\""
     assert_includes data[:example], "music21: \"Clarinet\""
     assert_includes data[:example], "placement :call"
+    assert_includes data[:docs], "docs/architecture/partitura/00_llm_contract.md"
+  end
+
+  def test_index_keeps_expanded_markdown_catalogue_optional
+    data = Partitura.help_data(:index)
+
+    assert_empty data[:docs]
+    assert_includes data[:next_topics], :documentation_index
+    assert_equal ["docs/architecture/partitura/INDEX.md"],
+                 Partitura.help_data(:documentation_index)[:docs]
+  end
+
+  def test_capability_topics_cover_roster_cards_and_build
+    roster = Partitura.help_data(:roster)
+    cards = Partitura.help_data(:cards)
+    build = Partitura.help_data(:build)
+
+    assert_includes roster[:rules].join(" "), "notation_group"
+    assert_includes roster[:rules].join(" "), "music21:"
+    assert_includes cards[:example], "cards terms"
+    assert_includes cards[:docs], "technique_library/dsl/README.md"
+    assert_includes build[:example], "partitura/bin/partitura build"
+    assert_includes build[:docs], "docs/architecture/partitura/06_ruby_framework.md"
   end
 
   def test_hybrid_response_is_llm_actionable
@@ -149,6 +174,8 @@ class JITDocsTest < Minitest::Test
 
     topics.each do |topic, data|
       REQUIRED_FIELDS.each { |field| assert data.key?(field), "#{topic} is missing #{field}" }
+      assert_equal Partitura::JITDocs::SCHEMA_VERSION,
+                   Partitura.help_data(topic).fetch(:schema_version), topic
       assert_kind_of String, data.fetch(:use_when), topic
       assert_kind_of Array, data.fetch(:rules), topic
       assert_kind_of Array, data.fetch(:next_topics), topic

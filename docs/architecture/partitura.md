@@ -8,7 +8,7 @@ orchestration, formal identity, and dramatic intent remain inspectable together.
 also gives the agent a way to discover only the domain guidance needed for its current
 decision. The broader inference-time capability pattern is documented in
 `partitura/LLM_CONTEXT_ARCHITECTURE.md`; active tasks should enter through
-`partitura/INDEX.md` or the JIT help index.
+the JIT help index. `partitura/INDEX.md` remains an optional expanded catalogue.
 
 ```bash
 partitura/bin/partitura
@@ -216,4 +216,5 @@ content-addressed factual projections for downstream analysis.
 - An implementation of any consumer's generation, assessment, or selection strategy.
 
 Detailed syntax, contracts, and examples live in the modular files named by
-`partitura/INDEX.md` and by `partitura help <topic>`.
+`partitura help <topic>`. Use `partitura help documentation_index` only when the
+complete Markdown map is needed.

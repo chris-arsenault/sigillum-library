@@ -17,6 +17,8 @@ module Partitura
           "Use inline event marks for point markings and `control`/`tempo` for spans or shared markings.",
           "For whole-score planning, add stable piece/span/placement IDs and `plan { requires ... }` declarations.",
           "Use `partitura/bin/partitura view` projections after authoring each passage.",
+          "Write committed sounding pitches, rhythms, chords, rests, and controls explicitly; do not use " \
+          "helpers, loops, repeaters, transposers, or pattern expanders to generate the finished notes.",
           "Check `partitura/bin/partitura lint SOURCE.rb`: warn lints prompt a judgment; " \
           "error lints block compile.",
           "Lint thresholds are configurable: `lint do rule :phrase_length, warn: 8, error: 24 end`.",
@@ -54,9 +56,12 @@ module Partitura
               end
             end
           RUBY
-        next_topics: %i[composition_graph composition_workflow decision degrees controls hybrid projections export
-                        compile_api],
-        docs: ["docs/architecture/partitura/01_container.md"]
+        next_topics: %i[composition_graph composition_workflow decision roster degrees controls hybrid projections
+                        cards export build compile_api],
+        docs: [
+          "docs/architecture/partitura/00_llm_contract.md",
+          "docs/architecture/partitura/01_container.md"
+        ]
       },
       decision: {
         use_when: "Choose the right local notation surface for a passage.",
@@ -69,7 +74,9 @@ module Partitura
           "Use hybrid for most orchestral passages.",
           "Use absolute when register is the musical object.",
           "Use controls for marks that span time or target multiple parts.",
-          "Never mix untyped representations inside one phrase."
+          "Never mix untyped representations inside one phrase.",
+          "Before writing, name the musical job, choose its local surface, and choose the projection that will " \
+          "make the result inspectable."
         ],
         example: "partitura/bin/partitura help hybrid",
         next_topics: %i[degrees intervals split_pitch_rhythm absolute texture staff_grid controls phrase_placement 
@@ -104,7 +111,7 @@ hybrid],
               end
             end
           RUBY
-        next_topics: %i[decision hybrid projections],
+        next_topics: %i[decision roster hybrid projections],
         docs: ["docs/architecture/partitura/01_container.md"]
       },
       degrees: {
@@ -222,7 +229,12 @@ hybrid],
           "Use `tempo` for score tempo and tempo changes; do not repeat tempo markings in part material.",
           "Tempo beat units are semantic: `dotted-quarter = 52` means 52 dotted-quarter beats per minute " \
           "(quarter = 78 for playback).",
+          "Beat units are whole, half, quarter, eighth, 16th, and 32nd, with dotted-, double-dotted-, and " \
+          "triple-dotted- prefixes; sixteenth and thirty-second are aliases.",
           "Use `meter` for bar-boundary meter changes.",
+          "Use `clef :treble|:alto|:tenor|:bass|:percussion` for bar-boundary notated clef changes.",
+          "Use `harp_pedals` for the seven pedals in D C B | E F G A order; do not encode pedal diagrams as text.",
+          "After `key_change`, declare the new key on the span/section or use phrase `key_context`.",
           "Locations are explicit bar/beat strings or named anchors.",
           "Inspect with `partitura/bin/partitura view SOURCE.rb controls` before export."
         ],

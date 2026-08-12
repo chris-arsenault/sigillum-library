@@ -21,7 +21,7 @@ generated from the current runtime; this abbreviated shape shows the stable fiel
   "projection_note": "available_projections are SOUNDING (note-derived) and primary; secondary views read authored assertions and only verify them against the music",
   "available_exports": ["musicxml", "midi"],
   "next_help_topics": ["projections", "hybrid", "controls"],
-  "docs": ["docs/architecture/partitura/INDEX.md"]
+  "docs": ["docs/architecture/partitura/05_compile_api.md"]
 }
 ```
 

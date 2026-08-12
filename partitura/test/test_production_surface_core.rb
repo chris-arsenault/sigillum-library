@@ -41,6 +41,7 @@ class ProductionSurfaceCoreTest < Minitest::Test
     assert_includes compile.fetch(:secondary_declared_intent_projections), "harmony_with_melody"
     assert_equal %w[musicxml midi], compile.fetch(:available_exports)
     assert_includes compile.fetch(:available_exports), "musicxml"
+    assert_equal ["docs/architecture/partitura/05_compile_api.md"], compile.fetch(:docs)
   end
 
   def test_placements_materialize_as_timed_events

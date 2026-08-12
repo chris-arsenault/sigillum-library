@@ -11,6 +11,7 @@ is relevant now.
 
 ```bash
 partitura/bin/partitura help index
+partitura/bin/partitura help documentation_index
 partitura/bin/partitura help llm_design
 partitura/bin/partitura help production
 partitura/bin/partitura help decision
@@ -36,6 +37,7 @@ data = Partitura.help_data(:hybrid)
 
 Every known help response includes:
 
+- `schema_version`: version of the machine-readable JIT response contract;
 - `topic`: normalized topic identifier;
 - `use_when`: the decision or task that should trigger the topic;
 - `rules`: the constraints to retain in working context;
@@ -43,19 +45,21 @@ Every known help response includes:
 - `next_topics`: valid focused continuations;
 - `docs`: repository-relative deep references.
 
-Text and JSON render the same data. Unknown topics return `topic: unknown`, the complete
-topic list in `next_topics`, and the index path. They do not raise a raw exception.
+Text and JSON render the same data. Unknown topics return `topic: unknown` and the
+complete topic list in `next_topics`. They do not raise a raw exception or force the
+expanded Markdown index into context.
 
 Repository tests verify that every topic has the required fields, every `next_topics`
 entry resolves, and every listed documentation file exists.
 
 ## Navigation Protocol
 
-1. Run `partitura/bin/partitura help index`.
+1. Run `partitura/bin/partitura help index`; do not preload the Markdown index.
 2. Choose the topic whose `use_when` matches the current decision.
 3. Retain its `rules` and `example` while acting.
 4. Follow one `next_topics` edge when a new decision appears.
-5. Load a file under `docs` only when the short response is insufficient.
+5. Load a file under `docs` only when the short response is insufficient. Use
+   `documentation_index` only when the complete catalogue is needed.
 6. Ask the runtime for a focused projection after authoring instead of copying a large
    source region into context.
 
@@ -64,11 +68,12 @@ surface syntax, historical reviews, or external-analysis contracts.
 
 ## Topic Families
 
-- Design: `llm_design`.
-- Authoring: `production`, `container`, `decision`, `degrees`, `intervals`,
+- Design: `llm_design`, `documentation_index`.
+- Authoring: `production`, `container`, `roster`, `decision`, `degrees`, `intervals`,
   `split_pitch_rhythm`, `absolute`, `marks`, `controls`, `texture`, `staff_grid`,
   `phrase_placement`, `hybrid`, `harmony`.
-- Reading and output: `projections`, `compile_api`, `export`.
+- Reading and output: `projections`, `compile_api`, `export`, `build`.
+- Library retrieval: `cards`.
 - Stateful work: `guided`, `composition_graph`, `composition_workflow`, `evaluation`.
 - External data: `score_observation`, `annotation_observation`.
 

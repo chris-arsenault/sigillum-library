@@ -19,7 +19,7 @@ module Partitura
                            "secondary views read authored assertions and only verify them against the music",
           available_exports: %w[musicxml midi],
           next_help_topics: %w[projections hybrid controls],
-          docs: ["docs/architecture/partitura/INDEX.md"]
+          docs: ["docs/architecture/partitura/05_compile_api.md"]
         }
       rescue CompileError => e
         e.response.merge(
