@@ -64,10 +64,9 @@ Exact score facts such as authored onset, duration, part, and pitch remain disti
 from heuristics such as estimated key, figuration, motif relationship, and non-chord-tone
 classification. Downstream systems must preserve that distinction.
 
-The analyzer does not produce training labels, learned embeddings, a quality reward, or a
-new canonical score. External ML systems may consume its versioned parent snapshots or
-observations, but they own dataset construction, learned transforms, weights, and
-evaluation.
+The analyzer does not produce ground-truth labels, a quality judgment, or a new
+canonical score. Consumers may derive their own interpretations from its versioned
+output, but those interpretations remain outside Partitura.
 
 ## Implementation And Tests
 

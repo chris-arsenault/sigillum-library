@@ -98,7 +98,7 @@ module Partitura
         ]
       },
       composition_workflow: {
-        use_when: "Exchange graph-addressed proposals, critic evidence, and selections with an external system.",
+        use_when: "Exchange graph-addressed proposals, assessments, and selections with an external system.",
         rules: [
           "The accepted Ruby source and Ruby-owned Composition Graph remain authoritative.",
           "`observe` emits one schema-v1 proposal_request bound to exact source, graph, snapshot, " \
@@ -107,7 +107,7 @@ module Partitura
           "immutable candidate evidence.",
           "`step` revalidates live bindings, promotes exact validated bytes or retains original, " \
           "and appends one schema-v2 transition.",
-          "External producers and policies return versioned responses; they do not parse, promote, " \
+          "External producers and selectors return versioned responses; they do not parse, promote, " \
           "or rewrite accepted state directly.",
           "Use `--trajectory-origin agent` for agent runs; Partitura enforces the medium provenance label.",
           "`--no-export` is for fast mechanical experiments; normal selection evidence includes " \
@@ -135,7 +135,7 @@ module Partitura
           "Private append-only records retain the blind mapping and exact evidence identity.",
           "Transition review separates scale (local/seam/section/global/export) from criterion " \
           "(coherence/identity/seams/orchestration/reserve).",
-          "Preference purpose is explicit; training and held-out transition judgments cannot share one review.",
+          "Preference records carry an explicit purpose so consumers cannot silently mix evaluation sets.",
           "Completed-score measurements are descriptive diagnostics, not musical-quality scores."
         ],
         example: <<~'BASH'.strip,
@@ -189,8 +189,8 @@ module Partitura
           "Use `score-observation` for accepted external scores; do not convert them into DSL source first.",
           "The projection is versioned, deterministic, read-only, and content-addressed.",
           "Partitura resolves MXL, polyphony, voices, staves, transposition, ties, rests, and rational timing.",
-          "The projection reports score facts, not inferred form, orchestral quality, or training labels.",
-          "Keep source selection, dataset splits, learned features, and weights outside Partitura."
+          "The projection reports score facts, not inferred form, orchestral quality, or consumer judgments.",
+          "Keep source selection, derived interpretations, and downstream evaluation outside Partitura."
         ],
         example: "partitura/bin/partitura score-observation path/to/score.mxl",
         next_topics: %i[annotation_observation composition_graph projections compile_api],
@@ -205,7 +205,7 @@ module Partitura
           "alignment warnings, and factual span features.",
           "A well-formed semantic row that cannot bind fails instead of disappearing silently; " \
           "excluded source defects remain row-addressed warnings.",
-          "Annotation observations do not create quality labels, learned representations, dataset splits, or weights."
+          "Annotation observations do not create quality judgments or consumer-specific derived representations."
         ],
         example: <<~'BASH'.strip,
             partitura/bin/partitura annotation-observation score-observation.json \

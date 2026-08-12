@@ -11,7 +11,6 @@ module Partitura
       HUMAN_REVIEW_SCALES = %i[local seam section global export].freeze
       HUMAN_REVIEW_CRITERIA = %i[coherence identity seams orchestration reserve].freeze
       PREFERENCE_OUTCOMES = %i[a b tie abstain].freeze
-      PREFERENCE_PURPOSES = %i[training held_out_evaluation].freeze
 
       class ReviewVariant
         LABELS = %w[A B].freeze
@@ -211,7 +210,7 @@ module Partitura
             criterion, HUMAN_REVIEW_CRITERIA, "preference criterion"
           )
           @rater_id = Validation.text(rater_id, "preference rater_id")
-          @purpose = Validation.enum(purpose, PREFERENCE_PURPOSES, "preference purpose")
+          @purpose = Validation.label(purpose, "preference purpose")
           @reason = Validation.text(reason, "preference reason")
           @confidence = confidence.nil? ? nil : Float(confidence)
           @recorded_at = Validation.text(recorded_at, "preference recorded_at")

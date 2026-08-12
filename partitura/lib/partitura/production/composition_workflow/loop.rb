@@ -139,7 +139,7 @@ module Partitura
             "missing_selection", "evaluated candidates require a selection response"
           ) unless selection_response
           selection_response.validate_for(evaluation.selection_request)
-          assessments = merge_learned_results(
+          assessments = merge_external_results(
             evaluation.assessments, selection_response.critic_results
           )
           if selection_response.original_selected?
@@ -359,8 +359,8 @@ module Partitura
           [File.basename(source), content]
         end
 
-        def merge_learned_results(assessments, learned)
-          grouped = learned.group_by(&:candidate_id)
+        def merge_external_results(assessments, external_results)
+          grouped = external_results.group_by(&:candidate_id)
           assessments.map do |assessment|
             Assessment.new(
               candidate: assessment.candidate,

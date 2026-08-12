@@ -49,8 +49,8 @@ Ambiguous combined parts may be resolved from span-local score activity, also
 with an explicit warning. Failed alignment audits and warning counts remain in
 the projection summary so consumers can gate the exact expected state.
 
-Dataset splits, train/evaluation policy, learned transforms, weights, and
-metrics remain consumer responsibilities.
+How consumers select records, derive additional transforms, or evaluate results
+remains their responsibility.
 
 ## Profiles
 
@@ -73,7 +73,7 @@ measure-count annotations. It emits:
 - measure-grid `seam_boundary` examples.
 
 S3 note-event tables and OpenScore melody-score extracts remain reference
-artifacts in the corpus manifest. They are not duplicated as learning targets:
+artifacts in the corpus manifest. They are not duplicated as annotation events:
 the score observation already provides canonical note events.
 
 S3 downbeat, measure-count, and time-signature tables are alignment evidence.
@@ -84,9 +84,9 @@ individual labels to make the source appear clean.
 ## Interpretation boundary
 
 The numeric features are factual summaries—density, register, pitch-class
-distribution, active-part fraction, and left/right boundary deltas. They are
-not learned representations and do not express musical quality.
+distribution, active-part fraction, and left/right boundary deltas. They do
+not express musical quality.
 
-Neither profile creates supervision for coherence, reserve, edit quality, or
-candidate-to-original improvement. Those require explicit candidate evidence
-and criterion-specific human judgments.
+Neither profile rates coherence, reserve, edit quality, or candidate-to-original
+improvement. Those require explicit candidate evidence and criterion-specific
+judgment.

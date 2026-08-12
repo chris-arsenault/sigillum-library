@@ -1,11 +1,11 @@
 # Composition Graph
 
-Status: implemented in `sigillum-library` through the completed-score evaluation
-surface (M1-M7). Learned proposer, critic, and policy implementations remain external.
+Status: implemented through the completed-score evaluation surface (M1-M7).
+Proposal, assessment, and selection strategies remain consumer-owned.
 
-This design adds a general, non-ML planning and refinement model to Partitura. It supports
+This design adds a general planning and refinement model to Partitura. It supports
 whole-score composition and recursive coarse-to-fine authoring without turning Partitura into a
-model-training framework, a graph database, or a second score language.
+consumer-strategy framework, a graph database, or a second score language.
 
 The public name is **Composition Graph**. `ScoreTree` is useful intuition for the containment
 hierarchy, but it is incomplete: returns, derivations, dependencies, and realization bindings cross
@@ -28,10 +28,9 @@ tree boundaries.
    mechanical check and never scores musical quality.
 9. Guided-run history remains in `procedure/log.jsonl`; it is not copied into the composition graph.
 10. Partitura owns operational scheduling, sandboxed candidate validation,
-    promotion/rollback, and trajectory continuity. `sigillum-ml` may consume
-    versioned observations and return proposals, learned critic results, and
-    selections. Embeddings, reward models, corpora, and checkpoints do not
-    belong in Partitura or Git.
+    promotion/rollback, and trajectory continuity. External tools may consume
+    versioned observations and return proposals, assessments, and selections,
+    but their strategies and derived artifacts do not belong in Partitura.
 
 These decisions define the implemented v1 contract. Candidate variants and general layered
 composition remain intentionally deferred rather than left as open schema questions.
@@ -46,7 +45,7 @@ events existed, but did not give a program a durable way to say:
 - this phrase is a concrete realization of that material;
 - these two remote spans are related even though neither contains the other;
 - this plan survives bar edits and declaration reordering;
-- an external generator or critic may address one exact scope without owning Partitura's data model.
+- an external tool may address one exact scope without owning Partitura's data model.
 
 A fixed sequence such as `form -> melody -> harmony -> orchestration -> detail` is too rigid. Real
 composition is uneven: one span may have finished foreground but no bass, while another has a
@@ -80,12 +79,10 @@ The design borrows narrow ideas from the following primary exemplars.
 | [Muster: Topological querying of music scores](https://doi.org/10.1016/j.datak.2024.102340) | A score graph can combine rhythmic hierarchy with event flow and support remote structural queries. | A graph-shaped read model for containment and cross-links. | Note-level graph storage, Neo4j, and a second comprehensive score representation. |
 | [W3C PROV](https://www.w3.org/TR/prov-o/) | Plans and entities are distinct from the activities that use and generate them. | Keep source entities, semantic derivation, and guided-run activity history separate. | RDF/OWL and a general provenance ontology. |
 | [OpenUSD composition](https://openusd.org/22.08/glossary.html) | Stable scene paths, references, and non-destructive variants make large nested structures addressable. | Stable typed paths and explicit references. | Layer strengths, override resolution, composition arcs, and variant sets in v1. |
-| [FIGARO](https://arxiv.org/html/2201.10936v4) | Interpretable expert descriptions and learned latent features are complementary. | Human-readable Partitura plans plus optional learned ML sidecars. | Storing opaque learned features in the Partitura source. |
-| [NotaGen / CLaMP-DPO](https://arxiv.org/html/2502.18008) and [MusicRL](https://arxiv.org/abs/2402.04229) | Learned preference signals can improve generation, but repeated reward optimization can trade away other objectives. | External learned critics, held-out evaluation, and multi-signal reward reporting. | A single Partitura quality score or an in-library RL loop. |
 
-The most important synthesis is that hierarchy, stable identity, provenance, and learned
-representation are different concerns. They interoperate through a small versioned boundary; they
-do not share one implementation.
+The most important synthesis is that hierarchy, stable identity, provenance, and
+consumer strategy are different concerns. They interoperate through a small versioned
+boundary; they do not share one implementation.
 
 ## Authority And Persistence
 
@@ -96,7 +93,7 @@ There are three kinds of state, each with one owner.
 | Musical plan and accepted realization | Production Ruby source | Source-controlled Ruby |
 | Procedure stage, activity history, decisions, and carries | Guided run | `procedure/run.json` and append-only `procedure/log.jsonl` |
 | Candidate execution, promotion decisions, and composition transitions | Partitura workflow | Explicit append-only trajectory path, normally ignored by Git while active |
-| Learned proposals, features, critic outputs, preferences, and checkpoints | ML consumer | External artifacts, normally ignored by Git |
+| External proposals, assessments, selections, and derived artifacts | Originating consumer | Consumer-owned storage |
 
 `CompositionGraph` is a read model over the first row. It is rebuilt after source edits and contains
 no mutable authority. A consumer may save the versioned JSON projection as an experiment input, but
@@ -360,7 +357,7 @@ objects, but should not introduce a second external planning syntax.
 
 ## Worked Refinement Without Identity Churn
 
-A non-ML composer can begin with an intentionally open span:
+A composer can begin with an intentionally open span:
 
 ```ruby
 section :bridge, "Bridge", bars: 17..24, type: :development do
@@ -470,7 +467,7 @@ Rules:
 
 ### Concrete composition snapshot
 
-External analysis and ML also need a machine-readable realized score. The current
+External analysis tools also need a machine-readable realized score. The current
 `Production.export_data(piece)` is deliberately a private, schema-less in-memory exporter adapter,
 so it is not an acceptable cross-repository contract.
 
@@ -512,7 +509,7 @@ but are not stable graph nodes.
 `graph_digest` changes when plan structure, requirements, relations, or realization bindings change.
 `snapshot_digest` hashes the normalized complete payload without either digest field and therefore
 also changes when pitches, durations, controls, instrumentation, or other concrete score data
-changes. Plan-only consumers may key caches by `graph_digest`; score or critic consumers key by
+changes. Plan-only consumers may key caches by `graph_digest`; score-sensitive consumers key by
 `snapshot_digest`.
 
 Serialization rules:
@@ -577,73 +574,22 @@ guided log. This mirrors the useful PROV distinction:
 
 No full PROV serialization is required.
 
-## ML Boundary
+## External-Consumer Boundary
 
-Partitura provides:
+Partitura provides stable scopes, deterministic snapshots, dependency-aware
+scheduling, isolated candidate validation, exact-byte promotion or rollback,
+append-only trajectory persistence, and a versioned proposal/selection protocol.
 
-- stable scopes and cross-relations;
-- deterministic graph and concrete composition snapshots;
-- explicit open/partial/bound requirements;
-- existing concrete score/timed-event projections;
-- deterministic dependency-aware scheduling;
-- isolated candidate patch application, compile/export, and mechanical validation;
-- exact-byte promotion with stale-state rejection and rollback;
-- append-only trajectory validation and persistence;
-- a versioned proposal/selection JSON protocol.
+An external tool may decide what to propose, how to assess candidates, or which
+validated candidate to select. It may also persist its own derived artifacts. It does
+not receive authority over Partitura's graph, accepted source, sandbox, exporter, or
+trajectory.
 
-`sigillum-ml` owns:
-
-- graph and score encoders;
-- expert and learned feature combinations;
-- node-, section-, and whole-score critics;
-- preference datasets and reward-model training;
-- learned proposal and candidate-selection policies;
-- generated candidate source-patch payloads;
-- embeddings, checkpoints, MLflow runs, and evaluation reports.
-
-Python does not own a parallel graph model, scheduler, executor, promoter, or
-trajectory state machine. It treats Partitura's snapshot and action payloads as
-immutable observations. A future learned scheduling model may recommend work,
-but Ruby must validate and record the scheduled action before it becomes
-workflow state.
-
-A minimal ML sidecar record is keyed by graph identity:
-
-```json
-{
-  "schema_version": 1,
-  "graph_digest": "sha256:...",
-  "snapshot_digest": "sha256:...",
-  "producer": "encoder-name@checkpoint",
-  "records": [
-    {
-      "path": "span:theme_a_return",
-      "artifact": "embeddings/...",
-      "scores": {
-        "local_preference": 0.42,
-        "global_preference": 0.31
-      }
-    }
-  ]
-}
-```
-
-The snapshot digest makes score-sensitive sidecars stale by construction after a concrete musical
-change; the graph digest supports plan-only caches. Partitura does not interpret `scores`, load
-checkpoint artifacts, or accept them as musical truth.
-
-For learned-feature reinforcement learning, use at least separate local and whole-score signals plus
-held-out human comparison. Do not collapse all critics into a permanent Partitura weight vector.
-MusicRL's reported reward over-optimization is the concrete reason to keep reward diagnostics
-plural and outside the score framework.
-
-Generated candidates remain explicit patches exchanged over the protocol.
-Partitura applies them only to a temporary source, compiles and exports the
-candidate, then offers immutable evidence to the learned policy alongside the
-unchanged original. Accepting a candidate means atomically materializing its
-already-validated source bytes in the canonical Ruby source and rebuilding the
-graph. A model may propose a transform; it may not leave a hidden generator in
-committed source.
+Candidates remain explicit patches exchanged over the protocol. Partitura applies a
+patch only to a temporary source, compiles and optionally exports it, then returns
+immutable evidence alongside the unchanged original. Accepting a candidate atomically
+materializes its already-validated source bytes in the canonical Ruby source and
+rebuilds the graph. No consumer may leave hidden generation in committed source.
 
 Operational CLI exchange:
 
@@ -658,38 +604,37 @@ partitura/bin/partitura review --trajectory TRAJECTORY.jsonl --reviews REVIEWS.j
   --criterion coherence
 partitura/bin/partitura preference --reviews REVIEWS.jsonl --preferences PREFERENCES.jsonl \
   --review REVIEW_ID --outcome a --rater RATER_ID \
-  --purpose held_out_evaluation --reason "A sustains the whole-score arc"
+  --purpose listening_study --reason "A sustains the whole-score arc"
 ```
 
 `observe` emits a `proposal_request`; `evaluate` emits a `selection_request`
-after Ruby-owned sandbox validation; and `step` validates the ML response,
+after Ruby-owned sandbox validation; and `step` validates the consumer response,
 promotes or retains the score, and appends one transition. Request IDs bind
 every response to exact source, graph, snapshot, action, and candidate evidence.
 When export is enabled, the selection request also carries a canonical score
-observation for each successfully exported candidate. These observations let
-Python critics run inference without parsing MusicXML. They are request-scoped:
-failed candidates have none, and observations are not duplicated into
-persisted trajectory assessments.
+observation for each successfully exported candidate. Consumers can inspect that
+observation without parsing MusicXML. It is request-scoped: failed candidates have
+none, and observations are not duplicated into persisted trajectory assessments.
 
 Trajectory records use their own schema version. V2 includes the complete
 pre-edit snapshot and exact Ruby source, source digest, run origin and quality
-label, action, every candidate patch and critic result, decision, after digests,
-and unresolved paths. Agent-origin runs are always labeled `medium`;
-deterministic runs are `unrated`. These labels describe provenance and must not
-be treated as expert musical rewards.
+label, action, every candidate patch and `critic_results` assessment, decision,
+after digests, and unresolved paths. Agent-origin runs are always labeled `medium`;
+deterministic runs are `unrated`. These labels describe provenance, not musical
+judgment.
 
 Pairwise review and preference records use schema v2. Each review declares one
 of `coherence`, `identity`, `seams`, `orchestration`, or `reserve` separately
 from its local/seam/section/global/export scale, and its preference inherits the
-same criterion. This prevents free-text reasons and workflow acceptance from
-being relabeled as critic supervision.
+same criterion. This keeps review evidence explicit instead of inferring a judgment
+from free text or workflow acceptance.
 
 Human comparison remains a Partitura operation because reconstructing score
 variants is music-runtime work. `review` replays the exact stored evidence and
 exports anonymous A/B MusicXML and MIDI. Its public manifest omits candidate
 IDs, producers, patches, and source; an append-only private ledger retains the
-mapping. `preference` captures one blinded decision per review with an explicit
-`training` or `held_out_evaluation` purpose.
+mapping. `preference` captures one blinded decision per review with a lowercase
+consumer-supplied purpose label. Partitura does not assign meaning to that label.
 
 ## Recursive Composition Semantics
 
@@ -705,14 +650,13 @@ The graph enables fractal-like composition without installing a mandatory genera
 6. Repeat at any branch until requirements are mechanically bound and the composer accepts the
    musical result.
 
-A model, an LLM, a human, or the deterministic baseline may advise step 3.
+A tool, an LLM, a human, or the deterministic baseline may advise step 3.
 Partitura owns the state, validates the executable action, and records the
-result; it does not pretend that its baseline scheduler is a musical-quality
-policy.
+result; it does not pretend that its baseline scheduler supplies musical judgment.
 
-Binding is a coverage floor, not a stopping criterion. A learned critic or human may keep refining a
-bound phrase or span; Partitura records the stable target but does not judge whether another pass is
-needed.
+Binding is a coverage floor, not a stopping criterion. An external assessor or
+human may keep refining a bound phrase or span; Partitura records the stable target
+but does not judge whether another pass is needed.
 
 The reusable refinement operations are therefore conceptual, not score-generating API calls:
 
@@ -732,13 +676,13 @@ OpenUSD and MEI demonstrate that inline variants can be valuable, but they also 
 precedence, reference, and export semantics that Partitura does not currently need. For now:
 
 - accepted music lives in one source;
-- candidates live as separate ML artifacts, source files, or patches;
+- candidates live as separate consumer artifacts, source files, or patches;
 - Git records accepted revisions;
 - `derives_from` records musical lineage inside one accepted composition;
 - `graph_digest` associates plan-only evaluations with an exact semantic graph;
 - `snapshot_digest` associates score-sensitive evaluations with an exact concrete realization.
 
-Add a `variant_set` only after a concrete non-ML authoring use case requires simultaneous
+Add a `variant_set` only after a concrete direct-authoring use case requires simultaneous
 alternatives in one source. Do not pre-install layer-strength or override semantics.
 
 ## Implementation Status
@@ -776,7 +720,7 @@ alternatives in one source. Do not pre-install layer-strength or override semant
 
 ### M5 — Operational composition workflow — implemented
 
-- Add graph-addressed actions, candidate and critic records, immutable state,
+- Add graph-addressed actions, candidate and assessment records, immutable state,
   deterministic dependency-aware scheduling, and transition validation.
 - Apply candidate patches only in isolated temporary sources; compile,
   snapshot, and optionally export them without changing accepted source.
@@ -796,8 +740,8 @@ alternatives in one source. Do not pre-install layer-strength or override semant
   A/B MusicXML/MIDI bundles.
 - Persist private blind mappings and one purpose-labeled human preference per
   review.
-- Expose read-only ML dataset DTOs without moving score or workflow behavior
-  into Python.
+- Expose read-only workflow evidence without moving score or workflow behavior
+  into a consumer.
 
 ### M7 — Completed-score evaluation surface — implemented
 
@@ -808,25 +752,14 @@ alternatives in one source. Do not pre-install layer-strength or override semant
 - Render arbitrary system-run sources as blinded A/B MusicXML/MIDI bundles.
 - Persist private run mappings and held-out criterion-specific human
   preferences.
-- Let the external ML lab own frozen experiment design, run metadata,
-  aggregation, and reporting while Partitura remains the only score runtime.
-
-### M8 — Learned implementations — external boundary implemented
-
-- `sigillum-ml` provides protocol DTOs and learned proposer, critic, and policy
-  interfaces plus read-only evidence and evaluation DTOs, without duplicating
-  Partitura's graph or workflow mechanics.
-- Training, learned features and weights, preference data, checkpoints, and
-  production model implementations remain ML work.
-
-M1-M7 belong in `sigillum-library`. M8 implementations belong in `sigillum-ml`,
-behind Partitura's versioned protocol, evidence, and measurement formats.
+- Let each consumer own experiment design, run metadata, aggregation, and
+  reporting while Partitura remains the only score runtime.
 
 ## Acceptance-Test Matrix
 
 | Scenario | Operation | Expected behavior |
 |---|---|---|
-| Legacy source | Build graph without piece/span/placement IDs | Source still compiles; graph marks generated locations unstable; no sidecar may target them. |
+| Legacy source | Build graph without piece/span/placement IDs | Source still compiles; graph marks generated locations unstable; no external record may target them. |
 | Stable edit | Change a section name, span bars, and declaration order | Explicit typed paths remain unchanged. |
 | Duplicate identity | Reuse one span or placement ID | Graph validation returns a structured duplicate-ID error. |
 | Partial plan | Declare requirements with no concrete phrases | Graph is valid; requirements are `open`; compile semantics are unchanged. |
@@ -844,11 +777,10 @@ behind Partitura's versioned protocol, evidence, and measurement formats.
 | Reproducible transition | Reload one trajectory record after accepted source changes | Stored before-source recreates the exact before snapshot and every candidate remains available. |
 | Agent provenance | Start an agent-origin trajectory without `medium` quality | Partitura rejects the run context. |
 | Blinded review | Compare a candidate with `original` | Public A/B bundle has MusicXML/MIDI but no candidate mapping; private JSONL retains it. |
-| Held-out isolation | Load ML pairwise examples | Training access excludes every `held_out_evaluation` preference. |
 | Completed-score measurement | Measure valid and syntactically invalid sources | Valid score gets export-backed diagnostics; invalid source remains a measured mechanical failure. |
 | Cross-system blinding | Review two completed run sources | Public bundle contains criterion and A/B artifacts but no run IDs; private ledger retains the mapping. |
 | Guided reference | Commit a pass note with graph paths | Paths are logged; musical material is not copied into the pass note. |
-| ML staleness | Join a sidecar with an old snapshot digest | Consumer rejects or explicitly marks every score-sensitive record stale. |
+| Consumer staleness | Join derived data with an old snapshot digest | Consumer rejects or explicitly marks every score-sensitive record stale. |
 
 ## Acceptance Criteria
 
@@ -864,8 +796,8 @@ Implementation is complete when:
 - invalid references, duplicate IDs, bad coverage, and dependency cycles return structured errors;
 - no graph API produces sounding notes;
 - guided history references graph paths but remains the only activity ledger;
-- an ML consumer can join a sidecar to graph nodes and detect stale snapshots without Partitura
-  knowing anything about its model or scores.
+- an external consumer can join derived records to graph nodes and detect stale snapshots without
+  Partitura interpreting the consumer's data.
 
-At that point the Composition Graph is useful for human/LLM whole-score planning, non-ML analysis,
-and ML generation from the same public contract.
+At that point the Composition Graph is useful for human or LLM whole-score planning,
+analysis, and external automation through the same public contract.

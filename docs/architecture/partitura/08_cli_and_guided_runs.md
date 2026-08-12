@@ -75,7 +75,7 @@ review --trajectory FILE --reviews FILE --output DIR
        --scale SCALE --criterion CRITERION
 preference --reviews FILE --preferences FILE --review ID
            --outcome a|b|tie|abstain --rater ID
-           --purpose training|held_out_evaluation --reason TEXT
+           --purpose LABEL --reason TEXT
 ```
 
 `observe`, `evaluate`, and `step` accept `--no-export`, `--trajectory-origin`,
@@ -254,7 +254,7 @@ The graph-addressed exchange is separate from guided procedure stages.
 3. `evaluate` applies each patch to an isolated source, compiles it, optionally exports
    it, and emits a `selection_request` containing immutable candidate evidence. It does
    not change the accepted source.
-4. An external policy returns a request-bound `selection_response` naming a validated
+4. An external selector returns a request-bound `selection_response` naming a validated
    candidate or `original`.
 5. `step` revalidates live source and response bindings, promotes exact validated bytes
    or retains the original, verifies the resulting state, and appends one contiguous
@@ -265,10 +265,15 @@ schema version 2 and include the exact pre-edit Ruby source, full pre-edit snaps
 candidate evidence, decision, after digests, and unresolved paths. Request and digest
 bindings reject stale or mismatched responses.
 
+The v1 wire key `critic_results` stores assessment evidence from any producer,
+including Partitura's deterministic mechanical checks. The name is retained for schema
+compatibility and does not imply an in-library learned model.
+
 Pairwise transition review uses review/preference schema version 2. Review scale
 (`local`, `seam`, `section`, `global`, or `export`) and criterion (`coherence`,
 `identity`, `seams`, `orchestration`, or `reserve`) are separate closed fields. Public
-A/B bundles omit candidate mappings; private append-only records retain them.
+A/B bundles omit candidate mappings; private append-only records retain them. The
+consumer supplies a lowercase `purpose` label and decides how that review cohort is used.
 
 ## Completed-Score Evaluation
 
@@ -277,8 +282,8 @@ identity, boundary, reserve, and fingerprint diagnostics. These measurements des
 the score; they are not a scalar quality score.
 
 `benchmark-review` creates a blinded A/B MusicXML/MIDI bundle for two opaque system-run
-sources. `benchmark-preference` stores one criterion-specific held-out judgment. Its
-records are separate from transition-training preferences.
+sources. `benchmark-preference` stores one criterion-specific judgment. Its records are
+separate from transition preferences; downstream cohort policy remains consumer-owned.
 
 ## Compatibility Shims
 

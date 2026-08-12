@@ -28,10 +28,11 @@ partitura/bin/partitura start <piece_dir> --source <SOURCE.rb> --brief "<commiss
 partitura/bin/partitura status <piece_dir>
 ```
 
-For graph-addressed composition, Partitura owns the non-learned runtime:
+For graph-addressed composition, Partitura owns the trusted score runtime:
 `observe` emits a scheduled request, `evaluate` validates external proposals in
 isolated sources, and `step` promotes or retains exact source bytes and records the
-trajectory. Learned implementations remain behind versioned JSON boundaries.
+trajectory. Proposal and selection strategies remain consumer-owned behind the
+versioned JSON boundary.
 
 ## Layout
 

@@ -39,7 +39,7 @@ def usage
                         --scale SCALE --criterion CRITERION
                  preference --reviews FILE --preferences FILE --review ID
                             --outcome a|b|tie|abstain --rater ID
-                            --purpose training|held_out_evaluation --reason TEXT
+                            --purpose LABEL --reason TEXT
       evaluate   benchmark-score SOURCE
                  score-observation MUSICXML|MXL
                  annotation-observation SCORE_OBSERVATION.json --profile PROFILE

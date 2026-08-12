@@ -8,6 +8,7 @@ module Partitura
       SCHEMA_VERSION = 1
       TRAJECTORY_SCHEMA_VERSION = 2
       DIGEST_PATTERN = /\Asha256:[0-9a-f]{64}\z/
+      LABEL_PATTERN = /\A[a-z][a-z0-9_:-]*\z/
 
       ACTION_KINDS = %i[bind_requirement refine global_review export_review].freeze
       LENSES = %i[
@@ -63,6 +64,18 @@ module Partitura
           end
 
           symbol
+        end
+
+        def label(value, description)
+          string = text(value, description)
+          unless LABEL_PATTERN.match?(string)
+            raise Error.new(
+              "invalid_workflow_record",
+              "#{description} must be a lowercase identifier"
+            )
+          end
+
+          string.to_sym
         end
 
         def path(value, label)

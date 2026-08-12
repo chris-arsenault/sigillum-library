@@ -87,10 +87,11 @@ Long work is not kept in conversational memory alone:
   append-only event log in the consumer project;
 - stable Composition Graph paths keep sections, spans, materials, phrases, and placements
   addressable after edits or declaration reordering;
-- versioned, digest-bound JSON protocols connect external proposers, critics, annotation
-  sources, and evaluation tools without giving them ownership of the score model;
-- accepted music remains explicit Ruby source, while generated candidates and learned
-  artifacts stay outside it until Partitura validates and promotes exact source bytes.
+- versioned, digest-bound JSON protocols connect external proposers, assessors,
+  annotation sources, and evaluation tools without giving them ownership of the score
+  model;
+- accepted music remains explicit Ruby source, while proposed candidates stay outside
+  it until Partitura validates and promotes exact source bytes.
 
 A fresh agent can re-enter a guided run with `partitura status`, or consume a precise graph
 or observation payload, instead of reconstructing state from a transcript summary.
@@ -108,7 +109,7 @@ authority for each kind of fact:
 | External MusicXML facts | Versioned score observation |
 | Bound external annotations | Versioned annotation observation |
 | Candidate and selection evidence | Digest-bound workflow messages and trajectory |
-| Learned features, weights, and checkpoints | External ML consumer |
+| Consumer-specific derived artifacts | The consumer that created them |
 
 Typed IDs, closed enums, rational timing, schema versions, and content digests make those
 boundaries machine-checkable. Prose remains attached to concrete source entities or audible
@@ -124,12 +125,12 @@ properties:
 - corrections land in one library rather than requiring another training run;
 - rules remain inspectable and testable;
 - consumer repositories can share the capability while retaining their own score source;
-- learned systems can participate through versioned protocols without replacing the domain
-  runtime.
+- other automated systems can participate through versioned protocols without replacing
+  the domain runtime.
 
 Fine-tuning may still help a model propose better music or choose better revisions. It would
-not remove the need for discoverable commands, stable state, executable validation, canonical
-ownership, or held-out evaluation. Those are system properties, not weights.
+not remove the need for discoverable commands, stable state, executable validation,
+canonical ownership, or independent evaluation. Those are system properties, not weights.
 
 ## Limits Of The Pattern
 
@@ -139,8 +140,8 @@ ownership, or held-out evaluation. Those are system properties, not weights.
 - Projections can focus attention but can also bias judgment, so Partitura distinguishes
   sounding facts from declared intent and keeps quality decisions outside mechanical gates.
 - The approach works best where a domain has stable concepts, useful projections, and errors
-  that can be checked. Purely tacit judgment still requires examples, audition, and human or
-  learned evaluation.
+  that can be checked. Purely tacit judgment still requires examples, audition, and external
+  evaluation.
 
 Partitura's reusable lesson is therefore concrete: keep deep Markdown references, but make
 the agent enter through a small executable router; express durable work in typed domain

@@ -39,9 +39,9 @@ rootfiles must be declared by `META-INF/container.xml`, stay inside the archive,
 and be unencrypted. Only `score-partwise` MusicXML is accepted.
 
 The observation is a score-fact transport, not an authoring format. It does not
-infer form, phrase boundaries, material identity, orchestral roles, quality, or
-training rewards. Corpus admission, annotation joins, lineage-safe splits,
-learned features, and weights remain consumer responsibilities.
+infer form, phrase boundaries, material identity, orchestral roles, or quality.
+Corpus admission, annotation joins, derived interpretations, and downstream
+evaluation remain consumer responsibilities.
 
 Production DSL snapshots and external-score observations are deliberately
 separate:

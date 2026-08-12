@@ -114,9 +114,10 @@ authored identities matter. Use `score-observation` when the accepted source is 
 MusicXML/MXL. Add `annotation-observation` only when binding a supported annotation
 profile to an exact score-observation digest.
 
-External proposers, critics, and policies exchange versioned JSON with Partitura. They do
-not own source parsing, graph semantics, candidate validation, promotion, or trajectory
-continuity. Learned features and weights remain outside this repository.
+External tools exchange proposals, assessments, and selections with Partitura through
+versioned JSON. They do not own source parsing, graph semantics, candidate validation,
+promotion, or trajectory continuity. Consumer-specific strategy and derived artifacts
+remain outside this repository.
 
 ## Exploratory Material
 

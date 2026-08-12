@@ -43,7 +43,7 @@ assume the consuming score lives in this repository.
 
 ## External-System Boundary
 
-Python or another external runtime may consume versioned Partitura snapshots,
-observations, workflow requests, and review records. It may return proposals, learned
-critic results, or selections through those contracts. It does not replace Ruby parsing,
-score semantics, graph identity, sandbox validation, promotion, or export.
+An external runtime may consume versioned Partitura snapshots, observations,
+workflow requests, and review records. It may return proposals, assessments, or
+selections through those contracts. It does not replace Ruby parsing, score semantics,
+graph identity, sandbox validation, promotion, or export.

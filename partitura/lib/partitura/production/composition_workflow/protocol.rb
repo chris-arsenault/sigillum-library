@@ -354,7 +354,7 @@ module Partitura
           if critic_results.any? { |result| result.scale == :mechanical }
             raise Error.new(
               "invalid_protocol_message",
-              "ML responses may not claim Partitura's mechanical critic scale"
+              "external responses may not claim Partitura's mechanical assessment scale"
             )
           end
           freeze

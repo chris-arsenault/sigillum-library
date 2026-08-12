@@ -96,7 +96,7 @@ class EvaluationLabTest < Minitest::Test
     )
     store.append(preference)
     loaded = store.load.fetch(0)
-    assert_equal :held_out_evaluation, loaded.to_h.fetch(:purpose)
+    assert_equal :completed_score_evaluation, loaded.to_h.fetch(:purpose)
     assert_equal review.subject("A").run_id, loaded.preferred_run_id
     error = assert_raises(Evaluation::Error) { store.append(preference) }
     assert_equal "duplicate_evaluation_record", error.code

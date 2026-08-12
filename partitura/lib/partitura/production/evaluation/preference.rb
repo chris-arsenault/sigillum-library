@@ -76,7 +76,8 @@ module Partitura
             benchmark_id: benchmark_id, case_id: case_id, criterion: criterion,
             outcome: outcome, preferred_run_id: preferred_run_id,
             other_run_id: other_run_id, rater_id: rater_id,
-            purpose: :held_out_evaluation, reason: reason, confidence: confidence,
+            purpose: :completed_score_evaluation, reason: reason,
+            confidence: confidence,
             blind: true, recorded_at: recorded_at
           }.compact
         end

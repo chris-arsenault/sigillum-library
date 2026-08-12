@@ -30,7 +30,7 @@ external MusicXML/MXL
   -> score observation
   -> optional annotation observation
 
-external proposer/critic/policy
+external proposer/assessor/selector
   <-> versioned, digest-bound JSON messages
   -> Ruby-owned sandbox validation and exact-byte promotion
 ```
@@ -76,9 +76,9 @@ source.
    observations are rebuilt from one authority. They do not become editable competing
    descriptions of the score.
 
-7. **Keep learning outside the score runtime.** Partitura owns score semantics,
-   mechanical validation, scheduling, promotion, and evidence integrity. External ML
-   systems own learned features, weights, checkpoints, and policies.
+7. **Keep consumer strategies outside the score runtime.** Partitura owns score
+   semantics, mechanical validation, scheduling, promotion, and evidence integrity.
+   External tools decide how to propose, assess, or select revisions.
 
 ## Standard Container And Local Surfaces
 
@@ -213,7 +213,7 @@ content-addressed factual projections for downstream analysis.
 - A second editable score model in JSON or Python.
 - A scalar musical-quality validator.
 - Hidden generation in committed score source.
-- A training framework, checkpoint store, or learned policy implementation.
+- An implementation of any consumer's generation, assessment, or selection strategy.
 
 Detailed syntax, contracts, and examples live in the modular files named by
 `partitura/INDEX.md` and by `partitura help <topic>`.

@@ -118,20 +118,27 @@ class CompositionWorkflowReviewTest < Minitest::Test
   def assert_preference(directory, review)
     preference = Workflow::PreferenceRecord.create(
       review: review, outcome: :a, rater_id: "rater:anonymous-1",
-      purpose: :held_out_evaluation,
+      purpose: :listening_study,
       reason: "A has a clearer long-range bass trajectory.", confidence: 0.8
     )
     store = Workflow::PreferenceStore.new(File.join(directory, "preferences.jsonl"))
     store.append(preference)
     loaded = store.load.fetch(0)
-    assert_equal :held_out_evaluation, loaded.purpose
+    assert_equal :listening_study, loaded.purpose
     assert_equal :coherence, loaded.criterion
     assert_equal review.variant("A").candidate_id, loaded.preferred_candidate_id
     assert_equal review.variant("B").candidate_id, loaded.other_candidate_id
     assert loaded.to_h.fetch(:blind)
+    invalid = assert_raises(Workflow::Error) do
+      Workflow::PreferenceRecord.create(
+        review: review, outcome: :b, rater_id: "rater:anonymous-2",
+        purpose: "Invalid Label", reason: "Purpose labels remain machine-addressable."
+      )
+    end
+    assert_equal "invalid_workflow_record", invalid.code
     duplicate = Workflow::PreferenceRecord.create(
       review: review, outcome: :b, rater_id: "rater:anonymous-1",
-      purpose: :training, reason: "Attempted held-out leakage."
+      purpose: :follow_up_review, reason: "A second judgment for the same review."
     )
     error = assert_raises(Workflow::Error) { store.append(duplicate) }
     assert_equal "duplicate_review_preference", error.code
