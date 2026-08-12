@@ -45,6 +45,28 @@ module Partitura
         ],
         options: [{ flag: "--json", type: "boolean" }]
       ),
+      "protocol" => command(
+        category: :discover,
+        summary: "Create request-bound workflow responses or validate protocol messages.",
+        usage: "protocol template proposal-response|selection-response REQUEST.json [OPTIONS] | " \
+               "protocol validate MESSAGE.json [--against REQUEST.json]",
+        effect: :read, output: :protocol_message_or_validation,
+        help_topic: :protocol,
+        arguments: [
+          { name: "action", type: "enum", required: true, values: %w[template validate] },
+          { name: "kind", type: "protocol_template_kind", required: "for_template" },
+          { name: "message", type: "json_path", required: true }
+        ],
+        options: [
+          { flag: "--producer", type: "producer_id", required: "for_template" },
+          { flag: "--patch", type: "path_or_stdin", applies_to: "proposal_response" },
+          { flag: "--description", type: "text", applies_to: "proposal_response" },
+          { flag: "--candidate-id", type: "candidate_id", applies_to: "proposal_response" },
+          { flag: "--select", type: "candidate_id_or_original", applies_to: "selection_response" },
+          { flag: "--reason", type: "text", applies_to: "selection_response" },
+          { flag: "--against", type: "json_path", required: "for_response_validation" }
+        ]
+      ),
       "help" => command(
         category: :author, summary: "Return one focused JIT documentation topic.",
         usage: "help [TOPIC] [--json]", effect: :read, output: :jit_document,

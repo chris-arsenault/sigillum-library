@@ -277,6 +277,25 @@ The graph-addressed exchange is separate from guided procedure stages.
    or retains the original, verifies the resulting state, and appends one contiguous
    trajectory transition.
 
+Construct request-bound responses without copying fields by hand:
+
+```bash
+partitura/bin/partitura protocol template proposal-response PROPOSAL_REQUEST.json \
+  --producer agent --patch CANDIDATE.diff --description "Complete the scheduled span"
+partitura/bin/partitura protocol validate PROPOSAL_RESPONSE.json \
+  --against PROPOSAL_REQUEST.json
+
+partitura/bin/partitura protocol template selection-response SELECTION_REQUEST.json \
+  --producer selector --select original --reason "Retain the current score"
+partitura/bin/partitura protocol validate SELECTION_RESPONSE.json \
+  --against SELECTION_REQUEST.json
+```
+
+The proposal template computes candidate identity and patch digest from the supplied
+diff. Without `--patch`, it emits a valid empty response. The selection template defaults
+to `original`; a named candidate must exist in the request. Validation checks runtime
+bindings, not only JSON fields.
+
 Workflow protocol messages use schema version 1. Persisted trajectory transitions use
 schema version 2 and include the exact pre-edit Ruby source, full pre-edit snapshot,
 candidate evidence, decision, after digests, and unresolved paths. Request and digest

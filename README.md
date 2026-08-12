@@ -36,7 +36,8 @@ For graph-addressed composition, Partitura owns the trusted score runtime:
 `observe` emits a scheduled request, `evaluate` validates external proposals in
 isolated sources, and `step` promotes or retains exact source bytes and records the
 trajectory. Proposal and selection strategies remain consumer-owned behind the
-versioned JSON boundary.
+versioned JSON boundary. `protocol template` constructs request-bound responses and
+`protocol validate` checks them before mutation commands run.
 
 ## Layout
 

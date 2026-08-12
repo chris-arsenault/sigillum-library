@@ -167,6 +167,8 @@ class JITDocsTest < Minitest::Test
 
   def test_external_workflow_and_observation_topics_are_independently_routable
     assert_equal :composition_workflow, Partitura.help_data(:composition_workflow)[:topic]
+    assert_equal :protocol, Partitura.help_data(:protocol)[:topic]
+    assert_includes Partitura.help_data(:protocol)[:example], "protocol validate"
     assert_equal :evaluation, Partitura.help_data(:benchmark)[:topic]
     assert_equal :annotation_observation, Partitura.help_data(:annotations)[:topic]
     assert_includes Partitura.help_data(:score_observation)[:next_topics], :annotation_observation

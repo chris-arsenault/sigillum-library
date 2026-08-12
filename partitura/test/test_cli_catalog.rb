@@ -14,7 +14,7 @@ class CLICatalogTest < Minitest::Test
   COMMANDS = %w[
     abandon annotation-observation back benchmark-preference benchmark-review
     benchmark-score build cards catalog commands commit compile evaluate export help
-    lint log next observe preference review runs score-observation start status step view
+    lint log next observe preference protocol review runs score-observation start status step view
   ].freeze
 
   def test_command_catalog_covers_consolidated_cli
@@ -106,6 +106,20 @@ class CLICatalogTest < Minitest::Test
     assert_empty stderr
     assert_includes payload.dig("views", "sounding_views"), "verticals"
     assert_includes payload.dig("views", "secondary_declared_intent_views"), "structure"
+  end
+
+  def test_unknown_profile_error_routes_to_runtime_profile_catalog
+    error = assert_raises(Partitura::AnnotationObservation::Error) do
+      Partitura.annotation_observation(
+        "unused.json", profile: "not_a_profile", annotations: []
+      )
+    end
+    response = error.to_h
+
+    assert_equal "unknown_annotation_profile", response.fetch(:code)
+    assert_includes response.fetch(:message), "openscore_hauptstimme_v1"
+    assert_equal "annotation_observation", response.fetch(:help_topic)
+    assert_includes response.fetch(:repair_instruction), "catalog annotation-profiles"
   end
 
   private

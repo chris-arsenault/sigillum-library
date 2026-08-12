@@ -611,6 +611,9 @@ partitura/bin/partitura preference --reviews REVIEWS.jsonl --preferences PREFERE
 after Ruby-owned sandbox validation; and `step` validates the consumer response,
 promotes or retains the score, and appends one transition. Request IDs bind
 every response to exact source, graph, snapshot, action, and candidate evidence.
+Use `partitura protocol template` to construct those request-bound responses and
+`partitura protocol validate ... --against REQUEST.json` to check the binding before
+calling `evaluate` or `step`.
 When export is enabled, the selection request also carries a canonical score
 observation for each successfully exported candidate. Consumers can inspect that
 observation without parsing MusicXML. It is request-scoped: failed candidates have

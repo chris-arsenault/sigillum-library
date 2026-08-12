@@ -76,7 +76,7 @@ surface syntax, historical reviews, or external-analysis contracts.
   `phrase_placement`, `hybrid`, `harmony`.
 - Reading and output: `projections`, `compile_api`, `export`, `build`.
 - Library retrieval: `cards`, `examples`.
-- Stateful work: `guided`, `composition_graph`, `composition_workflow`, `evaluation`.
+- Stateful work: `guided`, `composition_graph`, `composition_workflow`, `protocol`, `evaluation`.
 - External data: `score_observation`, `annotation_observation`.
 
 Aliases normalize common names such as `graph`, `score_tree`, `chords`, and

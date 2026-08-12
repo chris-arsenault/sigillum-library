@@ -110,6 +110,8 @@ module Partitura
           "and appends one schema-v2 transition.",
           "External producers and selectors return versioned responses; they do not parse, promote, " \
           "or rewrite accepted state directly.",
+          "Use `protocol template` to bind a response to the exact emitted request and `protocol validate` " \
+          "before evaluate or step.",
           "Use `--trajectory-origin agent` for agent runs; Partitura enforces the medium provenance label.",
           "`--no-export` is for fast mechanical experiments; normal selection evidence includes " \
           "exported candidate observations."
@@ -120,7 +122,33 @@ module Partitura
             partitura/bin/partitura step SOURCE.rb --trajectory TRAJECTORY.jsonl \
               --proposals PROPOSAL.json --selection SELECTION.json
           BASH
-        next_topics: %i[composition_graph evaluation score_observation compile_api],
+        next_topics: %i[composition_graph protocol evaluation score_observation compile_api],
+        docs: [
+          "docs/architecture/partitura/08_cli_and_guided_runs.md",
+          "docs/architecture/partitura/09_composition_graph.md"
+        ]
+      },
+      protocol: {
+        use_when: "Construct or validate proposal and selection messages for the composition workflow.",
+        rules: [
+          "Templates parse and validate the request first, then copy its exact request and action bindings.",
+          "A proposal template with `--patch` computes the patch digest, candidate id, target, lens, operator, " \
+          "and touched path from the request; without a patch it emits a valid empty response.",
+          "A selection template defaults to `original`; use `--select CANDIDATE_ID` only with an id from the " \
+          "selection request.",
+          "Response validation requires `--against REQUEST.json` so request ids, candidate ids, and digests " \
+          "are checked rather than only the JSON shape.",
+          "Run validation before `evaluate` or `step`; those commands still revalidate live source state."
+        ],
+        example: <<~BASH.strip,
+            partitura/bin/partitura protocol template proposal-response proposal-request.json \
+              --producer agent --patch candidate.diff --description "Complete the scheduled span"
+            partitura/bin/partitura protocol validate proposal-response.json \
+              --against proposal-request.json
+            partitura/bin/partitura protocol template selection-response selection-request.json \
+              --producer selector --select original --reason "Retain the current score"
+          BASH
+        next_topics: %i[composition_workflow composition_graph compile_api evaluation],
         docs: [
           "docs/architecture/partitura/08_cli_and_guided_runs.md",
           "docs/architecture/partitura/09_composition_graph.md"

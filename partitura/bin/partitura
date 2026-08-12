@@ -26,6 +26,11 @@ def usage
       discover   commands [COMMAND] [--json]
                  catalog [commands|views|procedures|annotation-profiles|examples]
                          [ITEM] [--json]
+                 protocol template proposal-response PROPOSAL_REQUEST.json --producer ID
+                          [--patch DIFF] [--description TEXT] [--candidate-id ID]
+                 protocol template selection-response SELECTION_REQUEST.json --producer ID
+                          [--select original|ID] [--reason TEXT]
+                 protocol validate MESSAGE.json [--against REQUEST.json]
       compose    start <dir> [--procedure ID] [--source FILE] [--brief TEXT]
                            [--miniature] [--force-new]
                  status [<dir>]
@@ -278,6 +283,33 @@ def read_notes(path)
   File.read(path, encoding: Encoding::UTF_8).scrub
 end
 
+def protocol_tool_options(argv)
+  options = {
+    producer: nil, patch: nil, description: nil, candidate_id: nil,
+    select: nil, reason: nil, against: nil
+  }
+  OptionParser.new do |opts|
+    opts.on("--producer ID") { |value| options[:producer] = value }
+    opts.on("--patch FILE") { |value| options[:patch] = value }
+    opts.on("--description TEXT") { |value| options[:description] = value }
+    opts.on("--candidate-id ID") { |value| options[:candidate_id] = value }
+    opts.on("--select ID") { |value| options[:select] = value }
+    opts.on("--reason TEXT") { |value| options[:reason] = value }
+    opts.on("--against FILE") { |value| options[:against] = value }
+  end.parse!(argv)
+  options
+end
+
+def read_protocol_patch(path)
+  return unless path
+
+  path == "-" ? $stdin.read : File.read(path, encoding: Encoding::UTF_8)
+rescue Errno::ENOENT, Errno::EACCES => error
+  raise Partitura::Production::CompositionWorkflow::Error.new(
+    "unreadable_protocol_patch", error.message
+  )
+end
+
 def optional_dir(argv)
   argv.first && !argv.first.start_with?("-") ? argv.shift : nil
 end
@@ -312,6 +344,50 @@ when "catalog"
   rescue KeyError => e
     structured_failure("unknown_catalog_item", e.message,
                        "Run `partitura catalog --json` to list catalogues.", help_topic: "index")
+  end
+
+when "protocol"
+  workflow_guard do
+    options = protocol_tool_options(ARGV)
+    action = ARGV.shift
+    workflow = Partitura::Production::CompositionWorkflow
+    case action
+    when "template"
+      kind = ARGV.shift
+      request_path = ARGV.shift
+      unless kind && request_path && options[:producer]
+        raise workflow::Error.new(
+          "missing_protocol_template_input",
+          "protocol template requires KIND REQUEST.json --producer ID"
+        )
+      end
+      request = workflow::Protocol.read_json(request_path)
+      payload = workflow::ProtocolTools.template(
+        kind,
+        request,
+        producer: options.fetch(:producer),
+        patch: read_protocol_patch(options[:patch]),
+        description: options[:description],
+        candidate_id: options[:candidate_id],
+        selected_candidate_id: options[:select],
+        reason: options[:reason]
+      )
+      puts JSON.pretty_generate(payload)
+    when "validate"
+      message_path = ARGV.shift
+      unless message_path
+        raise workflow::Error.new(
+          "missing_protocol_message", "protocol validate requires MESSAGE.json"
+        )
+      end
+      message = workflow::Protocol.read_json(message_path)
+      against = options[:against] && workflow::Protocol.read_json(options.fetch(:against))
+      puts JSON.pretty_generate(workflow::ProtocolTools.validate(message, against_data: against))
+    else
+      raise workflow::Error.new(
+        "unknown_protocol_action", "protocol action must be template or validate"
+      )
+    end
   end
 
 when "help"

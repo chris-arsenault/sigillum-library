@@ -34,6 +34,7 @@ directory by default.
 | Run a composition procedure | `partitura help guided` | `08_cli_and_guided_runs.md` |
 | Plan or address whole-score structure | `partitura help composition_graph` | `09_composition_graph.md` |
 | Exchange proposals with an external system | `partitura help composition_workflow` | `09_composition_graph.md` |
+| Construct or validate workflow responses | `partitura help protocol` | `08_cli_and_guided_runs.md` |
 | Compare candidates or completed scores | `partitura help evaluation` | `08_cli_and_guided_runs.md` |
 | Observe external MusicXML/MXL | `partitura help score_observation` | `10_score_observation.md` |
 | Bind supported external annotations | `partitura help annotation_observation` | `11_annotation_observation.md` |
