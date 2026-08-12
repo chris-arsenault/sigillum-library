@@ -390,7 +390,7 @@ hybrid],
             partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb melody_analysis --part clarinet
             partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb line --part clarinet
           BASH
-        next_topics: %i[hybrid staff_grid controls phrase_placement export],
+        next_topics: %i[hybrid staff_grid controls phrase_placement examples export],
         docs: ["docs/architecture/partitura/04_examples_manifest.md"]
       }
     }.freeze

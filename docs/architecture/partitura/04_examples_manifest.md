@@ -2,6 +2,13 @@
 
 These examples are executable retrieval anchors for LLM composition work.
 
+The runtime catalogue is authoritative for paths and status:
+
+```bash
+partitura/bin/partitura catalog examples
+partitura/bin/partitura catalog examples production_hybrid --json
+```
+
 ## Production Surface
 
 - `experiments/partitura/production_hybrid_study.rb`

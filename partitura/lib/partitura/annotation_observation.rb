@@ -19,6 +19,35 @@ module Partitura
       "openscore_hauptstimme_v1" => OpenScoreHauptstimme,
       "s3_v1" => S3
     }.freeze
+    PROFILE_CATALOG = {
+      "openscore_hauptstimme_v1" => {
+        annotation_kinds: [
+          { kind: "hauptstimme_annotations", required: true, cardinality: "one_or_more" },
+          { kind: "part_relations", required: false, cardinality: "zero_or_more" }
+        ],
+        targets: %w[prominent_part structural_part_relation material_recurrence seam_boundary],
+        docs: ["docs/architecture/partitura/11_annotation_observation.md"]
+      },
+      "s3_v1" => {
+        annotation_kinds: [
+          { kind: "s3_downbeats", required: true, cardinality: "one_or_more" },
+          { kind: "s3_time_signature", required: true, cardinality: "one_or_more" },
+          { kind: "s3_form", required: true, cardinality: "one_or_more" },
+          { kind: "s3_cadence", required: false, cardinality: "zero_or_more" },
+          { kind: "s3_harmony", required: false, cardinality: "zero_or_more" },
+          { kind: "s3_orchestral_texture", required: false, cardinality: "zero_or_more" }
+        ],
+        targets: %w[
+          form_section cadence_type harmonic_function orchestral_role material_recurrence seam_boundary
+        ],
+        docs: ["docs/architecture/partitura/11_annotation_observation.md"]
+      }
+    }.transform_values do |profile|
+      profile.fetch(:annotation_kinds).each(&:freeze).freeze
+      profile.fetch(:targets).freeze
+      profile.fetch(:docs).freeze
+      profile.freeze
+    end.freeze
 
     class Error < StandardError
       attr_reader :code
@@ -33,8 +62,9 @@ module Partitura
           status: "error",
           code: code,
           message: message,
-          repair_instruction: "Use the documented profile with matching, digest-stable annotation sources.",
-          help_topic: "score_observation",
+          repair_instruction: "Run `partitura catalog annotation-profiles --json`, then use a listed profile " \
+                              "with matching, digest-stable annotation sources.",
+          help_topic: "annotation_observation",
           docs: ["docs/architecture/partitura/11_annotation_observation.md"]
         }
       end
@@ -43,10 +73,15 @@ module Partitura
     module_function
 
     def from_paths(score_observation_path, profile:, annotations:)
+      profile_class = PROFILES[profile.to_s]
+      unless profile_class
+        raise Error.new(
+          "unknown_annotation_profile",
+          "unknown annotation profile: #{profile}; available: #{PROFILES.keys.sort.join(', ')}"
+        )
+      end
       observation = read_observation(score_observation_path)
       sources = SourceSet.new(annotations)
-      profile_class = PROFILES[profile.to_s]
-      raise Error.new("unknown_annotation_profile", "unknown annotation profile: #{profile}") unless profile_class
 
       index = ScoreIndex.new(observation)
       projection = profile_class.new(index, sources).project

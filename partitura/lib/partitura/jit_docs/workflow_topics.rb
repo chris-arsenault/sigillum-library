@@ -65,6 +65,7 @@ module Partitura
       guided: {
         use_when: "Run or resume a guided procedure (composition or recomposition) stage by stage.",
         rules: [
+          "Run `partitura/bin/partitura catalog procedures` to discover current procedure IDs and stages.",
           "The default composition run starts with `start <dir> --source FILE --brief TEXT`; " \
           "section_recomposition does not require a brief.",
           "`status [<dir>]` re-orients a fresh context; commit advances; next/back/log/abandon manage exceptions.",
@@ -203,6 +204,8 @@ module Partitura
         use_when: "Bind a supported external annotation source to an exact score-observation digest.",
         rules: [
           "Start from an immutable score-observation JSON document, not raw MusicXML alone.",
+          "Run `partitura/bin/partitura catalog annotation-profiles --json` to discover profile names, " \
+          "annotation kinds, and output targets.",
           "Choose a named, versioned profile and supply each annotation as KIND=FILE.",
           "Profiles preserve source labels, source-row provenance, canonical score addresses, " \
           "alignment warnings, and factual span features.",

@@ -19,6 +19,8 @@ partitura/bin/partitura help degrees
 partitura/bin/partitura help guided
 partitura/bin/partitura help composition_workflow --json
 partitura/bin/partitura help score_observation
+partitura/bin/partitura commands --json
+partitura/bin/partitura catalog views --json
 ```
 
 The help branch loads independently of the full score runtime so cold-start discovery
@@ -73,7 +75,7 @@ surface syntax, historical reviews, or external-analysis contracts.
   `split_pitch_rhythm`, `absolute`, `marks`, `controls`, `texture`, `staff_grid`,
   `phrase_placement`, `hybrid`, `harmony`.
 - Reading and output: `projections`, `compile_api`, `export`, `build`.
-- Library retrieval: `cards`.
+- Library retrieval: `cards`, `examples`.
 - Stateful work: `guided`, `composition_graph`, `composition_workflow`, `evaluation`.
 - External data: `score_observation`, `annotation_observation`.
 
@@ -82,10 +84,12 @@ Aliases normalize common names such as `graph`, `score_tree`, `chords`, and
 
 ## Focused Readouts
 
-Run the view command without a source to discover the current catalogue:
+Run the view command without a source to discover the current catalogue. Discovery is
+a successful operation and supports structured output:
 
 ```bash
 partitura/bin/partitura view
+partitura/bin/partitura view --json
 ```
 
 Then request only the needed scope:

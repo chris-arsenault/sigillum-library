@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 # The consolidated Partitura CLI. See docs/architecture/partitura/08_cli_and_guided_runs.md.
+#   discover   commands | catalog
 #   compose    start | status | commit | next | back | log | abandon | runs
 #   author     compile | lint | view | help
 #   library    cards
@@ -22,6 +23,9 @@ def usage
   <<~TEXT
     usage: partitura <command> [args]
 
+      discover   commands [COMMAND] [--json]
+                 catalog [commands|views|procedures|annotation-profiles|examples]
+                         [ITEM] [--json]
       compose    start <dir> [--procedure ID] [--source FILE] [--brief TEXT]
                            [--miniature] [--force-new]
                  status [<dir>]
@@ -283,6 +287,33 @@ case command
 when nil, "-h", "--help"
   puts usage
 
+when "commands"
+  require_relative "../lib/partitura/catalog"
+  json = ARGV.delete("--json")
+  item = ARGV.shift
+  begin
+    payload = Partitura::Catalog.data("commands", item)
+    puts(json ? JSON.pretty_generate(payload) : Partitura::Catalog.render("commands", item))
+  rescue KeyError => e
+    structured_failure("unknown_command", e.message, "Run `partitura commands --json` to list commands.",
+                       help_topic: "index")
+  end
+
+when "catalog"
+  json = ARGV.delete("--json")
+  name = ARGV.shift
+  item = ARGV.shift
+  normalized = name&.tr("-", "_")
+  require_partitura unless [nil, "commands", "examples"].include?(normalized)
+  require_relative "../lib/partitura/catalog"
+  begin
+    payload = Partitura::Catalog.data(name, item)
+    puts(json ? JSON.pretty_generate(payload) : Partitura::Catalog.render(name, item))
+  rescue KeyError => e
+    structured_failure("unknown_catalog_item", e.message,
+                       "Run `partitura catalog --json` to list catalogues.", help_topic: "index")
+  end
+
 when "help"
   require_relative "../lib/partitura/jit_docs"
   json = ARGV.delete("--json")
@@ -301,13 +332,10 @@ when "view"
   source = ARGV.shift
   view = (ARGV.shift || "structure").to_sym
   unless source
-    warn "usage: partitura view SOURCE.rb [view] [--part PART] [--bars A-B]"
-    catalog = Partitura::Production::Readout.view_catalog
-    warn ""
-    warn "Views (sounding, primary): #{catalog[:sounding_views].join(', ')}"
-    warn "Views (data): #{catalog[:data_views].join(', ')}"
-    warn "Views (secondary, declared intent): #{catalog[:secondary_declared_intent_views].join(', ')}"
-    exit 2
+    require_relative "../lib/partitura/catalog"
+    payload = Partitura::Catalog.data("views")
+    puts(options[:json] ? JSON.pretty_generate(payload) : Partitura::Catalog.render("views"))
+    exit 0
   end
   begin
     puts Partitura.production_readout(Partitura.load_production_file(source), view, **options)

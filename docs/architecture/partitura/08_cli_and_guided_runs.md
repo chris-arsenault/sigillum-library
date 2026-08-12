@@ -15,6 +15,23 @@ partitura/bin/partitura help index
 
 ## Command Map
 
+### Structured discovery
+
+```bash
+partitura/bin/partitura commands --json
+partitura/bin/partitura commands step --json
+partitura/bin/partitura catalog
+partitura/bin/partitura catalog views --json
+partitura/bin/partitura catalog procedures --json
+partitura/bin/partitura catalog annotation-profiles --json
+partitura/bin/partitura catalog examples --json
+```
+
+The command catalogue reports usage, typed arguments and options, output kind, and
+side-effect class. Runtime catalogues expose values that otherwise drift when copied
+into prose. `view` without a source is also successful discovery; add `--json` for its
+machine-readable catalogue.
+
 ### Authoring and discovery
 
 ```text

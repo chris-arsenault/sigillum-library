@@ -46,6 +46,21 @@ module Partitura
         next_topics: %i[production decision phrase_placement projections],
         docs: ["technique_library/dsl/README.md"]
       },
+      examples: {
+        use_when: "Find a canonical production example, exploratory surface study, or contract fixture.",
+        rules: [
+          "Use the runtime catalogue instead of scanning the experiments tree.",
+          "Only entries with status `canonical` demonstrate the current production API.",
+          "Exploratory and historical entries compare representations; do not copy their containers into new source.",
+          "Contract fixtures verify protocols and may omit the musical completeness expected of examples."
+        ],
+        example: <<~BASH.strip,
+            partitura/bin/partitura catalog examples
+            partitura/bin/partitura catalog examples production_hybrid --json
+          BASH
+        next_topics: %i[production decision projections cards],
+        docs: ["docs/architecture/partitura/04_examples_manifest.md"]
+      },
       build: {
         use_when: "Build one or all entries from a Partitura framework registry.",
         rules: [

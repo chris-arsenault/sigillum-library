@@ -56,15 +56,18 @@ class JITDocsTest < Minitest::Test
                  Partitura.help_data(:documentation_index)[:docs]
   end
 
-  def test_capability_topics_cover_roster_cards_and_build
+  def test_capability_topics_cover_roster_cards_examples_and_build
     roster = Partitura.help_data(:roster)
     cards = Partitura.help_data(:cards)
+    examples = Partitura.help_data(:examples)
     build = Partitura.help_data(:build)
 
     assert_includes roster[:rules].join(" "), "notation_group"
     assert_includes roster[:rules].join(" "), "music21:"
     assert_includes cards[:example], "cards terms"
     assert_includes cards[:docs], "technique_library/dsl/README.md"
+    assert_includes examples[:example], "catalog examples"
+    assert_includes examples[:docs], "docs/architecture/partitura/04_examples_manifest.md"
     assert_includes build[:example], "partitura/bin/partitura build"
     assert_includes build[:docs], "docs/architecture/partitura/06_ruby_framework.md"
   end

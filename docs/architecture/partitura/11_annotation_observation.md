@@ -7,6 +7,13 @@ without adopting the source corpus's parser or creating a second score model.
 
 Focused runtime guidance: `partitura/bin/partitura help annotation_observation`.
 
+Discover current profiles, annotation kinds, and output targets from the runtime:
+
+```bash
+partitura/bin/partitura catalog annotation-profiles --json
+partitura/bin/partitura catalog annotation-profiles s3_v1 --json
+```
+
 ```bash
 partitura/bin/partitura annotation-observation score-observation.json \
   --profile openscore_hauptstimme_v1 \

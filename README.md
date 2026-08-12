@@ -25,7 +25,9 @@ Useful entry points:
 partitura/bin/partitura help llm_design
 partitura/bin/partitura help production
 partitura/bin/partitura help roster
+partitura/bin/partitura commands view --json
 partitura/bin/partitura cards <term>
+partitura/bin/partitura catalog examples
 partitura/bin/partitura start <piece_dir> --source <SOURCE.rb> --brief "<commission>"
 partitura/bin/partitura status <piece_dir>
 ```

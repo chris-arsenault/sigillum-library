@@ -185,6 +185,22 @@ class AnnotationObservationTest < Minitest::Test
     end
   end
 
+  def test_unknown_profile_error_routes_to_runtime_profile_catalog
+    error = assert_raises(Partitura::AnnotationObservation::Error) do
+      Partitura.annotation_observation(
+        "unused.json",
+        profile: "not_a_profile",
+        annotations: []
+      )
+    end
+    response = error.to_h
+
+    assert_equal "unknown_annotation_profile", response.fetch(:code)
+    assert_includes response.fetch(:message), "openscore_hauptstimme_v1"
+    assert_equal "annotation_observation", response.fetch(:help_topic)
+    assert_includes response.fetch(:repair_instruction), "catalog annotation-profiles"
+  end
+
   private
 
   def with_observation

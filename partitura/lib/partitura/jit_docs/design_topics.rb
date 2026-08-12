@@ -7,6 +7,8 @@ module Partitura
         use_when: "Start here for any Partitura task or when unsure which focused topic to request.",
         rules: [
           "Load only the relevant topic docs, not the whole documentation set.",
+          "Use `commands COMMAND --json` for exact arguments and side effects; use `catalog` for current " \
+          "runtime values.",
           "Use `llm_design` to understand the inference-time capability and context architecture.",
           "Use the production surface for new DSL source; surface_lab is exploratory only.",
           "Standardize the container; choose the local surface by musical job.",
@@ -15,7 +17,7 @@ module Partitura
           "Use `documentation_index` only when you need the expanded Markdown catalogue."
         ],
         example: "partitura/bin/partitura help production",
-        next_topics: %i[llm_design production decision roster cards guided composition_graph
+        next_topics: %i[llm_design production decision roster cards examples guided composition_graph
                         composition_workflow evaluation score_observation annotation_observation projections
                         export build documentation_index],
         docs: []

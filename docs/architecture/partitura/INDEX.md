@@ -25,6 +25,8 @@ directory by default.
 
 | Task | First command | Deep reference |
 |---|---|---|
+| Inspect exact command arguments or side effects | `partitura commands COMMAND --json` | `08_cli_and_guided_runs.md` |
+| Discover current runtime values | `partitura catalog` | `03_jit_docs_api.md` |
 | Explain the LLM-context design | `partitura help llm_design` | `LLM_CONTEXT_ARCHITECTURE.md` |
 | Author or inspect source | `partitura help production` | `00_llm_contract.md`, `01_container.md` |
 | Declare instruments or notation staves | `partitura help roster` | `01_container.md` |
