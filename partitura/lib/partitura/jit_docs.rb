@@ -2,12 +2,13 @@
 
 require "json"
 require_relative "marks"
+require_relative "jit_docs/design_topics"
 require_relative "jit_docs/topics"
 require_relative "jit_docs/workflow_topics"
 
 module Partitura
   module JITDocs
-    TOPICS = SURFACE_TOPICS.merge(WORKFLOW_TOPICS).freeze
+    TOPICS = DESIGN_TOPICS.merge(SURFACE_TOPICS).merge(WORKFLOW_TOPICS).freeze
 
     module_function
 
@@ -48,11 +49,14 @@ module Partitura
       TOPICS.keys
     end
 
-    ALIASES = { chords: :harmony, harmony_check: :harmony, run: :guided, workflow: :guided,
+    ALIASES = { architecture: :llm_design, context: :llm_design,
+                chords: :harmony, harmony_check: :harmony, run: :guided, workflow: :guided,
                 score_grid: :texture, score: :texture,
                 fill: :phrase_placement, fill_material: :phrase_placement,
                 anacrusis: :phrase_placement, placement: :phrase_placement,
-                graph: :composition_graph, score_tree: :composition_graph }.freeze
+                graph: :composition_graph, score_tree: :composition_graph,
+                composition_loop: :composition_workflow, ml_workflow: :composition_workflow,
+                benchmark: :evaluation, annotations: :annotation_observation }.freeze
 
     def normalize(topic)
       key = topic.to_s.tr("-", "_").to_sym
@@ -64,7 +68,7 @@ module Partitura
         topic: :unknown,
         use_when: "The requested topic #{topic.inspect} is not known.",
         rules: ["Ask for one of the listed next topics."],
-        example: "partitura_help index",
+        example: "partitura/bin/partitura help index",
         next_topics: topics,
         docs: ["docs/architecture/partitura/INDEX.md"]
       }

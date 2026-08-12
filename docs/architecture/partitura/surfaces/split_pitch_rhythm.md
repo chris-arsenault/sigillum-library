@@ -34,7 +34,7 @@ end
 - Duration tokens accept decimals (`.5`) and fractions (`1/2`, `3/2`, `1/3` for triplets).
 - Pitch tokens may be scalar notes, rests, or bracketed chords.
 - Inline marks attach to the pitch token and travel with the event; the closed mark
-  vocabulary is in `partitura_help marks`.
+  vocabulary is in `partitura/bin/partitura help marks`.
 - Do not hide phrase rhythm inside prose.
 - Use this for editable line design, not dense vertical events.
 - Put crescendos, diminuendos, and shared dynamics in `control`, not in a third parallel stream.

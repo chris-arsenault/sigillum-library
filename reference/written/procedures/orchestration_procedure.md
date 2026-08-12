@@ -287,7 +287,7 @@ Project conventions, not musical content — the WHAT-this-movement-is lives in 
   stream: note `C4:1`, rest `r:1`, chord `[C3,G3]:1`, marks `C4:1{mf,ten}`; flats use `Bb`, sharps
   use `F#`; AUDIBLE dynamics are the dynamic marks (`pp`..`fff`). Text markings are performer-facing
   only: techniques/instructions, not narrative labels, theme names, output ids, audits, or provenance.
-  Bar-sums must validate through `production_view SOURCE.rb compile`.
+  Bar-sums must validate through `partitura compile SOURCE.rb`.
 - **FRAME SPINE** (A4's output) — `symphony/movements/<mvt>_spine.py` exposes: `ROSTER` /
   `ROSTER_NAMES` (the cast, score order, instrument classes), `SECTIONS` (the mid-level seams + per-section
   ql), `TEMPO_EVENTS`, `TOTAL`, `chord_map()`, `refs()`, the carry-forward cells, and the per-section LINES

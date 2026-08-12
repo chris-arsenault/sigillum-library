@@ -47,8 +47,9 @@ Two denormalized search axes, one term:
 - **facet** (a small general vocabulary derived from each card's `behavior`, no tag store):
   ROLE `lead comp counter bass` · INTEREST `rhythm voicing color figuration` · CHARACTER `tender
   tension grief` · ENSEMBLE `section`.
-`ruby tools/lib.rb <term>` lists matches and their DSL specimen paths;
-`... show <NAME>` prints the card metadata plus DSL specimen path; `... terms`
+`partitura/bin/partitura cards <term>` lists matches and their DSL specimen paths;
+`partitura/bin/partitura cards show <NAME>` prints the card metadata plus DSL specimen path;
+`partitura/bin/partitura cards terms`
 lists valid terms. Composing agents are handed a few terms and pull on demand.
 For DSL work, cite the pull as `dsl:<category>/<id>` and read the `.rb` source
 when the auditionable specimen, representation, or technique behavior matters.
@@ -72,7 +73,7 @@ A card = a LOCKED 4-8 bar note-level specimen of one texture, composed at full c
 compose -> machine-measure -> PER-CARD AUDITION RENDER -> USER approves/rejects
 per card -> LOCK approved audition specimens in `technique_library/dsl/cards/`
 -> later work may compose from those models or escalate a new card for audition.
-Audition renders are PER CARD: use `partitura/bin/production_export` on the
+Audition renders are PER CARD: use `partitura/bin/partitura export` on the
 card's `.rb` source to write MusicXML/MIDI. G17 (FIGURATION gate) is calibrated against the locked
 cards' numbers.
 

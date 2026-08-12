@@ -1,22 +1,23 @@
-# Production Compile, Transport, And Export Contract
+# Production Compile And Export Contract
 
-This is the implemented authoring compile/readout and export contract for the Ruby
-production surface.
+The compile response is a machine-readable orientation and repair boundary for the
+production Ruby surface. It reports mechanical validity, current lint observations,
+available reading views, exports, and relevant JIT topics. It does not score musical
+quality.
 
-## Principle
+## Success Response
 
-Compiler responses are not just success/failure. They must tell the composing agent what to request
-next and which focused docs to load.
-
-## Success Response Shape
+`partitura/bin/partitura compile SOURCE.rb` emits JSON. The exact projection arrays are
+generated from the current runtime; this abbreviated shape shows the stable fields:
 
 ```json
 {
   "status": "ok",
   "source_model": "production_hybrid",
   "surface_summary": ["degrees", "intervals", "split_pitch_rhythm", "absolute"],
-  "available_projections": ["adjacency_profile", "recurrence_map", "peak_axes", "rhythm_profile", "articulation_map", "breath_map", "implied_harmony", "ensemble_grid", "exposed_clashes", "composite_stalls", "bar_profile", "figure_timeline", "bar_probe", "line", "verticals", "grid", "timed_events", "controls", "metrics", "melody_analysis", "melody_report"],
-  "secondary_declared_intent_projections": ["structure", "roles", "phrases", "placements", "staff_bars", "foreground", "bass_path", "harmony", "harmony_with_melody", "material_map", "gesture_map"],
+  "lints": [],
+  "available_projections": ["adjacency_profile", "harmony_check", "verticals", "controls"],
+  "secondary_declared_intent_projections": ["structure", "roles", "material_map"],
   "projection_note": "available_projections are SOUNDING (note-derived) and primary; secondary views read authored assertions and only verify them against the music",
   "available_exports": ["musicxml", "midi"],
   "next_help_topics": ["projections", "hybrid", "controls"],
@@ -24,7 +25,12 @@ next and which focused docs to load.
 }
 ```
 
-## Error Response Shape
+Run `partitura/bin/partitura view` without a source for the complete current view
+catalogue. Compile's arrays intentionally distinguish sounding evidence from secondary
+declared intent. Data views such as `composition_snapshot` are also listed by the view
+catalogue.
+
+## Error Response
 
 ```json
 {
@@ -38,45 +44,47 @@ next and which focused docs to load.
 }
 ```
 
-## Required Compiler Behavior
+Every production compile error identifies a repair action and focused topic. Checks cover
+source mechanics such as references, pitch/rhythm alignment, bar boundaries, spans,
+roster ranges, checkpoints, controls, and exportability. They do not determine whether a
+valid phrase is expressive or appropriate.
 
-- Every error names a `help_topic`.
-- Every error includes a repair instruction.
-- Every response lists only relevant docs.
-- Compiler checks remain mechanical and authoring-surface oriented.
-- No response should pretend to judge musical quality.
-
-## Implemented Calls
+## Ruby API
 
 ```ruby
-piece = Partitura.load_production_file("experiments/partitura/production_hybrid_study.rb")
+piece = Partitura.load_production_file("SOURCE.rb")
 piece.compile_response
-Partitura.production_readout(piece, :compile)
-Partitura.production_readout(piece, :harmony_with_melody, bars: 1..4)
+Partitura.production_readout(piece, :verticals, bars: 1..4)
 Partitura.production_musicxml(piece)
+Partitura.production_midi(piece)
 ```
 
-CLI:
+## CLI
 
 ```bash
-partitura/bin/production_view experiments/partitura/production_hybrid_study.rb compile
-partitura/bin/production_view experiments/partitura/production_hybrid_study.rb compile
-partitura/bin/production_export experiments/partitura/production_hybrid_study.rb --stem production_hybrid_study
+partitura/bin/partitura compile SOURCE.rb
+partitura/bin/partitura lint SOURCE.rb
+partitura/bin/partitura view SOURCE.rb verticals --bars 1-4
+partitura/bin/partitura export SOURCE.rb --stem study
+partitura/bin/partitura help compile_api
 ```
 
-## Transport Shape
+`view SOURCE.rb compile` remains compatible, but the dedicated `compile` verb is the
+canonical command.
 
-Exporters consume the compiled model directly. Use `Partitura.production_musicxml(piece)` and
-`Partitura.production_midi(piece)`; there is no serialized JSON handoff between the production
-model and those exporters.
+## Serialization Boundaries
 
-`Partitura.composition_snapshot(piece)` is a separate, versioned, read-only JSON projection for
-analysis and external consumers. It includes the Composition Graph, concrete score records, stable
-phrase/placement provenance, and deterministic graph/snapshot digests. It is not an authoring
-format and is not used by the MusicXML or MIDI exporters. See `09_composition_graph.md`.
+MusicXML and MIDI exporters consume the compiled Ruby model directly. They do not read a
+public transport JSON file.
 
-## Related JIT Help
+Partitura exposes separate read-only JSON contracts for other purposes:
 
-```bash
-partitura/bin/partitura_help compile_api
-```
+- `composition_snapshot` contains a production source's Composition Graph and concrete
+  score records with stable provenance and digests;
+- `score-observation` records facts from external MusicXML/MXL;
+- `annotation-observation` binds supported external analytical sources to an exact score
+  observation;
+- composition-workflow protocol messages bind external proposals and selections to exact
+  source and snapshot state.
+
+None is an authoring format, exporter handoff, or competing score authority.

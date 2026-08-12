@@ -22,7 +22,8 @@ def usage
   <<~TEXT
     usage: partitura <command> [args]
 
-      compose    start <dir> [--procedure ID] [--source FILE] [--miniature] [--force-new]
+      compose    start <dir> [--procedure ID] [--source FILE] [--brief TEXT]
+                           [--miniature] [--force-new]
                  status [<dir>]
                  commit [<dir>] [--span A-B | --unit LABEL] [--stage-complete] --notes FILE|-
                  next [<dir>] --reason TEXT        (skip; logged as skipped_audit)
@@ -50,13 +51,14 @@ def usage
                                       --outcome a|b|tie|abstain --rater ID --reason TEXT
       author     compile SOURCE
                  lint SOURCE
-             view SOURCE [view] [--part ID] [--bars A-B] [--json]
+                 view SOURCE [view] [--part ID] [--bars A-B] [--json]
                  help [topic] [--json]
       library    cards <query terms> | cards show <ID> | cards terms
       output     export SOURCE [--stem STEM]
                  build REGISTRY.rb [movement|all]
 
-    Start here: `partitura help index`. Composing a piece end-to-end: `partitura start <dir>`.
+    Start here: `partitura help index`.
+    Compose end-to-end: `partitura start <dir> --source SOURCE.rb --brief "commission"`.
   TEXT
 end
 
@@ -282,7 +284,7 @@ when nil, "-h", "--help"
   puts usage
 
 when "help"
-  require_partitura
+  require_relative "../lib/partitura/jit_docs"
   json = ARGV.delete("--json")
   topic = (ARGV.shift || "index").to_sym
   puts(json ? Partitura::JITDocs.render_json(topic) : Partitura::JITDocs.render(topic))

@@ -3,7 +3,7 @@
 **The acceptance test (the user's bar): mute the accompaniment — you must still hear the chord
 progression from the melody ALONE.** A line that needs its chords to carry the harmony has failed.
 This is the defining craft of our melody-library cards. It is made objective by
-reading the card's DSL projection with `production_view CARD.rb harmony_with_melody`:
+reading the card's DSL projection with `partitura view CARD.rb harmony_with_melody`:
 the chord the line implies must match the intended progression bar by bar.
 
 This document is the synthesis of four research surveys — read them for the depth and the citations:
@@ -82,7 +82,7 @@ is not what these cards teach.
 ## The gate — run it, read the weak bars, fix them
 
 ```
-partitura/bin/production_view technique_library/dsl/cards/melody/mel2_desc_fifths.rb harmony_with_melody
+partitura/bin/partitura view technique_library/dsl/cards/melody/mel2_desc_fifths.rb harmony_with_melody
 ```
 
 Read the line alone, the harmony readout, and the exported audition. **A card passes when the intended

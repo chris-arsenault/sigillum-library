@@ -1,6 +1,11 @@
 # Partitura LLM-First Review — Findings and Remediation Plan
 
 Date: 2026-07-07
+
+Historical record: commands, gaps, and implementation status below describe the review
+snapshot. Use `docs/architecture/partitura/INDEX.md` and `partitura help index` for the
+current runtime contract.
+
 Scope: DSL ergonomics, written library reference material, and DSL musical references,
 reviewed against the repo's stated purpose (LLM-only composition aid; discoverable;
 just-in-time documentation; context-frugal; multi-style composing; views that trigger
@@ -13,8 +18,7 @@ highest-priority items.
 Implementation status (2026-07-07): every remediation in Areas 1-6 is implemented,
 including the Area 4 guided procedure wrapper and CLI consolidation
 (`docs/architecture/partitura/08_cli_and_guided_runs.md`, milestones M1-M3 plus the M4
-doc rewiring; still open: a `section_recomposition` manifest and a consumer-repo trial
-run). The consolidated `partitura` binary carries all verbs; the composition procedure
+doc rewiring). The consolidated `partitura` binary carries all verbs; the composition procedure
 runs stage-at-a-time via `partitura start/status/commit/next/back/log`. Also
 implemented: bar-marker/onset/span-overflow compile requirements; verified
 staff_bar checkpoints; closed mark vocabulary with `marks` help topic; phrase/section

@@ -15,16 +15,16 @@ Purpose: executable production authoring surface. Proves the supported productio
 - mechanism-backed gesture prose
 - readouts: `phrases`, `timed_events`, `verticals`, `roles`, `line`, `harmony_with_melody`,
   `material_map`, `gesture_map`, `compile`
-- export: MusicXML and MIDI through `production_export`
+- export: MusicXML and MIDI through `partitura export`
 
 Run:
 
 ```bash
-partitura/bin/production_view experiments/partitura/production_hybrid_study.rb compile
-partitura/bin/production_view experiments/partitura/production_hybrid_study.rb harmony_with_melody --bars 1-4
-partitura/bin/production_view experiments/partitura/production_hybrid_study.rb verticals --bars 1-4
-partitura/bin/production_view experiments/partitura/production_hybrid_study.rb line --part clarinet
-partitura/bin/production_export experiments/partitura/production_hybrid_study.rb --stem production_hybrid_study
+partitura/bin/partitura compile experiments/partitura/production_hybrid_study.rb
+partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb harmony_with_melody --bars 1-4
+partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb verticals --bars 1-4
+partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb line --part clarinet
+partitura/bin/partitura export experiments/partitura/production_hybrid_study.rb --stem production_hybrid_study
 ```
 
 ## Baseline Prototype
@@ -55,9 +55,18 @@ production API.
 ## Example Commands
 
 ```bash
-partitura/bin/production_view experiments/partitura/production_hybrid_study.rb structure
-partitura/bin/production_view experiments/partitura/production_hybrid_study.rb compile
+partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb structure
+partitura/bin/partitura compile experiments/partitura/production_hybrid_study.rb
 partitura/bin/surface_view experiments/partitura/surface_lab/hybrid_phrase_staff_32.rb structure
 partitura/bin/surface_view experiments/partitura/surface_lab/staff_grid_32.rb bars
 partitura/bin/surface_view experiments/partitura/surface_lab/phrase_placement_32.rb placements
 ```
+
+## Stateful Workflow Fixture
+
+- `partitura/test/fixtures/composition_workflow_study.rb`
+
+Purpose: a hand-authored graph-enabled source used to verify scheduling, isolated patch
+evaluation, exact-byte promotion, trajectory persistence, blind review, and completed-score
+measurement. Its tests under `partitura/test/test_composition_workflow*.rb` are the
+executable contract; the fixture is not a standalone composition example.

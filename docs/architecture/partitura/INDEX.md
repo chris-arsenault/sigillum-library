@@ -1,115 +1,129 @@
-# Orchestral DSL Documentation Index
+# Partitura Documentation Index
 
-Audience: LLM agents only. This DSL is designed for agent composition work, not human hand-entry.
+Audience: LLM agents. Production source is designed for agent composition and
+machine-checked interchange, not direct human hand-entry.
 
-Load this index first, then load only the files relevant to the current composing decision.
+Partitura extends an LLM's effective domain context at inference time. The CLI routes a
+task to small JIT topics; the topics route to focused Markdown only when more depth is
+needed; typed DSL objects and versioned schemas retain specificity; projections provide
+non-linear reads over one canonical source; and persisted state lets a later context
+resume without replaying the whole history. No model fine-tuning is required.
 
-## Implemented Production Surface
-
-Use the production Ruby surface for new source:
-
-```bash
-partitura/bin/partitura_help production
-partitura/bin/production_view experiments/partitura/production_hybrid_study.rb structure
-partitura/bin/production_view experiments/partitura/production_hybrid_study.rb harmony_with_melody --bars 1-4
-partitura/bin/production_view experiments/partitura/production_hybrid_study.rb verticals --bars 1-4
-partitura/bin/production_view experiments/partitura/production_hybrid_study.rb line --part clarinet
-partitura/bin/production_export experiments/partitura/production_hybrid_study.rb --stem production_hybrid_study
-```
-
-Production entry points:
-
-- source file top-level: `production_piece "Title" do ... end`
-- Ruby load API: `Partitura.load_production_file(path)`
-- Ruby readout API: `Partitura.production_readout(piece, :verticals, bars: 1..4)`
-- CLI readouts: `structure`, `roles`, `phrases`, `placements`, `timed_events`, `verticals`,
-  `staff_bars`, `foreground`, `bass_path`, `line`, `harmony`, `harmony_with_melody`,
-  `harmony_check`, `range_check`, `lint`, `controls`, `material_map`, `gesture_map`,
-  `composition_graph`, `composition_plan`, `composition_resolution`, `composition_snapshot`,
-  `compile` (run `production_view` with no arguments for the full view list)
-- CLI export: `production_export SOURCE.rb --stem STEM`
-- Ruby framework registry build: `partitura_build REGISTRY.rb [movement|all]`
-
-## Read Order
-
-1. For every DSL task, read `00_llm_contract.md`.
-2. If composing a new score, read `reference/written/procedures/partitura/README.md` and
-   `reference/written/procedures/partitura/dsl_composition_procedure.md`.
-3. If choosing representation, read `02_surface_decision.md`.
-4. If writing source, read `01_container.md` plus the relevant surface file.
-5. If asking the runtime for help, read `03_jit_docs_api.md`.
-6. If importing a user's hand-edited MusicXML, read `07_hand_edit_import.md`.
-7. If planning a whole score, recursive refinement, or an external ML consumer, read
-   `09_composition_graph.md`.
-8. If validating an external MusicXML/MXL corpus score, read
-   `10_score_observation.md`.
-9. If binding external analytical annotations to a validated score, read
-   `11_annotation_observation.md`.
-
-## Core Files
-
-- `00_llm_contract.md` - non-negotiable LLM-first rules.
-- `01_container.md` - the standardized container architecture.
-- `02_surface_decision.md` - how to choose the local notation surface.
-- `03_jit_docs_api.md` - JIT documentation call/response contract.
-- `04_examples_manifest.md` - executable examples and what each proves.
-- `05_compile_api.md` - implemented LLM-native compiler and export contract.
-- `06_ruby_framework.md` - Ruby build/audit layer and Python writer boundary.
-- `07_hand_edit_import.md` - importing hand-edited MusicXML back into DSL
-  source with `Production::MusicXMLImport` (convert + zero-diff verify gate).
-- `08_cli_and_guided_runs.md` - consolidated CLI and resumable, mechanically gated composition
-  procedures.
-- `09_composition_graph.md` - implemented stable plan/realization graph and
-  Ruby-owned recursive composition workflow, with a versioned boundary for
-  external ML proposers, critics, and policies.
-- `10_score_observation.md` - deterministic, content-addressed observation
-  projection for external MusicXML and compressed MXL scores.
-- `11_annotation_observation.md` - versioned binding of supported analytical
-  annotations to canonical Partitura score observations.
-
-## Composition Procedure
-
-New composition work runs as a guided run: the runtime feeds one stage at a time, gates
-each transition mechanically, and keeps an audit log in `<piece_dir>/procedure/`.
+Read `LLM_CONTEXT_ARCHITECTURE.md` when explaining or evaluating that general pattern.
+For actual work, start with the runtime:
 
 ```bash
-partitura/bin/partitura start <piece_dir> --source <SOURCE.rb>
-partitura/bin/partitura status        # fresh contexts re-orient with this one command
-partitura/bin/partitura commit --notes -
+partitura/bin/partitura
+partitura/bin/partitura help index
 ```
 
-- `reference/written/procedures/partitura/README.md`
-- `reference/written/procedures/partitura/dsl_composition/` (manifest + principles + stages)
-- design: `docs/architecture/partitura/08_cli_and_guided_runs.md`
+Load only the topic files named by the response. Do not load this entire directory by
+default.
 
-## Surface Files
+## Task Routes
 
-- `surfaces/degrees.md` - key-relative degrees plus rhythm.
+| Task | First command | Deep reference |
+|---|---|---|
+| Explain the LLM-context design | `partitura help llm_design` | `LLM_CONTEXT_ARCHITECTURE.md` |
+| Author or inspect source | `partitura help production` | `00_llm_contract.md`, `01_container.md` |
+| Choose a notation surface | `partitura help decision` | `02_surface_decision.md` |
+| Run a composition procedure | `partitura help guided` | `08_cli_and_guided_runs.md` |
+| Plan or address whole-score structure | `partitura help composition_graph` | `09_composition_graph.md` |
+| Exchange proposals with an external system | `partitura help composition_workflow` | `09_composition_graph.md` |
+| Compare candidates or completed scores | `partitura help evaluation` | `08_cli_and_guided_runs.md` |
+| Observe external MusicXML/MXL | `partitura help score_observation` | `10_score_observation.md` |
+| Bind supported external annotations | `partitura help annotation_observation` | `11_annotation_observation.md` |
+| Find a technique card | `partitura cards <term>` | `technique_library/dsl/README.md` |
+
+The commands in this table omit the repository-relative prefix for readability. From the
+repository root, run them as `partitura/bin/partitura ...`.
+
+## Core Contracts
+
+- `LLM_CONTEXT_ARCHITECTURE.md` - reusable inference-time capability pattern and its
+  limits.
+- `00_llm_contract.md` - non-negotiable authoring and context rules.
+- `01_container.md` - canonical source container and roster contract.
+- `02_surface_decision.md` - local notation-surface selection.
+- `03_jit_docs_api.md` - structured JIT help and navigation contract.
+- `04_examples_manifest.md` - executable examples and what each demonstrates.
+- `05_compile_api.md` - compile responses, structured repair, and export boundary.
+- `06_ruby_framework.md` - Ruby build/export ownership and project-root behavior.
+- `07_hand_edit_import.md` - deterministic MusicXML-to-event conversion and zero-diff
+  verification for a hand-edited source range.
+- `08_cli_and_guided_runs.md` - canonical CLI, guided manifests, workflow protocol,
+  review, and benchmark commands.
+- `09_composition_graph.md` - stable plan/realization graph, snapshots, and external
+  composition boundary.
+- `10_score_observation.md` - content-addressed external MusicXML/MXL facts.
+- `11_annotation_observation.md` - versioned bindings from supported annotations to a
+  score observation.
+
+## Production Surface
+
+New source uses `production_piece`. The Ruby loader is
+`Partitura.load_production_file(path)`. The CLI exposes compilation, views, export, and
+framework builds:
+
+```bash
+partitura/bin/partitura compile experiments/partitura/production_hybrid_study.rb
+partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb structure
+partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb \
+  verticals --bars 1-4
+partitura/bin/partitura export experiments/partitura/production_hybrid_study.rb \
+  --stem production_hybrid_study
+```
+
+Run `partitura/bin/partitura view` without a source to list the current view catalogue.
+Representative data views include `composition_graph`, `composition_plan`,
+`composition_resolution`, and `composition_snapshot`; the catalogue is authoritative.
+
+## Surface References
+
+- `surfaces/degrees.md` - key-relative pitch plus rhythm.
 - `surfaces/intervals.md` - anchor plus relative intervals.
-- `surfaces/split_pitch_rhythm.md` - independent pitch and rhythm streams.
-- `surfaces/absolute.md` - absolute pitch stream plus rhythm.
-- `surfaces/staff_grid.md` - bar-local verified vertical/staff-grid checkpoints.
-- `surfaces/texture.md` - sounding texture container plus vertical score grid.
-- `surfaces/phrase_placement.md` - phrase definitions placed into bar/beat locations.
-- `surfaces/controls.md` - anchors, dynamics, hairpins, pedals, text, and tempo timeline.
-- `surfaces/hybrid.md` - recommended default: phrase layer plus staff checkpoints.
+- `surfaces/split_pitch_rhythm.md` - independently editable pitch and rhythm streams.
+- `surfaces/absolute.md` - explicit pitch/register with rhythm or fused events.
+- `surfaces/texture.md` - sounding score-grid texture with embedded lines.
+- `surfaces/staff_grid.md` - verified vertical checkpoints.
+- `surfaces/phrase_placement.md` - named material, entrances, pickups, and sub-bar fills.
+- `surfaces/controls.md` - anchors, meters, tempo, dynamics, hairpins, pedals, clefs,
+  text, and harp pedals.
+- `surfaces/hybrid.md` - recommended combination for mixed passages.
 
-## Runtime Discovery
+## Guided Composition
 
-All commands live in one binary; run it bare for the verb map:
+Do not read the entire procedure before starting. The runtime emits one stage at a time:
 
 ```bash
-partitura/bin/partitura                    # verb map (compose | author | library | output)
-partitura/bin/partitura help index         # JIT topics (production, decision, marks, ...)
-partitura/bin/partitura view SOURCE.rb     # projections (bare/unknown view lists them all)
-partitura/bin/partitura cards <term>       # technique-card search
+partitura/bin/partitura start <piece_dir> --source <SOURCE.rb> \
+  --brief "<commission>"
+partitura/bin/partitura status <piece_dir>
+partitura/bin/partitura commit <piece_dir> --notes -
 ```
 
-The old per-command bins (`partitura_help`, `production_view`, `production_export`,
-`partitura_build`) remain as shims. The help response is
-intentionally short and names the next topics to request.
+The default manifest is
+`reference/written/procedures/partitura/dsl_composition/manifest.json`; its current
+pass-note schema is `decisions | carries | improvements | musical_verdict`, with optional
+`graph_paths`. The stage payload names the exact artifacts and docs needed next.
+
+## External Analysis And Composition
+
+Use the Composition Graph and snapshot when the source is Partitura Ruby and stable
+authored identities matter. Use `score-observation` when the accepted source is external
+MusicXML/MXL. Add `annotation-observation` only when binding a supported annotation
+profile to an exact score-observation digest.
+
+External proposers, critics, and policies exchange versioned JSON with Partitura. They do
+not own source parsing, graph semantics, candidate validation, promotion, or trajectory
+continuity. Learned features and weights remain outside this repository.
 
 ## Exploratory Material
 
-The `experiments/partitura/surface_lab/*.rb` files are executable exploration studies for
-comparing notation options. They are not the production authoring API.
+`experiments/partitura/surface_lab/*.rb` compares representation ideas. It is not the
+production API. `partitura/bin/surface_view` remains separate from the consolidated CLI
+for that reason.
+
+The old `partitura_help`, `production_view`, `production_export`, and `partitura_build`
+binaries remain compatibility shims. Current documentation uses the consolidated
+`partitura/bin/partitura` command.

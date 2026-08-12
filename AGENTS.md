@@ -5,9 +5,11 @@
 - One CLI for everything: run `partitura/bin/partitura` bare for the verb map, then
   `partitura/bin/partitura help index` and read `docs/architecture/partitura/INDEX.md`.
   Load only the focused topic docs it names, not the whole documentation set.
+- Explaining the LLM-facing architecture? Run `partitura/bin/partitura help llm_design`
+  and read `docs/architecture/partitura/LLM_CONTEXT_ARCHITECTURE.md`.
 - Composing a new piece end-to-end? Do NOT read the whole procedure - run it:
-  `partitura/bin/partitura start <piece_dir> --source <SOURCE.rb>` emits one stage at a
-  time; `partitura/bin/partitura status` re-orients a fresh context.
+  `partitura/bin/partitura start <piece_dir> --source <SOURCE.rb> --brief "<commission>"`
+  emits one stage at a time; `partitura/bin/partitura status` re-orients a fresh context.
 - Searching for a technique card? `partitura/bin/partitura cards <term>`
   (`technique_library/dsl/README.md` explains citation format).
 

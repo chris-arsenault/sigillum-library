@@ -5,6 +5,8 @@ external MusicXML. It lets analysis tools validate and observe a score without
 turning that score into production DSL source and without making another
 language authoritative for musical semantics.
 
+Focused runtime guidance: `partitura/bin/partitura help score_observation`.
+
 ```bash
 partitura/bin/partitura score-observation path/to/score.musicxml
 partitura/bin/partitura score-observation path/to/score.mxl

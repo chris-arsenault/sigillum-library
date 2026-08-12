@@ -1,4 +1,4 @@
-# DSL New-Composition Procedure v2 (pointer)
+# DSL New-Composition Procedure (pointer)
 
 This procedure is now split for stage-at-a-time loading and executed as a guided run.
 Do not read all stages up front; the runtime feeds you exactly the stage you are in.
@@ -6,7 +6,8 @@ Do not read all stages up front; the runtime feeds you exactly the stage you are
 ## Run It
 
 ```bash
-partitura/bin/partitura start <piece_dir> --source <SOURCE.rb>   # emits Stage 0 only
+partitura/bin/partitura start <piece_dir> --source <SOURCE.rb> \
+  --brief "<commission>"                                        # emits Stage 0 only
 partitura/bin/partitura status                                   # re-orient (fresh contexts start here)
 partitura/bin/partitura commit --notes -                         # pass note in, next stage out
 partitura/bin/partitura commit --span A-B --notes -              # one span-pass unit (Stage 5)

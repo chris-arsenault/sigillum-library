@@ -204,7 +204,7 @@ return that span to its living identity and measure again.
 
 - **Note-list grammar** — production DSL absolute-event streams: note `C4:1`, rest `r:1`,
   chord `[Eb3,G3]:1`, marks `C4:1{mf,ten}`; flats use `Bb`, sharps `F#`; audible dynamics `pp`..`fff`.
-  Bar-sums validate through `production_view SOURCE.rb compile`.
+  Bar-sums validate through `partitura compile SOURCE.rb`.
 - **Frame spine** — `symphony/movements/<mvt>_merged/spine.py` exposes `ROSTER`/`ROSTER_NAMES`,
   `SECTIONS`, `MOTION` (the per-section texture contract), `TEMPO_EVENTS`, `TOTAL`, `chord_map()`,
   the carry-forward cells, and `refs()`.

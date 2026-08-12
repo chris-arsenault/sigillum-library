@@ -3,6 +3,43 @@
 module Partitura
   module JITDocs
     WORKFLOW_TOPICS = {
+      composition_graph: {
+        use_when: "Plan or recursively refine a whole score, or expose stable scopes to an external consumer.",
+        rules: [
+          "The production Ruby source remains authoritative; the Composition Graph is a derived projection.",
+          "Graph-aware source declares stable piece, span, and placement IDs.",
+          "Declare recurring non-sounding identity with `material`; exact sounding notes remain in phrases.",
+          "Use scoped `plan { requires ... }` blocks; open and partial requirements are valid during composition.",
+          "The closed requirement facets are harmony, material, role, part, texture, control, and checkpoint.",
+          "The authored relations are derives_from, returns_to, and depends_on; contains and realizes are derived.",
+          "Use `composition_graph` and `composition_resolution` to inspect plans; use " \
+          "`composition_snapshot --json` for external analysis.",
+          "A bound requirement proves authored coverage only, never musical quality."
+        ],
+        example: <<~RUBY.strip,
+            production_piece "Study", id: :study do
+              material(:theme_a) { identity pitch: "rising fourth", rhythm: "short short long" }
+              roster { part :clarinet, "Clarinet", music21: "Clarinet" }
+
+              section :opening, "Statement", bars: 1..2 do
+                span :opening_call, bars: 1..2 do
+                  plan do
+                    requires :material, :theme_a, relation: :statement
+                    requires :role, :foreground
+                  end
+                  phrase :theme_a_call, surface: :absolute,
+                          material: :theme_a, relation: :statement do
+                    events "C5:2 F5:2 | E5:4"
+                  end
+                  placement :theme_a_call, id: :theme_a_call_clarinet,
+                            part: :clarinet, role: :foreground, at: "bar 1 beat 1"
+                end
+              end
+            end
+          RUBY
+        next_topics: %i[container phrase_placement projections guided composition_workflow],
+        docs: ["docs/architecture/partitura/09_composition_graph.md"]
+      },
       harmony: {
         use_when: "Declare the span's per-bar chord track, or check declared harmony against the sounding notes.",
         rules: [
@@ -28,15 +65,19 @@ module Partitura
       guided: {
         use_when: "Run or resume a guided procedure (composition or recomposition) stage by stage.",
         rules: [
-          "start <dir> [--procedure ID] [--source FILE] [--miniature] begins a run; status re-orients a fresh " \
-          "context; commit --notes - advances; next/back/log/abandon manage exceptions.",
+          "The default composition run starts with `start <dir> --source FILE --brief TEXT`; " \
+          "section_recomposition does not require a brief.",
+          "`status [<dir>]` re-orients a fresh context; commit advances; next/back/log/abandon manage exceptions.",
           "Pass notes are `field: value` lines, one per schema field (later lines without a key continue the " \
           "previous field). \"none\" is legal for a field with truly nothing to report; absence is not.",
+          "Required fields are decisions, carries, improvements, and musical_verdict.",
           "Use the optional `graph_paths:` field to reference exact Composition Graph scopes without copying " \
           "realized music into the pass note.",
-          "weaknesses/outputs/improvements feed forward to later payloads as OPEN THREADS.",
+          "Only carries feed forward as OPEN THREADS; realized music stays in source, and fixable " \
+          "weaknesses are fixed now.",
           "Gate glossary: artifact_exists (named file written), pass_note_complete (all schema fields present), " \
-          "source_compiles, lint_max (no lints at/above level), export_current (export newer than source), " \
+          "source_compiles, composition_graph_valid/bound, lint_max (no lints at/above level), " \
+          "export_current (export newer than source), " \
           "min_units (N unit commits before --stage-complete), units_cover_source_bars (every bar had its own " \
           "span pass), no_open_skips / no_stale_stages (skipped or reopened-then-not-recommitted stages block " \
           "closeout).",
@@ -44,26 +85,81 @@ module Partitura
           "--stage-complete; a bare commit is refused."
         ],
         example: <<~TEXT.strip,
-            bars: 5-8
             decisions: viola takes the call's tail as a countermelody; cello holds the ground
-            graph_paths: span:development_5_8, material:call_tail
-            weaknesses: bar 7 downbeat is the third homorhythmic attack in a row
+            carries: the return still needs a registral destination in the final section
             improvements: composed an off-beat entry for the viola at b6.5 (was a stamped pad)
-            outputs: countermelody cell (b6) available for the return
             musical_verdict: the span now answers the call instead of accompanying it
+            graph_paths: span:development_5_8, material:call_tail
           TEXT
-        next_topics: %i[production harmony projections marks],
-        docs: ["reference/written/procedures/partitura/dsl_composition/principles.md"]
+        next_topics: %i[production composition_graph harmony projections marks],
+        docs: [
+          "docs/architecture/partitura/08_cli_and_guided_runs.md",
+          "reference/written/procedures/partitura/dsl_composition/principles.md"
+        ]
+      },
+      composition_workflow: {
+        use_when: "Exchange graph-addressed proposals, critic evidence, and selections with an external system.",
+        rules: [
+          "The accepted Ruby source and Ruby-owned Composition Graph remain authoritative.",
+          "`observe` emits one schema-v1 proposal_request bound to exact source, graph, snapshot, " \
+          "action, and trajectory state.",
+          "`evaluate` applies explicit patches only to isolated sources, compiles them, and emits " \
+          "immutable candidate evidence.",
+          "`step` revalidates live bindings, promotes exact validated bytes or retains original, " \
+          "and appends one schema-v2 transition.",
+          "External producers and policies return versioned responses; they do not parse, promote, " \
+          "or rewrite accepted state directly.",
+          "Use `--trajectory-origin agent` for agent runs; Partitura enforces the medium provenance label.",
+          "`--no-export` is for fast mechanical experiments; normal selection evidence includes " \
+          "exported candidate observations."
+        ],
+        example: <<~'BASH'.strip,
+            partitura/bin/partitura observe SOURCE.rb --trajectory TRAJECTORY.jsonl
+            partitura/bin/partitura evaluate SOURCE.rb --trajectory TRAJECTORY.jsonl --proposals PROPOSAL.json
+            partitura/bin/partitura step SOURCE.rb --trajectory TRAJECTORY.jsonl \
+              --proposals PROPOSAL.json --selection SELECTION.json
+          BASH
+        next_topics: %i[composition_graph evaluation score_observation compile_api],
+        docs: [
+          "docs/architecture/partitura/08_cli_and_guided_runs.md",
+          "docs/architecture/partitura/09_composition_graph.md"
+        ]
+      },
+      evaluation: {
+        use_when: "Create blinded comparisons or record criterion-specific preferences for " \
+                  "transitions or completed scores.",
+        rules: [
+          "Transition review replays stored trajectory evidence; completed-score review compares " \
+          "two explicit source files.",
+          "Public A/B bundles contain MusicXML/MIDI and criterion, but omit candidate or system-run mappings.",
+          "Private append-only records retain the blind mapping and exact evidence identity.",
+          "Transition review separates scale (local/seam/section/global/export) from criterion " \
+          "(coherence/identity/seams/orchestration/reserve).",
+          "Preference purpose is explicit; training and held-out transition judgments cannot share one review.",
+          "Completed-score measurements are descriptive diagnostics, not musical-quality scores."
+        ],
+        example: <<~'BASH'.strip,
+            partitura/bin/partitura benchmark-score SOURCE.rb
+            partitura/bin/partitura benchmark-review LEFT.rb RIGHT.rb \
+              --left-run RUN_A --right-run RUN_B --benchmark BENCHMARK --case CASE \
+              --criterion coherence --reviews REVIEWS.jsonl --output BUNDLES
+          BASH
+        next_topics: %i[composition_workflow composition_graph score_observation],
+        docs: [
+          "docs/architecture/partitura/08_cli_and_guided_runs.md",
+          "docs/architecture/partitura/09_composition_graph.md"
+        ]
       },
       export: {
         use_when: "Export production DSL source to MusicXML and MIDI.",
         rules: [
           "Exporters consume the compiled model directly; there is no serialized handoff.",
           "The Ruby exporter fills only silent gaps; it does not compose material.",
-          "Use `production_export SOURCE.rb --stem STEM` when writing MusicXML and MIDI."
+          "Use `partitura/bin/partitura export SOURCE.rb --stem STEM` when writing MusicXML and MIDI.",
+          "Export writes under the source repository's outputs/<source-relative-directory>/<stem>/ directory."
         ],
-        example: <<~BASH.strip,
-            partitura/bin/production_export experiments/partitura/production_hybrid_study.rb --stem production_hybrid_study
+        example: <<~'BASH'.strip,
+            partitura/bin/partitura export experiments/partitura/production_hybrid_study.rb --stem production_hybrid_study
           BASH
         next_topics: %i[compile_api projections],
         docs: ["docs/architecture/partitura/05_compile_api.md"]
@@ -94,16 +190,31 @@ module Partitura
           "The projection is versioned, deterministic, read-only, and content-addressed.",
           "Partitura resolves MXL, polyphony, voices, staves, transposition, ties, rests, and rational timing.",
           "The projection reports score facts, not inferred form, orchestral quality, or training labels.",
-          "Use `annotation-observation` to bind supported external annotations to a score-observation digest.",
-          "Annotation profiles preserve source labels and compute factual span features; they do not assign quality.",
           "Keep source selection, dataset splits, learned features, and weights outside Partitura."
         ],
         example: "partitura/bin/partitura score-observation path/to/score.mxl",
-        next_topics: %i[composition_graph projections compile_api],
-        docs: [
-          "docs/architecture/partitura/10_score_observation.md",
-          "docs/architecture/partitura/11_annotation_observation.md"
-        ]
+        next_topics: %i[annotation_observation composition_graph projections compile_api],
+        docs: ["docs/architecture/partitura/10_score_observation.md"]
+      },
+      annotation_observation: {
+        use_when: "Bind a supported external annotation source to an exact score-observation digest.",
+        rules: [
+          "Start from an immutable score-observation JSON document, not raw MusicXML alone.",
+          "Choose a named, versioned profile and supply each annotation as KIND=FILE.",
+          "Profiles preserve source labels, source-row provenance, canonical score addresses, " \
+          "alignment warnings, and factual span features.",
+          "A well-formed semantic row that cannot bind fails instead of disappearing silently; " \
+          "excluded source defects remain row-addressed warnings.",
+          "Annotation observations do not create quality labels, learned representations, dataset splits, or weights."
+        ],
+        example: <<~'BASH'.strip,
+            partitura/bin/partitura annotation-observation score-observation.json \
+              --profile openscore_hauptstimme_v1 \
+              --annotation hauptstimme_annotations=annotations.csv \
+              --annotation part_relations=part_relations.csv
+          BASH
+        next_topics: %i[score_observation evaluation composition_graph],
+        docs: ["docs/architecture/partitura/11_annotation_observation.md"]
       }
     }.freeze
   end

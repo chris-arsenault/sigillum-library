@@ -55,7 +55,7 @@ end
 - Use explicit accidentals: `#1`, `b6`.
 - Use bracketed degree chords like `[1,3,5]` when harmony should remain key-relative.
 - Use inline event marks only when the mark belongs to that single event; the closed mark
-  vocabulary is in `partitura_help marks`.
+  vocabulary is in `partitura/bin/partitura help marks`.
 - Use octave markers only when necessary: `1'` is an octave up, `1,` is an octave down
   (stack for two octaves: `1''`).
 - Do not mix absolute pitches inside the same `degrees` phrase.

@@ -1,8 +1,7 @@
-# research/ — research foundations & studies
+# Research
 
-Background research the design draws on (metadata about the work, not the plan — the plan is
-`symphony/plan/`). Not ordered.
+Reusable background studies that inform craft, representation, and technique cards.
 
-- `research_foundations.md` — the influence frameworks and the style brief.
-- `iconic_melody_study.md` — iconic solo-melody architecture (study only).
-- `neural_theme_generation.md` — the neural theme-generation white paper (the NN experiment's outcome).
+- `research_foundations.md` - source and influence framework.
+- `iconic_melody_study.md` - iconic solo-melody architecture.
+- `chiptune_nes_composition.md` - NES/2A03 compositional constraints and techniques.

@@ -1,11 +1,12 @@
-# architecture/ — technical-subsystem architecture
+# Architecture
 
-Durable architecture records for the engine's subsystems (technical, not the musical plan — the plan is
-`symphony/plan/`). Not ordered.
+Durable records for the reusable library's technical subsystems.
 
-- `theme_generator.md` — the kernel-constrained theme generator (`generation/theme_gen/`).
-- `feature_extraction.md` — the musical feature-extraction subsystem (`Production::MelodyAnalysis`).
-- `partitura.md` - LLM-first Partitura design summary.
-- `partitura/INDEX.md` - modular Partitura docs; start here for focused retrieval.
-- `partitura/09_composition_graph.md` - stable plan/realization graph for recursive whole-score
-  composition.
+- `partitura/INDEX.md` - focused Partitura documentation router.
+- `partitura/LLM_CONTEXT_ARCHITECTURE.md` - how the CLI, JIT docs, typed DSL,
+  projections, and persisted state extend LLM capability without fine-tuning.
+- `partitura.md` - current Partitura design summary.
+- `partitura/09_composition_graph.md` - stable plan/realization graph and external
+  composition protocol.
+- `feature_extraction.md` - implemented `Production::MelodyAnalysis` readouts and
+  their interpretation boundary.

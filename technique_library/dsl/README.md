@@ -49,9 +49,9 @@ The comment is never a substitute for the notes.
 Use:
 
 ```bash
-ruby tools/lib.rb <term>
-ruby tools/lib.rb show <NAME>
-ruby tools/lib.rb terms
+partitura/bin/partitura cards <term>
+partitura/bin/partitura cards show <NAME>
+partitura/bin/partitura cards terms
 ```
 
 The lookup names the DSL specimen path for every matching card. The `show` command
@@ -126,5 +126,5 @@ A card source must have:
 
 - a `production_piece` source containing auditionable note material;
 - a local surface suited to the card's content, not a default event dump;
-- successful `production_view SOURCE.rb compile`;
+- successful `partitura/bin/partitura compile SOURCE.rb`;
 - an index entry here using the `dsl:<category>/<id>` citation form.

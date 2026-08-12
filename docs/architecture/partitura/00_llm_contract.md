@@ -1,7 +1,13 @@
 # LLM Contract
 
-This DSL is LLM-native, LLM-only, and LLM-first. No human is expected to author production source
-directly. Optimize for agent comprehension, local retrieval, and self-correction.
+This DSL is LLM-native, LLM-only, and LLM-first. No human is expected to author
+production source directly. Optimize for agent comprehension, local retrieval,
+self-correction, and exact resumption across context changes.
+
+Partitura supplies domain capability at inference time; it does not fine-tune the model.
+The agent should rely on executable discovery, typed source, focused projections, and
+persisted state instead of holding a raw documentation wiki or the full score in context.
+See `LLM_CONTEXT_ARCHITECTURE.md` for the general design.
 
 ## Rules
 
@@ -31,6 +37,8 @@ directly. Optimize for agent comprehension, local retrieval, and self-correction
 - Hidden loops or repeaters that generate sounding music.
 - Choosing the old fused `pitch:duration` note-list surface as the default.
 - Loading the full documentation set when one topic file is enough.
+- Treating prose, a projection, or a saved JSON observation as a second editable source of truth.
+- Reconstructing a guided run from chat history when `partitura status` can return exact state.
 
 ## Required Agent Habit
 
@@ -40,4 +48,4 @@ Before writing a passage, decide:
 2. Which local notation surface fits that job?
 3. Which projection will reveal whether the notation stayed readable?
 
-Use `partitura_help decision` when unsure.
+Use `partitura/bin/partitura help decision` when unsure.

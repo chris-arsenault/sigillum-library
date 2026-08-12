@@ -1,505 +1,295 @@
-# The `partitura` Command And Guided Procedure Runs
+# The `partitura` CLI And Stateful Workflows
 
-Status: IMPLEMENTED (2026-07-27), including guided runs and the separate
-whole-score ML exchange described below.
+Status: implemented. `partitura/bin/partitura` is the canonical command. The older
+per-command binaries remain compatibility shims but are not used in current examples.
 
-- `partitura/bin/partitura` is the consolidated CLI (all verbs below); the old bins are
-  exec shims. Engine: `partitura/lib/partitura/guided/` (manifest, run, gates,
-  pass_note, payload). Tests: `partitura/test/test_guided_runs.rb`.
-- First manifest: `reference/written/procedures/partitura/dsl_composition/`
-  (manifest.json + principles.md + stages/*.md, split content-preserving from the
-  former monolith, which is now a pointer page).
-- Implementation deltas from the design below: the `tests_pass` gate is deferred
-  (running the library suite inside a consumer-repo closeout is wrong-shaped; revisit
-  when a consumer-side check command exists); `runs` scans a given root rather than
-  only PARTITURA_PROJECT_ROOT; `commit --source` may register/update the source path.
-- Second manifest shipped: `section_recomposition`
-  (`reference/written/procedures/partitura/section_recomposition/`) - diagnose,
-  repair contract, iterative recompose, seams/adherence, closeout; its Diagnose stage
-  deliberately omits the `source_compiles` gate because a piece that fails the
-  notation gates is a primary reason to start that procedure.
-- Incentive hardening (2026-07-07, after the good-enough-lens review): pass-note content
-  now has consequences - `weaknesses`/`outputs`/`improvements` (non-"none") feed forward
-  into every later payload as OPEN THREADS, and reopened stages get their prior pass note
-  back with an editing-pass instruction. Iterative stages reject bare commits; span
-  stages require `units_cover_source_bars` (attention coverage, not a quality score) and
-  closeouts are iterative audit stages gated on `min_units:1` after export. `verdict`
-  became `musical_verdict`; the stage progress counter was dropped from payloads. The
-  principles now carry the improvement-not-remediation doctrine (EDITING mode vs AUDIT
-  mode, edit-means-improve-not-delete, drafting-lens decay traversal, feedback-is-
-  structural) with no dimension ranking installed.
-- Pass-note slim-down (2026-07-10): the schema dropped `bars` and `outputs` (realized
-  material lives in the score and is read via the `material_map` projection, not
-  re-authored in prose) and replaced `weaknesses` with `carries`. A carry is the only
-  field that feeds forward as an OPEN THREAD, and it holds only what a stage genuinely
-  cannot close — a cross-stage dependency, an unknown, or half-finished material. A
-  fixable weakness is fixed in source now, never logged and deferred. `Stage#full_ledger`
-  (from `"threads": "all"`) replaced the old field-set toggle; the recent-window/full-
-  ledger split is now purely about how much carry history a stage sees. Schema is now
-  `decisions | carries | improvements | musical_verdict`. Manifest versions bumped
-  (dsl_composition 3→4, section_recomposition 2→3).
-- Still open from M4: a real trial run in the consumer repo.
+The CLI is the executable entry point for Partitura's progressive-disclosure design. A
+bare invocation exposes the verb map; JIT help routes the agent to one focused topic;
+authoring commands return derived views or structured errors; and stateful workflows
+persist what a later context needs to resume.
 
-Companion finding source: `docs/reviews/2026-07-07_partitura_llm_first_review.md`
-(Areas 1, 4, 5).
-
----
-
-## Motivation
-
-Two problems from the LLM-first review drive this design:
-
-1. **Entry and discovery are fragmented.** Seven separate `bin/` scripts, card search
-   hidden in `tools/lib.rb`, no single command that answers "what can I do here?", and
-   CLI errors that dead-end (raw stack traces, no view list).
-2. **The composition procedure is a 763-line monolith** that every agent must hold in
-   context for the whole run, while the procedure itself mandates fresh-context span
-   agents — each of which re-pays the full document. Agents satisfy procedures they can
-   see all of; they skim them. The procedure must become an interactive protocol where
-   the runtime owns the sequence and emits one stage at a time.
-
-## Prior Art (LLM-guided workflow tooling, non-music)
-
-| Tool | Mechanism | What we take |
-|---|---|---|
-| GitHub Spec Kit | specify→clarify→plan→tasks→implement; each phase emits a named artifact the next phase requires; templates as guardrails; state in workspace files | Artifact-gated transitions; templates constrain output; no daemon — state is plain files. Avoid its weakness: state implicit in branch/dir conventions ("where am I?" requires inference) |
-| AWS Kiro | requirements.md→design.md→tasks.md with hard approval gates ("agent cannot proceed until approved"); sanctioned "Quick Plan" fast path | Gates attach to artifact review, not stage names; make the fast path official (`--miniature`) or agents invent unofficial ones |
-| Task Master | `next_task` as central primitive — agent never holds the plan, queries it; core toolset trimmed for ~70% token reduction | "What's next" is a runtime query, never agent memory; payloads aggressively compact |
-| BMAD method | Phase documents become mandatory context for later phases; "story files" bundle complete context for one unit; quality gates at transitions | Stage payload = self-contained work order naming exactly which artifacts to read; fresh agent needs one command to orient |
-| Beads (Yegge) | Git-backed JSONL event log + cache; parallel-agent merge safety | Append-only JSONL audit log; git-friendly; human-inspectable; no hidden source of truth |
-| git bisect / rebase sequencer, terraform plan/apply, DB migrations | Tool-owned stateful session (`start/good/bad/skip/reset`), resumable, replayable log; plan artifact gates apply; linear steps + applied-ledger | The tool owns sequence and state; the operator supplies judgments at checkpoints; `--continue/--abort` verbs; ledger of applied steps |
-
-Design principles distilled:
-
-1. One binary, verb subcommands; bare invocation teaches.
-2. The runtime is the source of truth for "what's next."
-3. Artifacts gate transitions; every transition is recorded.
-4. Stage payloads follow the JIT help contract and name docs instead of inlining them.
-5. State is git-friendly plain files in the consumer project.
-6. Escape hatches are official, named, and logged — never silent.
-7. A fresh agent is fully oriented by one command (`partitura status`).
-
----
-
-## Decisions (from the design session)
-
-| # | Decision | Choice |
-|---|---|---|
-| D1 | CLI scope | **Full consolidation**: one `partitura` binary owns all verbs; existing bins become shims, removed later |
-| D2 | Enforcement | **Hard gates, logged skips**: `commit` refuses on failed gate or empty pass note; `next` exists but records `skipped_audit`; closeout blocks while skips are unresolved |
-| D3 | State layout | **Visible `procedure/` directory** inside the piece directory — state, log, and musical artifacts all plainly listable, nothing hidden |
-| D4 | Generality | **Generic over music-composition procedure manifests only** — ground-up composition, section recomposition, feedback addressing, card writing. Explicitly NOT a generic workflow manager; the engine may assume a piece directory, a DSL source, and compile/lint/export gates |
-
----
-
-## Part A — The `partitura` Binary
-
-Location: `partitura/bin/partitura`. All other bins become one-line shims that exec the
-corresponding verb (kept through a transition window, then removed).
-
-```text
-usage: partitura <command> [args]
-
-  compose    start | status | commit | next | back | log | abandon | runs
-  author     compile | lint | view | help
-  library    cards <query> | cards show <ID>
-  output     export | build
+```bash
+partitura/bin/partitura
+partitura/bin/partitura help index
 ```
 
-Verb map:
+## Command Map
 
-| Verb | Replaces | Notes |
-|---|---|---|
-| `partitura help [topic] [--json]` | `partitura_help` | unchanged contract |
-| `partitura view SOURCE [view] [--bars A-B] [--part id]` | `production_view` | bare/unknown view lists all views (primary + secondary, matching the compile response) |
-| `partitura compile SOURCE` | `production_view SOURCE compile` | promoted to a verb; response includes `lints:` |
-| `partitura lint SOURCE [--json]` | (new) | lint pass alone; see review Area 1 |
-| `partitura export SOURCE [--stem S]` | `production_export` | |
-| `partitura build REGISTRY [movement\|all]` | `partitura_build` | |
-| `partitura cards QUERY` / `cards show ID` | `ruby tools/lib.rb` | with the Area-5 search fixes (facet-keyword routing, substring over ids/behavior text, ranked shortlist) |
-| `partitura start/status/commit/...` | (new) | Part B |
-
-Cross-cutting contracts:
-
-- `--json` on every verb.
-- Every error follows the compile-response error contract: `code`, `message`,
-  `repair_instruction`, `help_topic`, `docs`. No raw stack traces reach the agent.
-- Bare `partitura` prints the verb map — this plus the AGENTS.md pointer fix is the
-  repo's cold-start discovery path.
-- `PARTITURA_PROJECT_ROOT` / cwd resolution rules unchanged.
-
-`surface_view` (exploratory lab) intentionally stays outside the consolidated binary;
-the lab is not part of the production surface.
-
----
-
-## Part B — Guided Procedure Runs
-
-### Concepts
-
-- **Procedure**: a versioned manifest of ordered stages with gates, drawn from the
-  music-composition procedure family (D4).
-- **Run**: one execution of a procedure against one piece directory.
-- **Stage**: one unit of fresh attention. May be `iterative` (the Stage-5 span loop),
-  in which case it accepts repeated unit commits before a closing commit.
-- **Gate**: a mechanical check evaluated at `commit`. Gates are floors, never musical
-  judgments (consistent with `00_llm_contract.md`). The musical judgment lives in the
-  pass note, whose *presence and completeness* the gate enforces — never its content
-  quality.
-- **Pass note**: the structured judgment-and-handoff record the procedure mandates
-  (`decisions | carries | improvements | musical_verdict`). It records judgment, not an
-  inventory of the music — realized material is read from the score.
-- **Payload**: what the runtime emits after `start`/`status`/`commit` — the next
-  stage's work order.
-
-### State layout (D3)
-
-Everything visible, inside the piece directory:
+### Authoring and discovery
 
 ```text
-movements/mvt5/
-  procedure/run.json          # machine state (current stage, statuses, config)
-  procedure/log.jsonl         # append-only audit log
-  procedure/brief.md          # Stage 0 artifact
-  procedure/form_contract.md  # Stage 1 artifact
+help [topic] [--json]
+compile SOURCE.rb
+lint SOURCE.rb
+view SOURCE.rb [view] [--part ID] [--bars A-B] [--json]
+cards <query terms>
+cards show <ID>
+cards terms
+export SOURCE.rb [--stem STEM]
+build REGISTRY.rb [movement|all]
+```
+
+- `help` returns the fixed JIT response contract. Unknown topics return the complete
+  topic list rather than a dead end.
+- `compile` emits the structured compile response as JSON and exits nonzero on a compile
+  error.
+- `lint` renders authoring warnings. Error-level lints block compile; warning-level
+  lints require judgment rather than automatic rewriting.
+- `view` reads one projection from the canonical source. Run it without a source to see
+  the current sounding, data, and declared-intent view catalogues.
+- `cards` searches reusable technique specimens by category, facet, identifier, and
+  behavior text.
+- `export` validates the source and writes MusicXML and MIDI under
+  `<source_repo>/outputs/<source_relative_directory>/<stem>/`.
+- `build` exports one or all entries from a Ruby framework registry.
+
+`surface_view` remains a separate exploratory command because the surface lab is not a
+production authoring API.
+
+### Guided composition procedures
+
+```text
+start <piece_dir> [--procedure ID] [--source FILE] [--brief TEXT]
+                  [--miniature] [--force-new]
+status [<piece_dir>] [--json]
+commit [<piece_dir>] [--span A-B | --unit LABEL]
+                     [--stage-complete] [--source FILE] --notes FILE|-
+next [<piece_dir>] --reason TEXT
+back [<piece_dir>] --to sN --reason TEXT
+log [<piece_dir>] [--json]
+abandon [<piece_dir>] --reason TEXT
+runs [<root>]
+```
+
+The default `dsl_composition` manifest requires a caller-supplied `--brief`; the runtime
+does not invent a commission. `section_recomposition` does not require one.
+
+### Graph-addressed composition exchange
+
+```text
+observe SOURCE.rb --trajectory FILE
+evaluate SOURCE.rb --trajectory FILE --proposals FILE|-
+step SOURCE.rb --trajectory FILE --proposals FILE [--selection FILE]
+review --trajectory FILE --reviews FILE --output DIR
+       --transition ID --candidate ID --against original|ID
+       --scale SCALE --criterion CRITERION
+preference --reviews FILE --preferences FILE --review ID
+           --outcome a|b|tie|abstain --rater ID
+           --purpose training|held_out_evaluation --reason TEXT
+```
+
+`observe`, `evaluate`, and `step` accept `--no-export`, `--trajectory-origin`,
+`--trajectory-quality`, and `--run-id` where the workflow parser applies them. Agent
+origin is paired with the enforced `medium` provenance label; deterministic origin uses
+`unrated`. These labels describe source provenance, not musical quality.
+`step` requires `--selection` whenever evaluation emits a selection request; it may be
+omitted only when the current state produces no such request.
+
+### External observation and completed-score evaluation
+
+```text
+score-observation MUSICXML|MXL
+annotation-observation SCORE_OBSERVATION.json --profile PROFILE
+                       --annotation KIND=FILE [--annotation KIND=FILE ...]
+benchmark-score SOURCE.rb
+benchmark-review LEFT.rb RIGHT.rb --left-run ID --right-run ID
+                 --benchmark ID --case ID --criterion CRITERION
+                 --reviews FILE --output DIR
+benchmark-preference --reviews FILE --preferences FILE --review ID
+                     --outcome a|b|tie|abstain --rater ID --reason TEXT
+```
+
+## Error Boundary
+
+Partitura-owned domain failures use structured fields:
+
+```json
+{
+  "status": "error",
+  "code": "surface_event_count_mismatch",
+  "message": "pitches has 2 events but rhythm has 1 in bar 1",
+  "repair_instruction": "Make the two streams align event-by-event.",
+  "help_topic": "split_pitch_rhythm",
+  "docs": ["docs/architecture/partitura/surfaces/split_pitch_rhythm.md"]
+}
+```
+
+The error says what failed, how to repair the mechanical problem, and which small topic
+to request. It does not claim to judge the resulting music.
+
+Argument usage failures from the command parser remain short usage messages with exit
+code 2. Domain validation failures use the structured envelope.
+
+## Guided Procedure Model
+
+A guided procedure is a versioned JSON manifest plus focused stage Markdown. The engine
+owns the stage sequence and emits only the current work order. This lets a fresh context
+resume without loading an entire long procedure or inferring state from prose.
+
+Implemented manifests:
+
+- `dsl_composition` v5: eleven stages from commission and form through export,
+  audition, and closeout;
+- `section_recomposition` v3: diagnosis, repair contract, iterative recomposition,
+  seam/adherence review, and closeout.
+
+The consumer project owns visible run state:
+
+```text
+<piece_dir>/
+  procedure/run.json
+  procedure/log.jsonl
+  procedure/brief.md
+  procedure/form_contract.md
   procedure/research_commitments.md
   procedure/return_ledger.md
-  dsl/mvt5.rb                 # the score source (location recorded in run.json)
+  <registered score source>
 ```
 
-Musical artifacts are first-class files agents read and edit directly; `run.json` holds
-pointers, never content. Everything is committed to git; `log.jsonl` is append-only so
-parallel span agents merge cleanly (Beads lesson).
+Only artifacts declared by the selected manifest are required. `run.json` stores
+current state and pointers. `log.jsonl` is the append-only transition history. Musical
+content remains in the registered score source, not in procedure state.
 
-`run.json` shape:
-
-```json
-{
-  "procedure": "dsl_composition",
-  "procedure_version": 2,
-  "mode": "full",
-  "source": "dsl/mvt5.rb",
-  "started_at": "2026-07-07T18:00:00Z",
-  "current_stage": "s5",
-  "stages": {
-    "s0": { "status": "committed" },
-    "s5": { "status": "in_progress", "units_committed": ["bars 1-8", "bars 9-16"] }
-  },
-  "artifacts": {
-    "brief": "procedure/brief.md",
-    "form_contract": "procedure/form_contract.md"
-  },
-  "open_flags": { "skipped_audits": ["s4"], "divergences_unresolved": 1 }
-}
-```
-
-`log.jsonl` events (one JSON object per line):
-
-```json
-{"ts":"...","event":"run_started","procedure":"dsl_composition","mode":"full"}
-{"ts":"...","event":"stage_committed","stage":"s1","gates":[{"id":"artifact_exists:form_contract","ok":true}],"pass_note":{...}}
-{"ts":"...","event":"unit_committed","stage":"s5","unit":"bars 9-16","pass_note":{...}}
-{"ts":"...","event":"stage_skipped","stage":"s4","reason":"...","flag":"skipped_audit"}
-{"ts":"...","event":"stage_reopened","stage":"s5","reason":"merge pass found seam weakness b32-33"}
-{"ts":"...","event":"run_closed","verdict":"..."}
-```
-
-### Command protocol
+### Starting and resuming
 
 ```bash
-partitura start <dir> --brief "commission" [--procedure dsl_composition] [--source FILE] [--miniature]
-partitura status [<dir>]
-partitura commit [--span A-B | --stage-complete] --notes FILE|-
-partitura next --reason TEXT
-partitura back --to sN --reason TEXT
-partitura log [--json] [--stage sN]
-partitura abandon --reason TEXT
-partitura runs        # list runs under the project root
+partitura/bin/partitura start <piece_dir> --source <SOURCE.rb> \
+  --brief "<commission>"
+partitura/bin/partitura status <piece_dir>
 ```
 
-The whole-score composition workflow uses the same binary but a separate,
-digest-bound protocol. It does not advance guided procedure stages:
+`start` creates the run and emits the first stage only. `--miniature` applies the
+manifest's declared stage collapses; it does not skip the pass order or invent an
+unrecorded fast path. `--force-new` archives an existing run before starting another.
 
-```bash
-partitura observe SOURCE.rb --trajectory TRAJECTORY.jsonl
-partitura evaluate SOURCE.rb --trajectory TRAJECTORY.jsonl \
-  --proposals PROPOSAL_RESPONSE.json
-partitura step SOURCE.rb --trajectory TRAJECTORY.jsonl \
-  --proposals PROPOSAL_RESPONSE.json --selection SELECTION_RESPONSE.json
-partitura review --trajectory TRAJECTORY.jsonl --reviews REVIEWS.jsonl \
-  --output REVIEW_BUNDLES --transition TRANSITION_ID \
-  --candidate CANDIDATE_ID --against original --scale global \
-  --criterion coherence
-partitura preference --reviews REVIEWS.jsonl --preferences PREFERENCES.jsonl \
-  --review REVIEW_ID --outcome a --rater OPAQUE_RATER_ID \
-  --purpose training --reason "A preserves the return more clearly"
-partitura benchmark-score COMPLETED_SOURCE.rb
-partitura benchmark-review LEFT.rb RIGHT.rb \
-  --left-run RUN_A --right-run RUN_B --benchmark BENCHMARK_ID --case CASE_ID \
-  --criterion coherence --reviews EVALUATION_REVIEWS.jsonl --output BUNDLES
-partitura benchmark-preference --reviews EVALUATION_REVIEWS.jsonl \
-  --preferences EVALUATION_PREFERENCES.jsonl --review REVIEW_ID \
-  --outcome a --rater OPAQUE_RATER_ID --reason "A has the clearer whole arc"
-```
+`status` is the re-entry command. It returns the current stage, named inputs, open carry
+history, gates, pass-note schema, and next command. A new context should run it rather
+than reconstructing progress from the transcript.
 
-- `observe` rebuilds the Ruby Composition Graph, schedules one action, and emits
-  a versioned `proposal_request`.
-- `evaluate` validates the request-bound proposals, applies every patch to an
-  isolated source, compiles and optionally exports it, and emits a
-  `selection_request`. Python never performs mechanical validation.
-- `step` repeats validation against live source, accepts an explicit candidate
-  or the explicit `original`, atomically promotes validated bytes when needed,
-  and appends one contiguous transition to the requested trajectory file.
-- `review` reconstructs the transition's exact pre-edit source, verifies its
-  full composition snapshot, replays a mechanically valid candidate, and
-  emits anonymous A/B MusicXML and MIDI. The public bundle does not contain
-  candidate IDs; the private review JSONL retains the blind mapping. Review
-  schema v2 requires one explicit coherence, identity, seams, orchestration,
-  or reserve criterion independently from review scale.
-- `preference` appends one blinded A/B/tie/abstain judgment. `--purpose` is
-  mandatory and separates training from held-out evaluation; the same review
-  cannot be entered in both sets. The preference inherits the review criterion
-  rather than attempting to infer it from the rater's prose.
-- `benchmark-score` compiles and exports a completed source and reports
-  mechanical validity plus exact structural, identity, boundary, reserve, and
-  fingerprint diagnostics. The diagnostics are descriptive measurements, not
-  musical-quality scores.
-- `benchmark-review` accepts completed sources from two opaque evaluation run
-  IDs and emits an anonymous A/B MusicXML/MIDI bundle. Its private JSONL mapping
-  is separate from the public reviewer manifest.
-- `benchmark-preference` records one held-out, criterion-specific evaluation
-  decision. Unlike transition preferences, score-evaluation preferences cannot
-  be marked as training data.
-- `--no-export` is available for fast mechanical experiments. Normal operation
-  exports candidate MusicXML and MIDI before selection.
+### Pass-note schema
 
-Trajectory schema v2 stores the full pre-edit snapshot and exact Ruby source,
-not only digests, together with all accepted and rejected candidate evidence.
-Use `--trajectory-origin agent` for agent-driven runs; Partitura assigns and
-enforces their known `medium` quality label. Deterministic trajectories are
-`unrated`. `--run-id` supplies a stable experiment identity when the
-path-derived default is not appropriate.
-
-The trajectory, private-review, preference, and bundle paths are explicit
-because active candidates and learned evidence are generated experiment state
-and normally stay out of Git. The accepted musical authority remains the
-production Ruby source.
-
-- **`start`** creates `procedure/`, writes `run.json`, logs `run_started`, emits the
-  Stage 0 payload and nothing else. Refuses if a run already exists (resume with
-  `status`; `--force-new` archives the old run directory first). `--miniature` is the
-  sanctioned fast path (Kiro's Quick Plan): activates the manifest's declared miniature
-  collapse, recorded in state — agents never need to invent shortcuts. `--brief` carries
-  the caller's commission (affect, form, key, tempo, style, forces); procedures with
-  `"brief": "required"` in their manifest refuse to start without one, and the payload
-  shows it as `COMMISSION:` while the opening stage is in progress. The tool never
-  invents a brief — left to their own priors, composing agents converge on one palette,
-  so the differentiation must come from the orchestrator.
-- **`status`** is the fresh-agent re-entry point: run summary (piece, procedure, mode,
-  open flags), the current stage payload, and pointers to committed artifacts. A span
-  agent spawned mid-run is fully oriented by `cd <dir> && partitura status`.
-- **`commit`** (preferred transition, D2):
-  1. validates the pass note against the stage's schema — refuses empty
-     decisions/verdict fields;
-  2. runs the stage's mechanical gates — refuses on failure with the standard error
-     contract (code, repair_instruction, help_topic);
-  3. appends `stage_committed` (or `unit_committed` for iterative stages) to the log;
-  4. emits the next stage payload (or the next-unit prompt for iterative stages).
-  `--notes -` reads the pass note from stdin; a file path is also accepted.
-- **`next`** (escape hatch, D2): advances without a pass note. Requires `--reason`.
-  Logs `stage_skipped` with flag `skipped_audit`. Open skips are surfaced by `status`
-  and **block the closeout stage's gate**: Stage 10 `commit` fails with
-  `closeout_blocked` while any `skipped_audit` is unresolved (resolved by returning via
-  `back` and committing, or by an explicit resolution note recorded against the skip).
-- **`back --to sN`** reopens an earlier stage (the procedure explicitly allows returning
-  to stages); logs `stage_reopened` with the reason. Later stages' statuses become
-  `stale`, not erased — the log keeps the full history.
-- **`abandon`** closes the run as abandoned with a reason; the directory remains for
-  the record.
-
-### Stage payload contract
-
-Payloads reuse the JIT help response contract so agents already know the shape:
+Both implemented manifests require these fields:
 
 ```text
-# Stage 5 — Span Pass (unit 3 of ~7)
-
-use_when: compose one musical phrase/arc with all sounding voices, then verdict it.
-inputs:
-  - procedure/form_contract.md (rows for bars 17-24)
-  - procedure/research_commitments.md (open commitments: 2)
-  - previous unit pass note: bars 9-16 (log)
-work: <the stage instructions, rendered from stages/05_span_pass.md>
-pass_note_schema: decisions | carries | improvements | musical_verdict
-gate: source_compiles + pass_note_complete
-next: partitura commit --span 17-24 --notes -
-docs:
-  - reference/written/procedures/partitura/dsl_composition/stages/05_span_pass.md
+decisions: why this pass took its chosen direction
+carries: cross-stage dependency, unknown, or half-finished material that cannot close here
+improvements: what became musically better during this pass
+musical_verdict: the current judgment of the music
+graph_paths: optional exact Composition Graph targets
 ```
 
-Rules:
+`graph_paths` is optional. The other four fields must be present and non-empty; `none`
+is valid only when a field genuinely has nothing to report. Continuation lines belong to
+the most recent field.
 
-- The payload **names** docs and artifacts; it inlines only the stage's own
-  instructions. Anti-pollution is the point: an agent loads its stage file plus the
-  named artifacts, nothing else.
-- Payloads include run-specific context the monolith could not: open divergences,
-  unused commitments count, previous pass-note pointers, skipped-audit flags.
-- `--json` yields the same payload structured.
+Only `carries` feed forward as open threads. Realized material stays in the score and is
+read through source and projections. A weakness that can be fixed during the current
+stage is fixed there rather than logged for an unspecified later pass.
 
-### Gate vocabulary
+Example:
 
-Small, mechanical, closed (extended only in the manifest schema, not per-piece):
+```text
+decisions: viola takes the call's tail as a countermelody; cello keeps the ground
+carries: the return still needs a registral destination in the final section
+improvements: replaced the repeated pad with an off-beat viola answer in bars 6-7
+musical_verdict: the span now answers the call instead of merely accompanying it
+graph_paths: span:development, material:call_tail
+```
 
-| Gate | Check |
+### Iterative stages
+
+An iterative stage accepts one or more unit commits before a closing commit:
+
+```bash
+partitura/bin/partitura commit <piece_dir> --span 5-8 --notes pass-note.md
+partitura/bin/partitura commit <piece_dir> --stage-complete --notes pass-note.md
+```
+
+The span stage uses `units_cover_source_bars`, so every source bar must belong to a
+committed span unit before the stage closes. The closeout uses an audit unit and requires
+at least one audit commit. These are attention-coverage checks, not quality scores.
+
+### Mechanical gates
+
+The implemented gate vocabulary is closed:
+
+| Gate | Checks |
 |---|---|
-| `artifact_exists:<id>` | the manifest-declared artifact file exists and is non-empty |
-| `pass_note_complete` | pass note parses and required fields are non-empty |
-| `source_compiles` | `partitura compile` returns ok |
-| `composition_graph_valid` | the source's Composition Graph has no invalid identities, declarations, references, or cycles |
-| `composition_graph_bound` | every declared plan requirement is mechanically bound |
-| `lint_max:<level>` | no lints at or above `<level>` (ties into review Area 1 linter) |
-| `export_current` | export artifacts exist and are newer than the source |
-| `tests_pass` | repo test suite passes (closeout) |
-| `no_open_skips` | no unresolved `skipped_audit` flags (closeout) |
-| `no_stale_stages` | no stage left `stale` after a `back` (closeout) |
+| `artifact_exists:<id>` | Declared artifact exists and is non-empty. |
+| `pass_note_complete` | Required pass-note fields parsed successfully. |
+| `source_compiles` | Registered source returns compile status `ok`. |
+| `composition_graph_valid` | Graph identities, requirements, and relations are valid. |
+| `composition_graph_bound` | Every declared requirement is currently bound. |
+| `lint_max:<level>` | No lint at or above the configured level. |
+| `export_current` | Expected MusicXML exists and is no older than source. |
+| `min_units:<n>` | Iterative stage has at least `n` committed units. |
+| `units_cover_source_bars` | Span units collectively name every source bar. |
+| `no_open_skips` | No skipped stage remains unresolved. |
+| `no_stale_stages` | No reopened downstream stage remains stale. |
 
-Explicitly out of scope: any gate that scores musical quality. The runtime enforces
-that judgment was *recorded*, never what it concluded.
+No gate scores melody, harmony, form, orchestration, novelty, or expressive success.
+The runtime verifies that required work and judgment were recorded; the pass owns the
+judgment.
 
-The composition procedure uses `composition_graph_valid` while open and partial requirements are
-expected, then adds `composition_graph_bound` at closeout. Bound means only that declared coverage
-exists. Pass notes may include an optional `graph_paths:` field to point back to exact piece,
-section, span, material, phrase, or placement paths; the accepted music remains in source.
+### Exceptions and history
 
-### Procedure manifests (D4)
+- `next --reason` skips the current stage, logs `skipped_audit`, and leaves closeout
+  blocked until the stage is reopened and committed.
+- `back --to sN --reason` reopens an earlier stage and marks later work stale rather
+  than erasing history.
+- `log` reads the append-only event stream.
+- `abandon --reason` closes the run as abandoned without deleting its state.
+- `runs` scans the requested root, then `PARTITURA_PROJECT_ROOT`, then the current
+  directory.
 
-A procedure is data: a manifest plus stage markdown files.
+## Composition Workflow Protocol
 
-```text
-reference/written/procedures/partitura/dsl_composition/
-  manifest.json
-  stages/00_brief.md
-  stages/01_form_contract.md
-  ...
-  stages/10_export_audition_close.md
-```
+The graph-addressed exchange is separate from guided procedure stages.
 
-Manifest shape:
+1. `observe` loads the accepted Ruby source, rebuilds its graph and composition
+   snapshot, selects one dependency-valid action, and emits a versioned
+   `proposal_request`.
+2. An external producer returns a request-bound `proposal_response` containing explicit
+   source patches.
+3. `evaluate` applies each patch to an isolated source, compiles it, optionally exports
+   it, and emits a `selection_request` containing immutable candidate evidence. It does
+   not change the accepted source.
+4. An external policy returns a request-bound `selection_response` naming a validated
+   candidate or `original`.
+5. `step` revalidates live source and response bindings, promotes exact validated bytes
+   or retains the original, verifies the resulting state, and appends one contiguous
+   trajectory transition.
 
-```json
-{
-  "id": "dsl_composition",
-  "version": 2,
-  "title": "DSL new-composition procedure",
-  "stages": [
-    {
-      "id": "s0", "name": "Brief, Form, Destination",
-      "doc": "stages/00_brief.md",
-      "artifacts": [{ "id": "brief", "path": "procedure/brief.md" }],
-      "gates": ["artifact_exists:brief", "pass_note_complete"]
-    },
-    {
-      "id": "s5", "name": "Span Pass",
-      "doc": "stages/05_span_pass.md",
-      "iterative": true, "unit": "span",
-      "gates": ["source_compiles", "pass_note_complete"],
-      "stage_complete_gates": ["source_compiles", "lint_max:error"]
-    },
-    {
-      "id": "s10", "name": "Export, Audition, Close",
-      "doc": "stages/10_export_audition_close.md",
-      "gates": ["export_current", "tests_pass", "no_open_skips", "no_stale_stages", "pass_note_complete"]
-    }
-  ],
-  "miniature": {
-    "collapse": [["s0", "s1"], ["s2", "s3"]],
-    "note": "matches the procedure's documented true-miniature fallback"
-  }
-}
-```
+Workflow protocol messages use schema version 1. Persisted trajectory transitions use
+schema version 2 and include the exact pre-edit Ruby source, full pre-edit snapshot,
+candidate evidence, decision, after digests, and unresolved paths. Request and digest
+bindings reject stale or mismatched responses.
 
-**Scope guard (D4):** manifests describe music-composition procedures only —
-composition from the ground up, recomposition of a section, feedback addressing, card
-writing. The engine may therefore assume: a piece directory, a DSL source file,
-compile/lint/export gates, and pass notes about music. It must not grow toward a
-generic workflow manager; a proposed manifest that needs non-musical gate types is out
-of scope by definition.
+Pairwise transition review uses review/preference schema version 2. Review scale
+(`local`, `seam`, `section`, `global`, or `export`) and criterion (`coherence`,
+`identity`, `seams`, `orchestration`, or `reserve`) are separate closed fields. Public
+A/B bundles omit candidate mappings; private append-only records retain them.
 
-Planned manifests, in order:
+## Completed-Score Evaluation
 
-1. `dsl_composition` — split from `dsl_composition_procedure.md` (the split is
-   independently valuable; the stage files remain readable without the wrapper, and the
-   monolith becomes a pointer page).
-2. `section_recomposition` — from `section_repair_procedure.md`.
-3. `feedback_addressing` — new: user gives musical feedback on an exported piece; run
-   routes locate → diagnose (projections) → revise → re-export → re-audition.
-4. `card_writing` — from `card_writing_procedure.md`.
+`benchmark-score` compiles and exports one completed source and reports exact structural,
+identity, boundary, reserve, and fingerprint diagnostics. These measurements describe
+the score; they are not a scalar quality score.
 
-### Fresh-agent orchestration flow
+`benchmark-review` creates a blinded A/B MusicXML/MIDI bundle for two opaque system-run
+sources. `benchmark-preference` stores one criterion-specific held-out judgment. Its
+records are separate from transition-training preferences.
 
-```text
-orchestrator:  partitura start movements/mvt5 --brief "a swaggering rag in Eb, brisk, two hands in dialogue"
-               #                                      # payload: Stage 0 + COMMISSION
-               ... stages 0-3, committing each with pass notes ...
-               spawn span agent per span/phrase-arc
+## Compatibility Shims
 
-span agent:    cd movements/mvt5 && partitura status  # oriented in one command
-               ... compose, project, verdict, revise ...
-               partitura commit --span 17-24 --notes -
+These still exec the consolidated command:
 
-orchestrator:  partitura status                        # sees units committed
-               ... spawn merge agent for Stage 9, completion agent for Stage 10 ...
+| Shim | Canonical command |
+|---|---|
+| `partitura_help` | `partitura help` |
+| `production_view` | `partitura view` |
+| `production_export` | `partitura export` |
+| `partitura_build` | `partitura build` |
 
-merge agent:   partitura back --to s5 --reason "seam weakness b32-33"   # if needed
-```
-
-The multi-agent fresh-attention model in the procedure maps 1:1 onto run state; the
-same-agent fallback is just one agent issuing all the commands, with the pass notes
-still forced between passes — which is precisely the separation the procedure's
-"Fresh Attention Model" section demands.
-
----
-
-## Interactions With Other Accepted Remediation Work
-
-- The **linter** (review Area 1) plugs in as `lint_max` gates and as the `compile`
-  response `lints:` array.
-- The **entry chain** fix (Area 4) now points at one thing: bare `partitura`.
-- **Card search** fixes (Area 5) ship inside `partitura cards`.
-- The **`marks` help topic** (Area 4) is reachable as `partitura help marks`.
-- Stage payloads give a natural home for **surface-nudge context**: the Stage 5 payload
-  can carry the span's current lint state.
-
-## Implementation Milestones
-
-1. **M1 — binary + consolidation.** `partitura` with author/library/output verbs,
-   shims for old bins, verb-map bare output, error-contract wrapper, `cards`
-   integration with fixed search, `view` listing behavior. No workflow verbs yet.
-2. **M2 — procedure split.** Monolith → manifest + `stages/*.md` (content-preserving
-   refactor; monolith becomes a pointer). Valuable standalone: agents can already load
-   per-stage files.
-3. **M3 — run engine.** `start/status/commit/next/back/log/abandon/runs`, `run.json` +
-   `log.jsonl`, gate vocabulary (minus `lint_max` until the linter lands), payload
-   rendering, `--miniature`.
-4. **M4 — adoption.** INDEX.md/AGENTS.md/README rewires; `dsl_composition_procedure.md`
-   reduced to a pointer; second manifest (`section_recomposition`); trial run on a real
-   piece in the consumer repo; retire old bins after the transition window.
-
-## Open Items (deferred, not blocking)
-
-- Pass-note format: structured markdown vs JSON via `--notes` (leaning markdown with a
-  parseable header row, JSON accepted).
-- `runs` listing across a large consumer repo: scan strategy and cost.
-- Whether `back` should snapshot the source file hash so `stale` stages can show what
-  changed since their commit.
-- Concurrency: two span agents committing units simultaneously (JSONL append is safe;
-  `run.json` update needs a lock or last-writer-wins with log reconciliation).
-
-## Research Sources
-
-- GitHub Spec Kit: https://github.com/github/spec-kit and
-  https://github.com/github/spec-kit/blob/main/spec-driven.md
-- AWS Kiro specs: https://kiro.dev/docs/specs/
-- Task Master: https://github.com/eyaltoledano/claude-task-master
-- BMAD method: https://docs.bmad-method.org/reference/workflow-map/
-- Beads: https://steve-yegge.medium.com/introducing-beads-a-coding-agent-memory-system-637d7d92514a
+New documentation and agent instructions use `partitura/bin/partitura` so discovery,
+examples, and errors share one command surface.

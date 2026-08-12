@@ -1,7 +1,7 @@
 # Composition Graph
 
-Status: IMPLEMENTED in `sigillum-library` through M5 (2026-07-27); the learned
-proposer, critic, and policy implementations remain in `sigillum-ml`
+Status: implemented in `sigillum-library` through the completed-score evaluation
+surface (M1-M7). Learned proposer, critic, and policy implementations remain external.
 
 This design adds a general, non-ML planning and refinement model to Partitura. It supports
 whole-score composition and recursive coarse-to-fine authoring without turning Partitura into a
@@ -77,11 +77,11 @@ The design borrows narrow ideas from the following primary exemplars.
 | [Whole-Song Hierarchical Generation](https://arxiv.org/html/2405.09901v1) | Form, reduced lead sheet, lead sheet, and accompaniment form interpretable coarse-to-fine realizations. | Upper-level constraints condition lower-level work. | One fixed four-level hierarchy, pop-specific representations, and piano-roll source authority. |
 | [music21 stream hierarchy](https://music21.org/music21docs/usersGuide/usersGuide_06_stream2.html) | A score can retain nested structure while exposing flattened reading views. | Keep containment authoritative and graph/flat views derived. | Replacing Partitura's authoring container with a generic event stream. |
 | [MEI relations](https://music-encoding.org/guidelines/dev/mei-all_anyStart/elements/relationList.html) and [scholarly variants](https://music-encoding.org/guidelines/v4/content/scholarlyediting.html) | Stable IDs support robust cross-links; alternatives and derivations are explicit. | Typed stable identity and explicit cross-relations. | Inline apparatus for every generated candidate in the accepted score source. |
-| [Muster](https://doi.org/10.1016/j.datak.2024.102340) | A score graph can combine rhythmic hierarchy with event flow and support remote structural queries. | A graph-shaped read model for containment and cross-links. | Note-level graph storage, Neo4j, and a second comprehensive score representation. |
+| [Muster: Topological querying of music scores](https://doi.org/10.1016/j.datak.2024.102340) | A score graph can combine rhythmic hierarchy with event flow and support remote structural queries. | A graph-shaped read model for containment and cross-links. | Note-level graph storage, Neo4j, and a second comprehensive score representation. |
 | [W3C PROV](https://www.w3.org/TR/prov-o/) | Plans and entities are distinct from the activities that use and generate them. | Keep source entities, semantic derivation, and guided-run activity history separate. | RDF/OWL and a general provenance ontology. |
 | [OpenUSD composition](https://openusd.org/22.08/glossary.html) | Stable scene paths, references, and non-destructive variants make large nested structures addressable. | Stable typed paths and explicit references. | Layer strengths, override resolution, composition arcs, and variant sets in v1. |
 | [FIGARO](https://arxiv.org/html/2201.10936v4) | Interpretable expert descriptions and learned latent features are complementary. | Human-readable Partitura plans plus optional learned ML sidecars. | Storing opaque learned features in the Partitura source. |
-| [NotaGen / CLaMP-DPO](https://arxiv.org/html/2502.18008v2) and [MusicRL](https://arxiv.org/pdf/2402.04229) | Learned preference signals can improve generation, but repeated reward optimization can trade away other objectives. | External learned critics, held-out evaluation, and multi-signal reward reporting. | A single Partitura quality score or an in-library RL loop. |
+| [NotaGen / CLaMP-DPO](https://arxiv.org/html/2502.18008) and [MusicRL](https://arxiv.org/abs/2402.04229) | Learned preference signals can improve generation, but repeated reward optimization can trade away other objectives. | External learned critics, held-out evaluation, and multi-signal reward reporting. | A single Partitura quality score or an in-library RL loop. |
 
 The most important synthesis is that hierarchy, stable identity, provenance, and learned
 representation are different concerns. They interoperate through a small versioned boundary; they
@@ -437,10 +437,10 @@ graph.to_h
 CLI:
 
 ```bash
-partitura view SOURCE.rb composition_graph
-partitura view SOURCE.rb composition_graph --json
-partitura view SOURCE.rb composition_plan
-partitura view SOURCE.rb composition_resolution
+partitura/bin/partitura view SOURCE.rb composition_graph
+partitura/bin/partitura view SOURCE.rb composition_graph --json
+partitura/bin/partitura view SOURCE.rb composition_plan
+partitura/bin/partitura view SOURCE.rb composition_resolution
 ```
 
 The text view is composer-facing. The JSON form is a deterministic, versioned consumer boundary:
@@ -477,7 +477,7 @@ so it is not an acceptable cross-repository contract.
 The separate public projection is:
 
 ```bash
-partitura view SOURCE.rb composition_snapshot --json
+partitura/bin/partitura view SOURCE.rb composition_snapshot --json
 ```
 
 Its versioned payload contains:
@@ -648,15 +648,15 @@ committed source.
 Operational CLI exchange:
 
 ```bash
-partitura observe SOURCE.rb --trajectory TRAJECTORY.jsonl
-partitura evaluate SOURCE.rb --trajectory TRAJECTORY.jsonl --proposals PROPOSAL.json
-partitura step SOURCE.rb --trajectory TRAJECTORY.jsonl \
+partitura/bin/partitura observe SOURCE.rb --trajectory TRAJECTORY.jsonl
+partitura/bin/partitura evaluate SOURCE.rb --trajectory TRAJECTORY.jsonl --proposals PROPOSAL.json
+partitura/bin/partitura step SOURCE.rb --trajectory TRAJECTORY.jsonl \
   --proposals PROPOSAL.json --selection SELECTION.json
-partitura review --trajectory TRAJECTORY.jsonl --reviews REVIEWS.jsonl \
+partitura/bin/partitura review --trajectory TRAJECTORY.jsonl --reviews REVIEWS.jsonl \
   --output BUNDLES --transition TRANSITION_ID \
   --candidate CANDIDATE_ID --against original --scale global \
   --criterion coherence
-partitura preference --reviews REVIEWS.jsonl --preferences PREFERENCES.jsonl \
+partitura/bin/partitura preference --reviews REVIEWS.jsonl --preferences PREFERENCES.jsonl \
   --review REVIEW_ID --outcome a --rater RATER_ID \
   --purpose held_out_evaluation --reason "A sustains the whole-score arc"
 ```

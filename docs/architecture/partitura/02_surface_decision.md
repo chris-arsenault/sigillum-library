@@ -65,6 +65,6 @@ The production runtime supports:
 Inspect choices with:
 
 ```bash
-partitura/bin/production_view experiments/partitura/production_hybrid_study.rb phrases
-partitura/bin/production_view experiments/partitura/production_hybrid_study.rb material_map
+partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb phrases
+partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb material_map
 ```

@@ -1,45 +1,49 @@
 # Ruby Framework Boundary
 
-The symphony build path is:
-
-```text
-Ruby DSL source -> Ruby framework build/audit -> Ruby MusicXML/MIDI exporters
-```
-
-Ruby owns the source, build surface, compiled model, and final MIDI/MusicXML writing.
-
-This is not a line-by-line port of the old Python framework. It is a Ruby framework layer around
-the implemented DSL and compiled model, keeping only the parts needed before final notation/audio
+Ruby owns production source loading, the compiled score model, projections, framework
+registries, mechanical validation, Composition Graph semantics, MusicXML export, and MIDI
 export.
 
-## Ported To Ruby
+```text
+Ruby DSL source
+  -> Ruby compiled model and audit
+  -> Ruby MusicXML/MIDI exporters
+```
 
-- repository/output path helpers
-- movement registry and selected/all movement exports
-- direct MusicXML/MIDI source export
-- model-measured dynamics and tempo audit
-- MusicXML writer
-- MIDI writer
+There is no Python renderer or serialized JSON step in this build path.
 
 ## Commands
 
-Write one Ruby DSL source to MusicXML/MIDI:
+Compile and export one source:
 
 ```bash
-ruby ```
-
-Build one or all registered movements to MusicXML/MIDI:
-
-```bash
-ruby partitura/bin/partitura_build path/to/registry.rb all
-ruby partitura/bin/partitura_build path/to/registry.rb mvt1
+partitura/bin/partitura compile path/to/source.rb
+partitura/bin/partitura export path/to/source.rb --stem demo
 ```
 
-Export one Ruby DSL source to MusicXML and MIDI:
+Build one or all entries from a framework registry:
 
 ```bash
-partitura/bin/production_export path/to/dsl/source.rb --stem demo
+partitura/bin/partitura build path/to/registry.rb all
+partitura/bin/partitura build path/to/registry.rb movement_id
 ```
 
-Use `partitura_build` or `production_export` when the Ruby
-framework should export directly from the compiled model.
+The compatibility shims `production_export` and `partitura_build` still exec these
+commands. New callers should use the consolidated CLI.
+
+## Project-Root Contract
+
+Path helpers support consumer repositories. Generated paths resolve from the current
+working directory or the source's Git root as appropriate. A consumer may set
+`PARTITURA_PROJECT_ROOT=/path/to/project` when it must force framework outputs and raw
+input paths to a specific project.
+
+Library code and documentation must not hard-code the `sigillum-library` checkout path or
+assume the consuming score lives in this repository.
+
+## External-System Boundary
+
+Python or another external runtime may consume versioned Partitura snapshots,
+observations, workflow requests, and review records. It may return proposals, learned
+critic results, or selections through those contracts. It does not replace Ruby parsing,
+score semantics, graph identity, sandbox validation, promotion, or export.

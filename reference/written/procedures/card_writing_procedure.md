@@ -77,7 +77,7 @@ No single axis is privileged. Compose to the WHOLE craft, weighted by what this 
 - **OBJECTIVE GATE (when the card's point is a named, measurable structure):** some techniques have an
   objective acceptance test the card MUST pass, not just the ear. A melody-library card whose point is
   HARMONIC EXPOSURE (the strong-beat skeleton spells its progression) must pass
-  `production_view CARD.rb harmony_with_melody` plus score/audition reading — the chord the line
+  `partitura view CARD.rb harmony_with_melody` plus score/audition reading — the chord the line
   implies must match the intended progression in >= (nbars-1) bars. See
   `reference/written/craft/exposing_the_progression.md` for the process and the gate; iterate on weak
   bars until it passes. A card that fails its gate has not earned an audition.

@@ -15,7 +15,7 @@ Run the procedure as a guided run - the runtime owns the stage sequence and emit
 stage at a time, so no agent needs the whole procedure in context:
 
 ```bash
-partitura/bin/partitura start <piece_dir> --source <SOURCE.rb>
+partitura/bin/partitura start <piece_dir> --source <SOURCE.rb> --brief "<commission>"
 ```
 
 - `dsl_composition/` - composing a new piece from the ground up: `manifest.json`
@@ -41,13 +41,13 @@ This procedure assumes the production Ruby DSL documented in:
 Use the DSL runtime as a reading tool while composing:
 
 ```bash
-partitura/bin/partitura_help production
-partitura/bin/production_view SOURCE.rb compile
-partitura/bin/production_view SOURCE.rb structure
-partitura/bin/production_view SOURCE.rb roles
-partitura/bin/production_view SOURCE.rb verticals --bars 1-4
-partitura/bin/production_view SOURCE.rb harmony_with_melody --bars 1-4
-partitura/bin/production_export SOURCE.rb outputs/partitura --stem STEM
+partitura/bin/partitura help production
+partitura/bin/partitura compile SOURCE.rb
+partitura/bin/partitura view SOURCE.rb structure
+partitura/bin/partitura view SOURCE.rb roles
+partitura/bin/partitura view SOURCE.rb verticals --bars 1-4
+partitura/bin/partitura view SOURCE.rb harmony_with_melody --bars 1-4
+partitura/bin/partitura export SOURCE.rb --stem STEM
 ```
 
 ## Technique Library Status
@@ -56,7 +56,7 @@ Use `technique_library/dsl/README.md` and `technique_library/dsl/cards/` as the
 technique-card library for new production-DSL composition.
 
 - Cite cards and categories as `dsl:<category>/<id>` from `technique_library/dsl/README.md`.
-- Use `ruby tools/lib.rb <term>` to find matching cards and their DSL specimen paths.
+- Use `partitura/bin/partitura cards <term>` to find matching cards and their DSL specimen paths.
 - Use cards as auditionable musical models, dialect seeds, or high-water marks.
 - If a card influences a passage, adapt it into the new piece's own material and write the resulting
   notes, roles, placements, controls, and staff checkpoints directly in the DSL source.

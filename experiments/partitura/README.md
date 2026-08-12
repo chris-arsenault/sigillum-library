@@ -2,7 +2,7 @@
 
 Reusable DSL surface studies and proof points live here. These files are not
 composition projects; they exist to validate authoring surfaces, projections,
-transport behavior, and notation coverage for the shared library.
+compiled-model behavior, and notation coverage for the shared library.
 
 ## Layout
 

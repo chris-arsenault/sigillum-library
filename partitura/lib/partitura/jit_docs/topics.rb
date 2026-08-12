@@ -5,18 +5,6 @@ require_relative "../marks"
 module Partitura
   module JITDocs
     SURFACE_TOPICS = {
-      index: {
-        use_when: "Start here before authoring or when unsure which focused topic to request.",
-        rules: [
-          "Load only the relevant topic docs, not the whole documentation set.",
-          "Use the production surface for new DSL source; surface_lab is exploratory only.",
-          "Standardize the container; choose the local surface by musical job.",
-          "Use `decision` before choosing a pitch/rhythm surface."
-        ],
-        example: "partitura_help production",
-        next_topics: %i[production composition_graph score_observation decision container hybrid projections export],
-        docs: ["docs/architecture/partitura/INDEX.md"]
-      },
       production: {
         use_when: "Write or inspect executable LLM-native Partitura source.",
         rules: [
@@ -28,10 +16,11 @@ module Partitura
           "Use `pitch:` or `surface:` to declare each phrase surface.",
           "Use inline event marks for point markings and `control`/`tempo` for spans or shared markings.",
           "For whole-score planning, add stable piece/span/placement IDs and `plan { requires ... }` declarations.",
-          "Use `production_view` projections after authoring each passage.",
-          "Check `production_view SOURCE.rb lint`: warn lints prompt a judgment; error lints block compile.",
+          "Use `partitura/bin/partitura view` projections after authoring each passage.",
+          "Check `partitura/bin/partitura lint SOURCE.rb`: warn lints prompt a judgment; " \
+          "error lints block compile.",
           "Lint thresholds are configurable: `lint do rule :phrase_length, warn: 8, error: 24 end`.",
-          "Use `production_export` for MusicXML and MIDI."
+          "Use `partitura/bin/partitura export` for MusicXML and MIDI."
         ],
         example: <<~RUBY.strip,
             production_piece "Study", id: :study do
@@ -65,7 +54,8 @@ module Partitura
               end
             end
           RUBY
-        next_topics: %i[composition_graph decision degrees controls hybrid projections export compile_api],
+        next_topics: %i[composition_graph composition_workflow decision degrees controls hybrid projections export
+                        compile_api],
         docs: ["docs/architecture/partitura/01_container.md"]
       },
       decision: {
@@ -81,7 +71,7 @@ module Partitura
           "Use controls for marks that span time or target multiple parts.",
           "Never mix untyped representations inside one phrase."
         ],
-        example: "partitura_help hybrid",
+        example: "partitura/bin/partitura help hybrid",
         next_topics: %i[degrees intervals split_pitch_rhythm absolute texture staff_grid controls phrase_placement 
 hybrid],
         docs: ["docs/architecture/partitura/02_surface_decision.md"]
@@ -116,43 +106,6 @@ hybrid],
           RUBY
         next_topics: %i[decision hybrid projections],
         docs: ["docs/architecture/partitura/01_container.md"]
-      },
-      composition_graph: {
-        use_when: "Plan or recursively refine a whole score, or expose stable scopes to an external consumer.",
-        rules: [
-          "The production Ruby source remains authoritative; the Composition Graph is a derived projection.",
-          "Graph-aware source declares stable piece, span, and placement IDs.",
-          "Declare recurring non-sounding identity with `material`; exact sounding notes remain in phrases.",
-          "Use scoped `plan { requires ... }` blocks; open and partial requirements are valid during composition.",
-          "The closed requirement facets are harmony, material, role, part, texture, control, and checkpoint.",
-          "The authored relations are derives_from, returns_to, and depends_on; contains and realizes are derived.",
-          "Use `composition_graph` and `composition_resolution` to inspect plans; use " \
-          "`composition_snapshot --json` for external analysis.",
-          "A bound requirement proves authored coverage only, never musical quality."
-        ],
-        example: <<~RUBY.strip,
-            production_piece "Study", id: :study do
-              material(:theme_a) { identity pitch: "rising fourth", rhythm: "short short long" }
-              roster { part :clarinet, "Clarinet", music21: "Clarinet" }
-
-              section :opening, "Statement", bars: 1..2 do
-                span :opening_call, bars: 1..2 do
-                  plan do
-                    requires :material, :theme_a, relation: :statement
-                    requires :role, :foreground
-                  end
-                  phrase :theme_a_call, surface: :absolute,
-                          material: :theme_a, relation: :statement do
-                    events "C5:2 F5:2 | E5:4"
-                  end
-                  placement :theme_a_call, id: :theme_a_call_clarinet,
-                            part: :clarinet, role: :foreground, at: "bar 1 beat 1"
-                end
-              end
-            end
-          RUBY
-        next_topics: %i[container phrase_placement projections guided],
-        docs: ["docs/architecture/partitura/09_composition_graph.md"]
       },
       degrees: {
         use_when: "Write tonal melody where scale function and cadence tendency matter.",
@@ -271,7 +224,7 @@ hybrid],
           "(quarter = 78 for playback).",
           "Use `meter` for bar-boundary meter changes.",
           "Locations are explicit bar/beat strings or named anchors.",
-          "Inspect with `production_view SOURCE.rb controls` before export."
+          "Inspect with `partitura/bin/partitura view SOURCE.rb controls` before export."
         ],
         example: <<~RUBY.strip,
             anchor :answer_entry, at: "bar 3 beat 1.5"
@@ -416,14 +369,14 @@ hybrid],
           "Use material/placement maps to avoid hidden stamping."
         ],
         example: <<~BASH.strip,
-            partitura/bin/production_view experiments/partitura/production_hybrid_study.rb foreground
-            partitura/bin/production_view experiments/partitura/production_hybrid_study.rb harmony_with_melody --bars 1-4
-            partitura/bin/production_view experiments/partitura/production_hybrid_study.rb verticals --bars 1-4
-            partitura/bin/production_view experiments/partitura/production_hybrid_study.rb ensemble_grid --bars 1-4
-            partitura/bin/production_view experiments/partitura/production_hybrid_study.rb exposed_clashes --bars 1-4
-            partitura/bin/production_view experiments/partitura/production_hybrid_study.rb composite_stalls --bars 1-4
-            partitura/bin/production_view experiments/partitura/production_hybrid_study.rb melody_analysis --part clarinet
-            partitura/bin/production_view experiments/partitura/production_hybrid_study.rb line --part clarinet
+            partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb foreground
+            partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb harmony_with_melody --bars 1-4
+            partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb verticals --bars 1-4
+            partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb ensemble_grid --bars 1-4
+            partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb exposed_clashes --bars 1-4
+            partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb composite_stalls --bars 1-4
+            partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb melody_analysis --part clarinet
+            partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb line --part clarinet
           BASH
         next_topics: %i[hybrid staff_grid controls phrase_placement export],
         docs: ["docs/architecture/partitura/04_examples_manifest.md"]

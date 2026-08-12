@@ -1,20 +1,37 @@
 # Sigillum Library
 
-Reusable Partitura score framework, technique cards, craft references, and
-analysis tooling split out of the Sigillum symphony workspace.
+Partitura is a reusable score framework and an example of extending an LLM into
+an unfamiliar specialized domain without fine-tuning. A discoverable CLI routes
+the agent to focused just-in-time documentation; a typed Ruby DSL and closed
+schemas retain domain specificity; projections expose only the view needed for
+the current decision; and guided state survives context changes.
+
+Markdown still carries explanations, craft references, and examples. It is not
+the only interface: runtime routing and validation prevent the agent from having
+to treat a large wiki as working memory. See
+`docs/architecture/partitura/LLM_CONTEXT_ARCHITECTURE.md` for the general pattern.
 
 ## Start Here (LLM agents)
 
-Run `partitura/bin/partitura` bare for the verb map, `partitura/bin/partitura help
-index` for the JIT docs, then read `docs/architecture/partitura/INDEX.md` and load only
-the focused topic files it names. Card search: `partitura/bin/partitura cards <term>`.
-Composing a piece end-to-end: `partitura/bin/partitura start <piece_dir>` (guided,
-stage at a time).
+Run `partitura/bin/partitura` bare for the verb map, then run
+`partitura/bin/partitura help index`. Read
+`docs/architecture/partitura/INDEX.md` only when the focused response points to it,
+and load only the topic files needed for the current decision.
 
-For graph-addressed ML composition, Partitura also owns the non-learned runtime:
-`observe` emits a scheduled request, `evaluate` validates ML proposals in
-sandboxes, and `step` promotes or retains the source and records the trajectory.
-Python implementations remain behind that JSON boundary.
+Useful entry points:
+
+```bash
+partitura/bin/partitura help llm_design
+partitura/bin/partitura help production
+partitura/bin/partitura cards <term>
+partitura/bin/partitura start <piece_dir> --source <SOURCE.rb> --brief "<commission>"
+partitura/bin/partitura status <piece_dir>
+```
+
+For graph-addressed composition, Partitura owns the non-learned runtime:
+`observe` emits a scheduled request, `evaluate` validates external proposals in
+isolated sources, and `step` promotes or retains exact source bytes and records the
+trajectory. Learned implementations remain behind versioned JSON boundaries.
 
 ## Layout
 
@@ -34,6 +51,13 @@ directory by default. Set `PARTITURA_PROJECT_ROOT=/path/to/project` when a calle
 needs to force outputs and raw-input paths to a specific consumer repo.
 
 ## Tests
+
+Install the locked Ruby dependencies once before running commands beyond the bare
+verb map or JIT help:
+
+```bash
+bundle install
+```
 
 ```bash
 bin/test

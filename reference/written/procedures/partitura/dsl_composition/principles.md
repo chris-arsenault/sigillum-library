@@ -88,8 +88,8 @@ For a new DSL composition, read in this order:
 Before authoring, also ask the runtime what the current DSL supports:
 
 ```bash
-partitura help production
-partitura help decision
+partitura/bin/partitura help production
+partitura/bin/partitura help decision
 ```
 
 If using an unfamiliar surface or export path, call the focused help topic before writing that part
@@ -258,7 +258,7 @@ Use `technique_library/dsl/README.md` for card references. The auditionable DSL
 card specimens live under `technique_library/dsl/cards/`. Search with:
 
 ```bash
-partitura cards <term>
+partitura/bin/partitura cards <term>
 ```
 
 Then cite the result as `dsl:<category>/<id>`, never as a Python module path, in any new DSL brief or

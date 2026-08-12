@@ -84,10 +84,9 @@ must be rebuilt from it exactly - never re-derived from memory or approximated.
 - Segment boundaries must not cut through a tie chain; pick boundaries at
   phrase seams (the converter merges ties within a segment only).
 
-## First use
+## Scope Boundary
 
-The Banner Recursion exploration, bars 1-84: hand-edited
-`Flows from The Banner Recursion/*.musicxml` imported into
-`explorations/banner_recursion_dsl/dsl/sections/{s1_field_gate,s2_a_first_strain,s3_em_fm_gm_escalation}.rb`,
-verified to zero differing bars. See the "Hand-Edit Import" entry in
-`explorations/banner_recursion_dsl/05_full_score_v2_procedure_log.md`.
+The importer is a repair tool for a consumer score whose hand-edited MusicXML has become
+authoritative for a known range. It is not a general MusicXML-to-Partitura authoring
+pipeline. Structure, identity, roles, prose, controls, and final source ownership remain
+explicit consumer-repository decisions.

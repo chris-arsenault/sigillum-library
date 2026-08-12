@@ -5,6 +5,8 @@ immutable `score-observation` document. It is a general Partitura analysis
 boundary: callers receive canonical score addresses and factual span features
 without adopting the source corpus's parser or creating a second score model.
 
+Focused runtime guidance: `partitura/bin/partitura help annotation_observation`.
+
 ```bash
 partitura/bin/partitura annotation-observation score-observation.json \
   --profile openscore_hauptstimme_v1 \
