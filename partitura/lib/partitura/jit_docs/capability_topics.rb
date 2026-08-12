@@ -61,6 +61,28 @@ module Partitura
         next_topics: %i[production decision projections cards],
         docs: ["docs/architecture/partitura/04_examples_manifest.md"]
       },
+      hand_edit_import: {
+        use_when: "Rebuild a known DSL bar range from hand-edited MusicXML and prove export parity.",
+        rules: [
+          "Use this repair path only when the hand-edited MusicXML is authoritative for a known range; it is " \
+          "not a general MusicXML-to-Partitura authoring pipeline.",
+          "`import-musicxml` emits paste-ready event bodies plus harmony, key, tempo, wedge, and warning metadata; " \
+          "sections, identities, roles, controls, and placement judgment remain hand-authored.",
+          "Set `--beats` to the range's quarter-note bar length and keep named segment boundaries away from " \
+          "tie chains.",
+          "Use repeatable `--perc-map FROM=TO` options when a notation-app staff position differs from the DSL roster.",
+          "After rebuilding and exporting, `verify-musicxml-import` compares sounding pitch with ties merged; " \
+          "the import is complete only at zero differing bars, and a mismatch exits 1."
+        ],
+        example: <<~BASH.strip,
+            partitura/bin/partitura import-musicxml hand.musicxml --bars 41-52 \
+              --segments bridge:41-44,ladder:45-52 --beats 4
+            partitura/bin/partitura verify-musicxml-import hand.musicxml current.musicxml \
+              --bars 41-52 --beats 4 --json
+          BASH
+        next_topics: %i[production roster controls compile_api export],
+        docs: ["docs/architecture/partitura/07_hand_edit_import.md"]
+      },
       build: {
         use_when: "Build one or all entries from a Partitura framework registry.",
         rules: [

@@ -29,6 +29,16 @@ module Partitura
           { bars: first..last, total_differing_bars: total_differing_bars, rows: rows }
         end
 
+        def json_h
+          {
+            schema_version: 1,
+            status: ok? ? "ok" : "mismatch",
+            bars: { first:, last: },
+            total_differing_bars: total_differing_bars,
+            rows: rows
+          }
+        end
+
         def render
           lines = ["comparing bars #{first}-#{last}"]
           rows.each do |row|

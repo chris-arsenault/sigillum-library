@@ -30,6 +30,7 @@ directory by default.
 | Explain the LLM-context design | `partitura help llm_design` | `LLM_CONTEXT_ARCHITECTURE.md` |
 | Author or inspect source | `partitura help production` | `00_llm_contract.md`, `01_container.md` |
 | Declare instruments or notation staves | `partitura help roster` | `01_container.md` |
+| Rebuild a range from hand-edited MusicXML | `partitura help hand_edit_import` | `07_hand_edit_import.md` |
 | Choose a notation surface | `partitura help decision` | `02_surface_decision.md` |
 | Run a composition procedure | `partitura help guided` | `08_cli_and_guided_runs.md` |
 | Plan or address whole-score structure | `partitura help composition_graph` | `09_composition_graph.md` |

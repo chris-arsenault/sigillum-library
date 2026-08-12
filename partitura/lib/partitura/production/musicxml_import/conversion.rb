@@ -34,6 +34,24 @@ module Partitura
           }
         end
 
+        def json_h
+          {
+            schema_version: 1,
+            status: "ok",
+            path:,
+            bars: { first:, last: },
+            beats: beats.to_s,
+            segments: segments.map do |name, segment_first, segment_last|
+              { name:, bars: { first: segment_first, last: segment_last } }
+            end,
+            parts: json_parts,
+            harmony: harmony.map do |(bar, onset), chord|
+              { bar:, onset: onset.to_s, chord: }
+            end,
+            meta: meta.map { |row| { part: row.part, bar: row.bar, kind: row.kind, text: row.text } }
+          }
+        end
+
         def render
           lines = []
           lines << "# Converted from: #{path}"
@@ -46,6 +64,20 @@ module Partitura
         end
 
         private
+
+        def json_parts
+          parts.transform_values do |notes|
+            notes.map do |note|
+              {
+                bar: note.bar,
+                onset: note.onset.to_s,
+                pitch: note.midi && MusicXMLImport.midi_to_label(note.midi),
+                duration: note.duration.to_s,
+                marks: note.marks
+              }
+            end
+          end
+        end
 
         def append_part(lines, part, notes)
           lines << ""

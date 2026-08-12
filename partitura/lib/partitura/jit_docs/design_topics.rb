@@ -19,7 +19,7 @@ module Partitura
         example: "partitura/bin/partitura help production",
         next_topics: %i[llm_design production decision roster cards examples guided composition_graph
                         composition_workflow evaluation score_observation annotation_observation projections
-                        export build documentation_index],
+                        export build hand_edit_import documentation_index],
         docs: []
       },
       documentation_index: {

@@ -44,6 +44,8 @@ cards show <ID>
 cards terms
 export SOURCE.rb [--stem STEM]
 build REGISTRY.rb [movement|all]
+import-musicxml HAND.musicxml [--bars A-B] [--segments SPEC] [--beats N]
+verify-musicxml-import HAND.musicxml EXPORT.musicxml [--bars A-B] [--beats N]
 ```
 
 - `help` returns the fixed JIT response contract. Unknown topics return the complete

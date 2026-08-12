@@ -72,6 +72,15 @@ class JITDocsTest < Minitest::Test
     assert_includes build[:docs], "docs/architecture/partitura/06_ruby_framework.md"
   end
 
+  def test_hand_edit_import_topic_exposes_cli_and_zero_diff_gate
+    data = Partitura.help_data(:hand_edit_import)
+
+    assert_includes data[:example], "import-musicxml"
+    assert_includes data[:example], "verify-musicxml-import"
+    assert(data[:rules].any? { |rule| rule.include?("mismatch exits 1") })
+    assert_includes data[:docs], "docs/architecture/partitura/07_hand_edit_import.md"
+  end
+
   def test_hybrid_response_is_llm_actionable
     data = Partitura.help_data(:hybrid)
 

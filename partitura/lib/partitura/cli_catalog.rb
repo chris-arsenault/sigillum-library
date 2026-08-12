@@ -74,6 +74,40 @@ module Partitura
         arguments: [{ name: "topic", type: "topic", required: false }],
         options: [{ flag: "--json", type: "boolean" }]
       ),
+      "import-musicxml" => command(
+        category: :author,
+        summary: "Convert an authoritative hand-edited MusicXML range into paste-ready DSL event bodies.",
+        usage: "import-musicxml SCORE.musicxml [--bars A-B] [--segments SPEC] [--beats N] " \
+               "[--perc-map FROM=TO] [--json]",
+        effect: :read, output: :musicxml_import_conversion,
+        help_topic: :hand_edit_import,
+        arguments: [{ name: "score", type: "musicxml_path", required: true }],
+        options: [
+          { flag: "--bars", type: "bar_range", default: "1-10000" },
+          { flag: "--segments", type: "named_bar_ranges" },
+          { flag: "--beats", type: "positive_rational", default: "2" },
+          { flag: "--perc-map", type: "pitch_mapping", repeatable: true },
+          { flag: "--json", type: "boolean" }
+        ]
+      ),
+      "verify-musicxml-import" => command(
+        category: :author,
+        summary: "Compare an imported range with the current export at sounding pitch.",
+        usage: "verify-musicxml-import HAND.musicxml EXPORT.musicxml [--bars A-B] [--beats N] " \
+               "[--perc-map FROM=TO] [--json]",
+        effect: :read, output: :musicxml_import_verification,
+        help_topic: :hand_edit_import,
+        arguments: [
+          { name: "hand", type: "musicxml_path", required: true },
+          { name: "export", type: "musicxml_path", required: true }
+        ],
+        options: [
+          { flag: "--bars", type: "bar_range", default: "1-10000" },
+          { flag: "--beats", type: "positive_rational", default: "2" },
+          { flag: "--perc-map", type: "pitch_mapping", repeatable: true },
+          { flag: "--json", type: "boolean" }
+        ]
+      ),
       "compile" => command(
         category: :author, summary: "Compile and mechanically validate production source.",
         usage: "compile SOURCE.rb", effect: :read, output: :compile_response,

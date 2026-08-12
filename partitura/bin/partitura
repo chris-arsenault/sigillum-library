@@ -62,6 +62,10 @@ def usage
                  lint SOURCE
                  view SOURCE [view] [--part ID] [--bars A-B] [--json]
                  help [topic] [--json]
+                 import-musicxml SCORE.musicxml [--bars A-B] [--segments SPEC]
+                                 [--beats N] [--perc-map FROM=TO] [--json]
+                 verify-musicxml-import HAND.musicxml EXPORT.musicxml [--bars A-B]
+                                        [--beats N] [--perc-map FROM=TO] [--json]
       library    cards <query terms> | cards show <ID> | cards terms
       output     export SOURCE [--stem STEM]
                  build REGISTRY.rb [movement|all]
@@ -310,6 +314,68 @@ rescue Errno::ENOENT, Errno::EACCES => error
   )
 end
 
+def musicxml_import_options(argv, segments: false)
+  options = { bars: 1..10_000, beats: 2, perc_map: {}, json: false, segments: nil }
+  OptionParser.new do |opts|
+    opts.on("--bars A-B") { |value| options[:bars] = positive_bar_range(value, "--bars") }
+    if segments
+      opts.on("--segments SPEC") { |value| options[:segments] = segment_spec(value) }
+    end
+    opts.on("--beats N") do |value|
+      beats = Rational(value)
+      raise OptionParser::InvalidArgument, "--beats must be positive" unless beats.positive?
+
+      options[:beats] = beats
+    end
+    opts.on("--perc-map FROM=TO") { |value| add_percussion_mapping(options[:perc_map], value) }
+    opts.on("--json") { options[:json] = true }
+  end.parse!(argv)
+  options
+end
+
+def positive_bar_range(value, label)
+  match = /\A(\d+)-(\d+)\z/.match(value)
+  raise OptionParser::InvalidArgument, "#{label} must be A-B" unless match
+
+  first = Integer(match[1])
+  last = Integer(match[2])
+  unless first.positive? && last >= first
+    raise OptionParser::InvalidArgument, "#{label} must be an ascending positive range"
+  end
+  first..last
+end
+
+def segment_spec(value)
+  value.split(",").each do |item|
+    name, range = item.split(":", 2)
+    unless name && range && !name.empty?
+      raise OptionParser::InvalidArgument, "--segments must be NAME:A-B[,NAME:A-B]"
+    end
+    positive_bar_range(range, "segment #{name}")
+  end
+  value
+end
+
+def add_percussion_mapping(mappings, value)
+  from, to = value.split("=", 2)
+  unless from && to && !from.empty? && !to.empty?
+    raise OptionParser::InvalidArgument, "--perc-map must be FROM=TO"
+  end
+  mappings[from] = to
+end
+
+def musicxml_import_guard
+  require_partitura
+  yield
+rescue REXML::ParseException, Errno::ENOENT, Errno::EACCES, OptionParser::ParseError,
+       ArgumentError, KeyError => error
+  structured_failure(
+    "musicxml_import_error", error.message,
+    "Check the MusicXML paths and focused import options, then rerun the same command.",
+    help_topic: "hand_edit_import"
+  )
+end
+
 def optional_dir(argv)
   argv.first && !argv.first.start_with?("-") ? argv.shift : nil
 end
@@ -388,6 +454,51 @@ when "protocol"
         "unknown_protocol_action", "protocol action must be template or validate"
       )
     end
+  end
+
+when "import-musicxml"
+  musicxml_import_guard do
+    options = musicxml_import_options(ARGV, segments: true)
+    source = ARGV.shift
+    unless source
+      structured_failure(
+        "missing_musicxml", "import-musicxml requires SCORE.musicxml",
+        "Pass the authoritative hand-edited MusicXML path.", help_topic: "hand_edit_import"
+      )
+    end
+    conversion = Partitura.production_musicxml_import(
+      source,
+      bars: options.fetch(:bars),
+      segments: options[:segments],
+      beats: options.fetch(:beats),
+      perc_map: options.fetch(:perc_map)
+    )
+    payload = conversion.json_h
+    puts(options[:json] ? JSON.pretty_generate(payload) : conversion.render)
+  end
+
+when "verify-musicxml-import"
+  musicxml_import_guard do
+    options = musicxml_import_options(ARGV)
+    hand_path = ARGV.shift
+    export_path = ARGV.shift
+    unless hand_path && export_path
+      structured_failure(
+        "missing_musicxml", "verify-musicxml-import requires HAND.musicxml EXPORT.musicxml",
+        "Pass both the authoritative hand file and the current Partitura export.",
+        help_topic: "hand_edit_import"
+      )
+    end
+    verification = Partitura.production_musicxml_import_verify(
+      hand_path,
+      export_path,
+      bars: options.fetch(:bars),
+      beats: options.fetch(:beats),
+      perc_map: options.fetch(:perc_map)
+    )
+    payload = verification.json_h
+    puts(options[:json] ? JSON.pretty_generate(payload) : verification.render)
+    exit 1 unless verification.ok?
   end
 
 when "help"

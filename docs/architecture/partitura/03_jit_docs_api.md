@@ -73,7 +73,7 @@ surface syntax, historical reviews, or external-analysis contracts.
 - Design: `llm_design`, `documentation_index`.
 - Authoring: `production`, `container`, `roster`, `decision`, `degrees`, `intervals`,
   `split_pitch_rhythm`, `absolute`, `marks`, `controls`, `texture`, `staff_grid`,
-  `phrase_placement`, `hybrid`, `harmony`.
+  `phrase_placement`, `hybrid`, `harmony`, `hand_edit_import`.
 - Reading and output: `projections`, `compile_api`, `export`, `build`.
 - Library retrieval: `cards`, `examples`.
 - Stateful work: `guided`, `composition_graph`, `composition_workflow`, `protocol`, `evaluation`.

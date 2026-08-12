@@ -14,7 +14,8 @@ class CLICatalogTest < Minitest::Test
   COMMANDS = %w[
     abandon annotation-observation back benchmark-preference benchmark-review
     benchmark-score build cards catalog commands commit compile evaluate export help
-    lint log next observe preference protocol review runs score-observation start status step view
+    import-musicxml lint log next observe preference protocol review runs score-observation
+    start status step verify-musicxml-import view
   ].freeze
 
   def test_command_catalog_covers_consolidated_cli
