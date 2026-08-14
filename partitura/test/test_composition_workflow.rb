@@ -94,6 +94,44 @@ class CompositionWorkflowTest < Minitest::Test
     end
   end
 
+  def test_promotion_installs_the_exact_validated_candidate_bytes
+    with_source do |source|
+      executor, snapshot, action, candidate = execution_setup(source)
+      execution = executor.execute(
+        source_path: source, snapshot: snapshot, action: action,
+        candidate: candidate, export: false
+      )
+
+      Workflow::CandidatePromoter.new(executor: executor).promote(
+        source_path: source, before_snapshot: snapshot, action: action,
+        candidate: candidate, execution: execution
+      )
+
+      assert_equal execution.candidate_source, File.binread(source)
+    end
+  end
+
+  def test_promotion_restores_exact_original_bytes_when_persistence_fails
+    with_source do |source|
+      original = File.binread(source)
+      executor, snapshot, action, candidate = execution_setup(source)
+      execution = executor.execute(
+        source_path: source, snapshot: snapshot, action: action,
+        candidate: candidate, export: false
+      )
+
+      error = assert_raises(Workflow::Error) do
+        Workflow::CandidatePromoter.new(executor: executor).promote(
+          source_path: source, before_snapshot: snapshot, action: action,
+          candidate: candidate, execution: execution
+        ) { raise IOError, "trajectory append failed" }
+      end
+
+      assert_equal "promotion_verification_failed", error.code
+      assert_equal original, File.binread(source)
+    end
+  end
+
   def test_trajectory_store_rejects_duplicate_append
     with_source do |source, directory|
       store = Workflow::TrajectoryStore.new(File.join(directory, "trajectory.jsonl"))
