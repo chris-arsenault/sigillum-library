@@ -12,6 +12,10 @@ module Partitura
           "Use scoped `plan { requires ... }` blocks; open and partial requirements are valid during composition.",
           "The closed requirement facets are harmony, material, role, part, texture, control, and checkpoint.",
           "The authored relations are derives_from, returns_to, and depends_on; contains and realizes are derived.",
+          "Use `show SOURCE.rb PATH`, `connections SOURCE.rb PATH`, and `path SOURCE.rb FROM TO` for bounded " \
+          "graph discovery before loading a full snapshot.",
+          "Use `catalog composition-graph --json` for the runtime node, requirement, relation, and " \
+          "material vocabularies.",
           "Use `composition_graph` and `composition_resolution` to inspect plans; use " \
           "`composition_snapshot --json` for external analysis.",
           "A bound requirement proves authored coverage only, never musical quality."

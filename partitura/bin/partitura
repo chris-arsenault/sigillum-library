@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 # The consolidated Partitura CLI. See docs/architecture/partitura/08_cli_and_guided_runs.md.
-#   discover   commands | catalog
+#   discover   commands | catalog | show | connections | path
 #   compose    start | status | commit | next | back | log | abandon | runs
 #   author     compile | lint | view | help
 #   library    cards
@@ -25,8 +25,11 @@ def usage
     usage: partitura <command> [args]
 
       discover   commands [COMMAND] [--json]
-                 catalog [commands|views|procedures|annotation-profiles|examples]
+                 catalog [commands|views|procedures|annotation-profiles|examples|composition-graph]
                          [ITEM] [--json]
+                 show SOURCE.rb PATH [--json]
+                 connections SOURCE.rb PATH [--json]
+                 path SOURCE.rb FROM TO [--max-hops N] [--json]
                  protocol template proposal-response PROPOSAL_REQUEST.json --producer ID
                           [--patch DIFF] [--description TEXT] [--candidate-id ID]
                  protocol template selection-response SELECTION_REQUEST.json --producer ID
@@ -134,6 +137,28 @@ rescue Partitura::Production::Evaluation::Error => e
   emit_error(e.to_h)
 rescue Errno::ENOENT, Errno::EACCES, SyntaxError => e
   source_failure(e, help_topic: "evaluation")
+end
+
+def composition_graph_query_guard
+  require_partitura
+  yield
+rescue Partitura::Production::CompileError => e
+  emit_error(e.response)
+rescue Errno::ENOENT, Errno::EACCES, SyntaxError => e
+  source_failure(e, help_topic: "composition_graph")
+rescue Partitura::CompositionGraphCommand::SourceEvaluationError => e
+  structured_failure(
+    "invalid_production_source", e.message,
+    "Correct the production DSL definition and rerun the same graph query.",
+    help_topic: "composition_graph",
+    extra: { source_file: e.source, error_class: e.error_class }
+  )
+rescue ArgumentError, OptionParser::ParseError => e
+  structured_failure(
+    "composition_graph_query_error", e.message,
+    "Pass a readable production source and stable graph paths; use `partitura help composition_graph`.",
+    help_topic: "composition_graph"
+  )
 end
 
 def score_observation_guard
@@ -427,6 +452,12 @@ when "catalog"
   rescue KeyError => e
     structured_failure("unknown_catalog_item", e.message,
                        "Run `partitura catalog --json` to list catalogues.", help_topic: "index")
+  end
+
+when "show", "connections", "path"
+  composition_graph_query_guard do
+    require_relative "../lib/partitura/composition_graph_command"
+    exit Partitura::CompositionGraphCommand.new(command).run(ARGV)
   end
 
 when "protocol"

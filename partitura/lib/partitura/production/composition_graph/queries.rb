@@ -9,6 +9,81 @@ module Partitura
         end
       end
 
+      class ConnectionRecord
+        attr_reader :kind, :from, :to, :metadata, :authored, :direction, :origin, :neighbor
+
+        def initialize(relation, origin:)
+          @kind = relation.kind
+          @from = relation.from
+          @to = relation.to
+          @metadata = relation.metadata
+          @authored = relation.authored
+          @origin = origin
+          @direction = relation.from == origin ? :outgoing : :incoming
+          @neighbor = direction == :outgoing ? relation.to : relation.from
+          freeze
+        end
+
+        def to_h
+          {
+            kind: kind, from: from.to_s, to: to.to_s, metadata: metadata,
+            authored: authored, direction: direction, origin: origin.to_s,
+            neighbor: neighbor.to_s
+          }
+        end
+      end
+
+      class NodeInspection
+        attr_reader :object, :requirements, :connections
+
+        def initialize(object:, requirements:, connections:)
+          @object = object
+          @requirements = requirements.freeze
+          @connections = connections.freeze
+          freeze
+        end
+
+        def to_h
+          {
+            object: object.to_h,
+            requirements: requirements.map(&:to_h),
+            connections: connections.map(&:to_h)
+          }
+        end
+      end
+
+      class PathResult
+        attr_reader :from, :to, :max_hops, :found, :steps
+
+        def initialize(from:, to:, max_hops:, found:, steps:)
+          @from = from
+          @to = to
+          @max_hops = max_hops
+          @found = found
+          @steps = steps&.freeze
+          freeze
+        end
+
+        def to_h
+          {
+            from: from.to_s, to: to.to_s, max_hops: max_hops,
+            found: found, steps: steps&.map(&:to_h)
+          }
+        end
+      end
+
+      def self.vocabulary
+        {
+          node_types: NODE_TYPES,
+          requirement_facets: REQUIREMENT_FACETS,
+          coverage_modes: COVERAGE_MODES,
+          material_relations: MATERIAL_RELATIONS,
+          relation_kinds: RELATION_KINDS,
+          authored_relation_kinds: AUTHORED_RELATION_KINDS,
+          material_identity_facets: MATERIAL_IDENTITY_FACETS
+        }.freeze
+      end
+
       class Graph
         def require_stable(path)
           target = node(path)
@@ -60,7 +135,57 @@ module Partitura
           end.map(&:to).uniq.sort_by(&:to_s).freeze
         end
 
+        def show(path)
+          target = require_path(path)
+          NodeInspection.new(
+            object: node(target), requirements: requirements_at(target),
+            connections: connections(target)
+          )
+        end
+
+        def connections(path)
+          target = require_path(path)
+          @relations.filter_map do |relation|
+            ConnectionRecord.new(relation, origin: target) if relation.from == target || relation.to == target
+          end.sort_by do |connection|
+            [connection.neighbor.to_s, connection.kind.to_s, connection.from.to_s,
+             connection.to.to_s, Canonical.json(connection.metadata)]
+          end.freeze
+        end
+
+        def shortest_path(from, to, max_hops: 6)
+          limit = Integer(max_hops)
+          raise ArgumentError, "max_hops must be between 1 and 20" unless (1..20).cover?(limit)
+
+          start = require_path(from)
+          finish = require_path(to)
+          return PathResult.new(from: start, to: finish, max_hops: limit, found: true, steps: []) if start == finish
+
+          route = find_route(start, finish, limit)
+          PathResult.new(from: start, to: finish, max_hops: limit, found: !route.nil?, steps: route)
+        end
+
         private
+
+        def find_route(start, finish, limit)
+          queue = [[start, []]]
+          visited = { start => true }
+          until queue.empty?
+            current, steps = queue.shift
+            next if steps.length >= limit
+
+            connections(current).each do |connection|
+              next if visited[connection.neighbor]
+
+              route = steps + [connection]
+              return route if connection.neighbor == finish
+
+              visited[connection.neighbor] = true
+              queue << [connection.neighbor, route]
+            end
+          end
+          nil
+        end
 
         def require_path(value)
           path = value.is_a?(Path) ? value : Path.parse(value)

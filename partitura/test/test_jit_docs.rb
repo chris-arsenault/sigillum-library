@@ -102,6 +102,8 @@ class JITDocsTest < Minitest::Test
     assert_includes data[:rules],
                     "The production Ruby source remains authoritative; the Composition Graph is a derived projection."
     assert_includes data[:rules], "A bound requirement proves authored coverage only, never musical quality."
+    assert(data[:rules].any? { |rule| rule.include?("connections SOURCE.rb PATH") })
+    assert(data[:rules].any? { |rule| rule.include?("catalog composition-graph") })
     assert_includes data[:example], "plan do"
     assert_includes data[:example], "material: :theme_a"
     assert_includes data[:docs], "docs/architecture/partitura/09_composition_graph.md"

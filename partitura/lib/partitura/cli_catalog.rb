@@ -27,6 +27,8 @@ module Partitura
       )
     end
 
+    require_relative "cli_graph_commands"
+
     COMMANDS = {
       "commands" => command(
         category: :discover, summary: "Describe all CLI commands or one command as typed data.",
@@ -363,7 +365,7 @@ module Partitura
           { flag: "--annotation", type: "annotation_binding", required: true, repeatable: true }
         ]
       )
-    }.freeze
+    }.merge(CLIGraphCommands::COMMANDS).freeze
 
     module_function
 

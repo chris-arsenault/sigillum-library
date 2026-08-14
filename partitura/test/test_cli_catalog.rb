@@ -13,9 +13,9 @@ class CLICatalogTest < Minitest::Test
   CLI = File.join(ROOT, "partitura", "bin", "partitura")
   COMMANDS = %w[
     abandon annotation-observation back benchmark-preference benchmark-review
-    benchmark-score build cards catalog commands commit compile evaluate export help
-    import-musicxml lint log next observe preference protocol review runs score-observation
-    start status step verify-musicxml-import view
+    benchmark-score build cards catalog commands commit compile connections evaluate export help
+    import-musicxml lint log next observe path preference protocol review runs score-observation
+    show start status step verify-musicxml-import view
   ].freeze
 
   def test_command_catalog_covers_consolidated_cli
@@ -74,12 +74,20 @@ class CLICatalogTest < Minitest::Test
     procedures = Partitura::Catalog.data("procedures").fetch(:procedures)
     profiles = Partitura::Catalog.data("annotation_profiles").fetch(:annotation_profiles)
     examples = Partitura::Catalog.data("examples").fetch(:examples)
+    graph = Partitura::Catalog.data("composition-graph").fetch(:composition_graph)
+    graph_contract = Partitura::Production::CompositionGraph.vocabulary.transform_values do |values|
+      values.map(&:to_s)
+    end
 
     assert_includes views.fetch(:sounding_views), "verticals"
     assert_includes views.fetch(:data_views), "composition_snapshot"
     assert_equal %w[dsl_composition section_recomposition], (procedures.map { |item| item.fetch(:id) })
     assert_equal %w[openscore_hauptstimme_v1 s3_v1], (profiles.map { |item| item.fetch(:id) })
     assert(examples.all? { |item| File.file?(File.join(ROOT, item.fetch(:path))) })
+    assert_equal graph_contract, graph
+    assert_equal "material_relations",
+                 Partitura::Catalog.data("composition-graph", "material-relations")
+                                  .dig(:composition_graph_entry, :name)
   end
 
   def test_procedure_and_profile_items_are_typed
@@ -101,11 +109,16 @@ class CLICatalogTest < Minitest::Test
     example_out, example_err, example_status = Open3.capture3(
       "ruby", CLI, "catalog", "examples", "production_hybrid", "--json", chdir: ROOT
     )
+    graph_out, graph_err, graph_status = Open3.capture3(
+      "ruby", CLI, "catalog", "composition-graph", "node-types", "--json", chdir: ROOT
+    )
 
     assert commands_status.success?, commands_err
     assert example_status.success?, example_err
+    assert graph_status.success?, graph_err
     assert_equal "view", JSON.parse(commands_out).dig("command", "name")
     assert_equal "canonical", JSON.parse(example_out).dig("example", "status")
+    assert_includes JSON.parse(graph_out).dig("composition_graph_entry", "values"), "span"
   end
 
   def test_view_without_source_is_successful_discovery

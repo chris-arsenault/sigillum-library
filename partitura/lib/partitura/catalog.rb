@@ -7,38 +7,52 @@ require_relative "examples_catalog"
 module Partitura
   module Catalog
     SCHEMA_VERSION = 1
-    NAMES = %w[commands views procedures annotation_profiles examples].freeze
+    NAMES = %w[commands views procedures annotation_profiles examples composition_graph].freeze
+    DATA_READERS = {
+      "commands" => :commands_data,
+      "views" => :views_data,
+      "procedures" => :procedures_data,
+      "annotation_profiles" => :annotation_profiles_data,
+      "examples" => :examples_data,
+      "composition_graph" => :composition_graph_data
+    }.freeze
+    RENDERERS = {
+      "commands" => :render_commands,
+      "views" => :render_views,
+      "procedures" => :render_procedures,
+      "annotation_profiles" => :render_annotation_profiles,
+      "examples" => :render_examples,
+      "composition_graph" => :render_composition_graph
+    }.freeze
 
     module_function
 
     def data(name = nil, item = nil)
       return { schema_version: SCHEMA_VERSION, catalogs: NAMES } unless name
 
-      case normalize(name)
-      when "commands" then CLICatalog.data(item)
-      when "views" then views_data(item)
-      when "procedures" then procedures_data(item)
-      when "annotation_profiles" then annotation_profiles_data(item)
-      when "examples" then ExamplesCatalog.data(item)
-      else raise KeyError, "unknown catalog #{name.inspect}; available: #{NAMES.join(', ')}"
-      end
+      reader = DATA_READERS[normalize(name)]
+      raise KeyError, "unknown catalog #{name.inspect}; available: #{NAMES.join(', ')}" unless reader
+
+      public_send(reader, item)
     end
 
     def render(name = nil, item = nil)
       payload = data(name, item)
       return payload.fetch(:catalogs).join("\n") unless name
 
-      case normalize(name)
-      when "commands" then render_commands(payload)
-      when "views" then render_views(payload)
-      when "procedures" then render_procedures(payload)
-      when "annotation_profiles" then render_annotation_profiles(payload)
-      when "examples" then render_examples(payload)
-      end
+      public_send(RENDERERS.fetch(normalize(name)), payload)
     end
 
     def normalize(name)
       name.to_s.tr("-", "_")
+    end
+
+    def commands_data(item)
+      CLICatalog.data(item)
+    end
+
+    def examples_data(item)
+      ExamplesCatalog.data(item)
     end
 
     def views_data(item)
@@ -118,6 +132,23 @@ module Partitura
       }
     end
 
+    def composition_graph_data(item)
+      values = Production::CompositionGraph.vocabulary.transform_values do |items|
+        items.map(&:to_s)
+      end
+      if item
+        name = normalize(item).to_sym
+        selected = values[name]
+        raise KeyError, "unknown composition graph vocabulary #{item.inspect}" unless selected
+
+        return {
+          schema_version: SCHEMA_VERSION,
+          composition_graph_entry: { name: name.to_s, values: selected }
+        }
+      end
+      { schema_version: SCHEMA_VERSION, composition_graph: values }
+    end
+
     def relative_path(path)
       return unless path
 
@@ -159,6 +190,17 @@ module Partitura
       examples = payload[:examples] || [payload.fetch(:example)]
       examples.map do |example|
         "#{example.fetch(:id)}  #{example.fetch(:status)}  #{example.fetch(:path)}"
+      end.join("\n")
+    end
+
+    def render_composition_graph(payload)
+      if payload[:composition_graph_entry]
+        entry = payload.fetch(:composition_graph_entry)
+        return "#{entry.fetch(:name)}: #{entry.fetch(:values).join(', ')}"
+      end
+
+      payload.fetch(:composition_graph).map do |name, values|
+        "#{name}: #{values.join(', ')}"
       end.join("\n")
     end
   end
