@@ -21,6 +21,7 @@ partitura/bin/partitura help composition_workflow --json
 partitura/bin/partitura help score_observation
 partitura/bin/partitura commands --json
 partitura/bin/partitura catalog views --json
+partitura/bin/partitura catalog composition-graph --json
 ```
 
 The help branch loads independently of the full score runtime so cold-start discovery
@@ -103,6 +104,20 @@ partitura/bin/partitura view SOURCE.rb composition_resolution
 ```
 
 Views derive from the source. They are not summaries to edit or feed back into the DSL.
+
+For a Composition Graph task, inspect one exact path before loading the full graph or
+concrete snapshot:
+
+```bash
+partitura/bin/partitura commands show --json
+partitura/bin/partitura catalog composition-graph --json
+partitura/bin/partitura show SOURCE.rb span:opening --json
+partitura/bin/partitura connections SOURCE.rb span:opening --json
+partitura/bin/partitura path SOURCE.rb material:theme_a span:return --max-hops 6 --json
+```
+
+`catalog composition-graph` reads the live closed vocabularies. `show`, `connections`,
+and `path` query the existing graph projection without making it another source of truth.
 
 ## Repair Loop
 

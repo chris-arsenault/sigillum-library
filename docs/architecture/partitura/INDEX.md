@@ -35,6 +35,8 @@ directory by default.
 | Choose a notation surface | `partitura help decision` | `02_surface_decision.md` |
 | Run a composition procedure | `partitura help guided` | `08_cli_and_guided_runs.md` |
 | Plan or address whole-score structure | `partitura help composition_graph` | `09_composition_graph.md` |
+| Inspect one graph object or route | `partitura show SOURCE.rb PATH --json` | `09_composition_graph.md` |
+| Read graph vocabularies | `partitura catalog composition-graph --json` | `03_jit_docs_api.md`, `09_composition_graph.md` |
 | Exchange proposals with an external system | `partitura help composition_workflow` | `09_composition_graph.md` |
 | Construct or validate workflow responses | `partitura help protocol` | `08_cli_and_guided_runs.md` |
 | Compare candidates or completed scores | `partitura help evaluation` | `08_cli_and_guided_runs.md` |

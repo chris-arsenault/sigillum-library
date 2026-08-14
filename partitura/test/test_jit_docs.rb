@@ -110,6 +110,16 @@ class JITDocsTest < Minitest::Test
     assert_equal :composition_graph, Partitura.help_data(:score_tree)[:topic]
   end
 
+  def test_composition_graph_deep_document_keeps_routed_discovery_commands
+    path = File.join(REPOSITORY_ROOT, "docs/architecture/partitura/09_composition_graph.md")
+    document = File.read(path)
+
+    [
+      "catalog composition-graph", "show SOURCE.rb", "connections SOURCE.rb",
+      "path SOURCE.rb",
+    ].each { |command| assert_includes document, command }
+  end
+
   def test_json_renderer_returns_parseable_response
     parsed = JSON.parse(Partitura::JITDocs.render_json(:staff_grid))
 

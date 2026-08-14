@@ -427,6 +427,9 @@ graph = Partitura.composition_graph(piece)
 graph.node("span:theme_a_return")
 graph.requirements(state: :open)
 graph.relations(kind: :returns_to)
+graph.show("span:theme_a_return")
+graph.connections("span:theme_a_return")
+graph.shortest_path("material:theme_a", "span:theme_a_return", max_hops: 6)
 graph.to_h
 ```
 
@@ -437,7 +440,24 @@ partitura/bin/partitura view SOURCE.rb composition_graph
 partitura/bin/partitura view SOURCE.rb composition_graph --json
 partitura/bin/partitura view SOURCE.rb composition_plan
 partitura/bin/partitura view SOURCE.rb composition_resolution
+partitura/bin/partitura catalog composition-graph --json
+partitura/bin/partitura show SOURCE.rb span:theme_a_return --json
+partitura/bin/partitura connections SOURCE.rb span:theme_a_return --json
+partitura/bin/partitura path SOURCE.rb material:theme_a span:theme_a_return --max-hops 6 --json
 ```
+
+The catalog returns the current node types, requirement facets, coverage modes, material
+relations, all relation kinds, authored relation kinds, and material identity facets. It
+is authoritative when those closed vocabularies matter to a caller.
+
+The three bounded query commands return `schema_version`, `command`, `source`, and the
+current `graph_digest` with their result. `show` adds one node plus its direct requirements
+and connections. `connections` lists every incident canonical relation in deterministic
+order. `path` traverses those relations in either direction while retaining canonical
+`from` and `to` endpoints and a separate traversal `direction`; its response contains
+`found`, `steps`, and the applied hop limit. A missing route is a successful response with
+`found: false` and `steps: null`. The default limit is 6 and the allowed range is 1 through
+20.
 
 The text view is composer-facing. The JSON form is a deterministic, versioned consumer boundary:
 
@@ -548,7 +568,11 @@ Graph validation does not:
 - generate repair music.
 
 The CLI uses the standard error envelope with `code`, `message`, `repair_instruction`,
-`help_topic`, and `docs`.
+`help_topic`, `docs`, and `diagnostics`. Each diagnostic adds `severity`, `object_path`,
+`source_file`, `source_line`, and `details`. Bounded query failures use
+`composition_graph_query_error`; Ruby parse, load, and source-evaluation failures use
+`invalid_production_source`. Both preserve the failing source path and return JSON on
+stderr when `--json` was requested.
 
 ## Guided Procedure Integration
 

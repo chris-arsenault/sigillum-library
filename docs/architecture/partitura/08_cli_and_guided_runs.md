@@ -25,6 +25,7 @@ partitura/bin/partitura catalog views --json
 partitura/bin/partitura catalog procedures --json
 partitura/bin/partitura catalog annotation-profiles --json
 partitura/bin/partitura catalog examples --json
+partitura/bin/partitura catalog composition-graph --json
 ```
 
 The command catalogue reports usage, typed arguments and options, output kind, and
@@ -53,6 +54,9 @@ help [topic] [--json]
 compile SOURCE.rb
 lint SOURCE.rb
 view SOURCE.rb [view] [--part ID] [--bars A-B] [--json]
+show SOURCE.rb PATH [--json]
+connections SOURCE.rb PATH [--json]
+path SOURCE.rb FROM TO [--max-hops N] [--json]
 cards <query terms>
 cards show <ID>
 cards terms
@@ -72,6 +76,11 @@ verify-musicxml-import HAND.musicxml EXPORT.musicxml [--bars A-B] [--beats N]
   lints require judgment rather than automatic rewriting.
 - `view` reads one projection from the canonical source. Run it without a source to see
   the current sounding, data, and declared-intent view catalogues.
+- `show` returns one Composition Graph node with its direct requirements and connections.
+- `connections` returns canonical relations incident to one exact graph path, retaining
+  authored endpoints and the traversal direction.
+- `path` finds a deterministic shortest route while traversing relations in either
+  direction. It defaults to 6 hops and accepts limits from 1 through 20.
 - `cards` searches reusable technique specimens by category, facet, identifier, and
   behavior text.
 - `export` validates the source and writes MusicXML and MIDI under
@@ -150,15 +159,32 @@ Partitura-owned domain failures use structured fields:
   "message": "pitches has 2 events but rhythm has 1 in bar 1",
   "repair_instruction": "Make the two streams align event-by-event.",
   "help_topic": "split_pitch_rhythm",
-  "docs": ["docs/architecture/partitura/surfaces/split_pitch_rhythm.md"]
+  "docs": ["docs/architecture/partitura/surfaces/split_pitch_rhythm.md"],
+  "diagnostics": [
+    {
+      "severity": "error",
+      "code": "surface_event_count_mismatch",
+      "message": "pitches has 2 events but rhythm has 1 in bar 1",
+      "object_path": null,
+      "source_file": null,
+      "source_line": null,
+      "repair_instruction": "Make the two streams align event-by-event.",
+      "help_topic": "split_pitch_rhythm",
+      "details": {}
+    }
+  ]
 }
 ```
 
 The error says what failed, how to repair the mechanical problem, and which small topic
-to request. It does not claim to judge the resulting music.
+to request. The nested diagnostic adds stable object and source identity without removing
+the legacy top-level fields. It does not claim to judge the resulting music.
 
 Argument usage failures from the command parser remain short usage messages with exit
-code 2. Domain validation failures use the structured envelope.
+code 2 unless a command documents a structured query boundary. Composition Graph
+`show`, `connections`, and `path` return `composition_graph_query_error` or
+`invalid_production_source` JSON on stderr with exit code 1 for query, parse, load, and
+source-evaluation failures. Other domain validation failures use the structured envelope.
 
 ## Guided Procedure Model
 

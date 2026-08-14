@@ -16,6 +16,7 @@ generated from the current runtime; this abbreviated shape shows the stable fiel
   "source_model": "production_hybrid",
   "surface_summary": ["degrees", "intervals", "split_pitch_rhythm", "absolute"],
   "lints": [],
+  "diagnostics": [],
   "available_projections": ["adjacency_profile", "harmony_check", "verticals", "controls"],
   "secondary_declared_intent_projections": ["structure", "roles", "material_map"],
   "projection_note": "available_projections are SOUNDING (note-derived) and primary; secondary views read authored assertions and only verify them against the music",
@@ -40,7 +41,20 @@ catalogue.
   "repair_instruction": "Make the two streams align event-by-event, splitting the phrase if needed.",
   "help_topic": "split_pitch_rhythm",
   "docs": ["docs/architecture/partitura/surfaces/split_pitch_rhythm.md"],
-  "minimal_example": "phrase :line, surface: :split_pitch_rhythm do ..."
+  "minimal_example": "phrase :line, surface: :split_pitch_rhythm do ...",
+  "diagnostics": [
+    {
+      "severity": "error",
+      "code": "surface_event_count_mismatch",
+      "message": "pitches has 2 events but rhythm has 1 in bar 1.",
+      "object_path": "phrase:line",
+      "source_file": null,
+      "source_line": null,
+      "repair_instruction": "Make the two streams align event-by-event, splitting the phrase if needed.",
+      "help_topic": "split_pitch_rhythm",
+      "details": {}
+    }
+  ]
 }
 ```
 
@@ -48,6 +62,13 @@ Every production compile error identifies a repair action and focused topic. Che
 source mechanics such as references, pitch/rhythm alignment, bar boundaries, spans,
 roster ranges, checkpoints, controls, and exportability. They do not determine whether a
 valid phrase is expressive or appropriate.
+
+`diagnostics` is additive. Existing consumers may continue reading top-level `status`,
+`code`, `message`, `repair_instruction`, `help_topic`, `docs`, and `minimal_example`.
+Each diagnostic supplies the common machine fields `severity`, `code`, `message`,
+`object_path`, `source_file`, `source_line`, `repair_instruction`, `help_topic`, and
+`details`. Successful compilation returns an empty array unless lint diagnostics are
+present.
 
 ## Ruby API
 
