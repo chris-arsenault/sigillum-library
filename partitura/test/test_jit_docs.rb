@@ -104,6 +104,9 @@ class JITDocsTest < Minitest::Test
     assert_includes data[:rules], "A bound requirement proves authored coverage only, never musical quality."
     assert(data[:rules].any? { |rule| rule.include?("connections SOURCE.rb PATH") })
     assert(data[:rules].any? { |rule| rule.include?("catalog composition-graph") })
+    assert(data[:rules].any? { |rule| rule.include?("view SOURCE.rb composition_graph") })
+    assert(data[:rules].any? { |rule| rule.include?("view SOURCE.rb composition_resolution") })
+    assert(data[:rules].any? { |rule| rule.include?("view SOURCE.rb composition_snapshot --json") })
     assert_includes data[:example], "plan do"
     assert_includes data[:example], "material: :theme_a"
     assert_includes data[:docs], "docs/architecture/partitura/09_composition_graph.md"
@@ -118,6 +121,9 @@ class JITDocsTest < Minitest::Test
       "catalog composition-graph", "show SOURCE.rb", "connections SOURCE.rb",
       "path SOURCE.rb",
     ].each { |command| assert_includes document, command }
+    %w[kind from to metadata authored direction origin neighbor].each do |field|
+      assert_includes document, "`#{field}`"
+    end
   end
 
   def test_json_renderer_returns_parseable_response

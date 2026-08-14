@@ -105,12 +105,15 @@ partitura/bin/partitura view SOURCE.rb composition_resolution
 
 Views derive from the source. They are not summaries to edit or feed back into the DSL.
 
-For a Composition Graph task, inspect one exact path before loading the full graph or
-concrete snapshot:
+For a Composition Graph task, take an exact path from the source or a guided workflow's
+`graph_paths`, then inspect that object before loading a concrete snapshot. If no path is
+known, use `view SOURCE.rb composition_graph --json` once as the path inventory and
+return to the bounded commands:
 
 ```bash
 partitura/bin/partitura commands show --json
 partitura/bin/partitura catalog composition-graph --json
+partitura/bin/partitura view SOURCE.rb composition_graph --json
 partitura/bin/partitura show SOURCE.rb span:opening --json
 partitura/bin/partitura connections SOURCE.rb span:opening --json
 partitura/bin/partitura path SOURCE.rb material:theme_a span:return --max-hops 6 --json

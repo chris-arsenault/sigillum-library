@@ -11,6 +11,7 @@ require "partitura"
 class CompositionGraphDiscoveryTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   CLI = File.join(ROOT, "partitura/bin/partitura")
+  WORKFLOW_FIXTURE = File.join(ROOT, "partitura/test/fixtures/composition_workflow_study.rb")
 
   def test_show_and_connections_use_stable_graph_paths
     graph = Partitura.composition_graph(discovery_piece)
@@ -88,6 +89,30 @@ class CompositionGraphDiscoveryTest < Minitest::Test
     end
   end
 
+  def test_cli_missing_and_invalid_ruby_sources_keep_distinct_codes_and_source_identity
+    Dir.mktmpdir do |directory|
+      missing = File.join(directory, "missing.rb")
+      invalid = File.join(directory, "invalid.rb")
+      File.write(invalid, "production_piece(")
+
+      [
+        [missing, "unreadable_source"],
+        [invalid, "invalid_ruby_source"],
+      ].each do |source, code|
+        stdout, stderr, status = Open3.capture3(
+          "ruby", CLI, "show", source, "piece:missing", chdir: ROOT
+        )
+        payload = JSON.parse(stderr)
+
+        refute status.success?
+        assert_empty stdout
+        assert_equal code, payload.fetch("code")
+        assert_equal source, payload.fetch("source_file")
+        assert_equal source, payload.dig("diagnostics", 0, "source_file")
+      end
+    end
+  end
+
   def test_cli_definition_failure_uses_structured_diagnostic
     Dir.mktmpdir do |directory|
       source = File.join(directory, "broken.rb")
@@ -126,6 +151,21 @@ class CompositionGraphDiscoveryTest < Minitest::Test
       assert_equal "invalid_production_source", payload.fetch("code")
       assert_equal "LoadError", payload.dig("diagnostics", 0, "details", "error_class")
     end
+  end
+
+  def test_documented_fixture_supports_bounded_graph_discovery_commands
+    show = run_json("show", WORKFLOW_FIXTURE, "span:statement")
+    connections = run_json("connections", WORKFLOW_FIXTURE, "span:return")
+    path = run_json(
+      "path", WORKFLOW_FIXTURE, "material:theme_a", "placement:theme_statement_flute",
+      "--max-hops", "2"
+    )
+
+    assert_equal "span:statement", show.dig("object", "path")
+    assert_equal "span:return", connections.fetch("object_path")
+    assert_operator connections.fetch("count"), :>, 0
+    assert path.fetch("found")
+    assert_operator path.fetch("steps").length, :<=, 2
   end
 
   private

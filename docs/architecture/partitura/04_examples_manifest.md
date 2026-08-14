@@ -77,3 +77,11 @@ Purpose: a hand-authored graph-enabled source used to verify scheduling, isolate
 evaluation, exact-byte promotion, trajectory persistence, blind review, and completed-score
 measurement. Its tests under `partitura/test/test_composition_workflow*.rb` are the
 executable contract; the fixture is not a standalone composition example.
+
+It is also the committed source for copyable bounded graph-discovery examples:
+
+```bash
+partitura/bin/partitura show partitura/test/fixtures/composition_workflow_study.rb span:statement --json
+partitura/bin/partitura connections partitura/test/fixtures/composition_workflow_study.rb span:return --json
+partitura/bin/partitura path partitura/test/fixtures/composition_workflow_study.rb material:theme_a placement:theme_statement_flute --max-hops 2 --json
+```

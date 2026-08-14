@@ -16,8 +16,8 @@ module Partitura
           "graph discovery before loading a full snapshot.",
           "Use `catalog composition-graph --json` for the runtime node, requirement, relation, and " \
           "material vocabularies.",
-          "Use `composition_graph` and `composition_resolution` to inspect plans; use " \
-          "`composition_snapshot --json` for external analysis.",
+          "Use `view SOURCE.rb composition_graph` and `view SOURCE.rb composition_resolution` to inspect " \
+          "plans; use `view SOURCE.rb composition_snapshot --json` for external analysis.",
           "A bound requirement proves authored coverage only, never musical quality."
         ],
         example: <<~RUBY.strip,

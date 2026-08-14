@@ -144,8 +144,8 @@ def composition_graph_query_guard
   yield
 rescue Partitura::Production::CompileError => e
   emit_error(e.response)
-rescue Errno::ENOENT, Errno::EACCES, SyntaxError => e
-  source_failure(e, help_topic: "composition_graph")
+rescue Partitura::CompositionGraphCommand::SourceInputError => e
+  source_failure(e.original, source: e.source, help_topic: "composition_graph")
 rescue Partitura::CompositionGraphCommand::SourceEvaluationError => e
   structured_failure(
     "invalid_production_source", e.message,

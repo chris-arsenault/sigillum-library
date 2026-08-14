@@ -37,22 +37,33 @@ catalogue.
 {
   "status": "error",
   "code": "surface_event_count_mismatch",
-  "message": "pitches has 2 events but rhythm has 1 in bar 1.",
+  "message": "phrase :long_line: pitches has 3 events but rhythm has 2 in bar 1.",
   "repair_instruction": "Make the two streams align event-by-event, splitting the phrase if needed.",
   "help_topic": "split_pitch_rhythm",
   "docs": ["docs/architecture/partitura/surfaces/split_pitch_rhythm.md"],
   "minimal_example": "phrase :line, surface: :split_pitch_rhythm do ...",
+  "phrase": "long_line",
+  "surface": "split_pitch_rhythm",
+  "section": "s9",
+  "span_bars": "1-2",
   "diagnostics": [
     {
       "severity": "error",
       "code": "surface_event_count_mismatch",
-      "message": "pitches has 2 events but rhythm has 1 in bar 1.",
-      "object_path": "phrase:line",
+      "message": "phrase :long_line: pitches has 3 events but rhythm has 2 in bar 1.",
+      "object_path": "phrase:long_line",
       "source_file": null,
       "source_line": null,
       "repair_instruction": "Make the two streams align event-by-event, splitting the phrase if needed.",
       "help_topic": "split_pitch_rhythm",
-      "details": {}
+      "details": {
+        "docs": ["docs/architecture/partitura/surfaces/split_pitch_rhythm.md"],
+        "minimal_example": "phrase :line, surface: :split_pitch_rhythm do ...",
+        "phrase": "long_line",
+        "surface": "split_pitch_rhythm",
+        "section": "s9",
+        "span_bars": "1-2"
+      }
     }
   ]
 }
@@ -101,7 +112,8 @@ public transport JSON file.
 Partitura exposes separate read-only JSON contracts for other purposes:
 
 - `composition_snapshot` contains a production source's Composition Graph and concrete
-  score records with stable provenance and digests;
+  score records with digests. Graph-enabled sources carry stable phrase and placement
+  provenance; legacy sources may omit unstable placement identities;
 - `score-observation` records facts from external MusicXML/MXL;
 - `annotation-observation` binds supported external analytical sources to an exact score
   observation;

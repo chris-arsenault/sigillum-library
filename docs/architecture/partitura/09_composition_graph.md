@@ -459,6 +459,17 @@ order. `path` traverses those relations in either direction while retaining cano
 `found: false` and `steps: null`. The default limit is 6 and the allowed range is 1 through
 20.
 
+The bounded result fields are:
+
+- `show`: `object`, `requirements`, and `connections`;
+- `connections`: `object_path`, `count`, and `connections`; and
+- `path`: `from`, `to`, `max_hops`, `found`, and `steps`.
+
+Each connection or path-step record has `kind`, canonical `from` and `to`, `metadata`,
+`authored`, traversal `direction`, `origin`, and `neighbor`. The `origin` is the current
+object for `connections` and the node reached before the step for `path`; `neighbor` is
+the node reached by that traversal.
+
 The text view is composer-facing. The JSON form is a deterministic, versioned consumer boundary:
 
 ```json
@@ -520,9 +531,11 @@ Its versioned payload contains:
 This is a read-only analysis interchange, not a new authoring source and not a handoff between the
 MusicXML/MIDI exporters. It formalizes only the concrete fields an external consumer needs.
 
-Every phrase and placement record includes its stable graph path. Timed events include their
-placement path and phrase path, allowing score features to aggregate back to a span, section, or
-material without parsing prose. Individual events use an ordinal local to their phrase occurrence
+For a graph-enabled source, every phrase and placement record includes its stable graph path.
+Timed events include their placement path and phrase path, allowing score features to aggregate
+back to a span, section, or material without parsing prose. Legacy sources remain compatible:
+generated nodes can declare `stable: false`, placement records may omit `graph_path`, and timed
+events may omit `placement_path`. Individual events use an ordinal local to their phrase occurrence
 but are not stable graph nodes.
 
 `graph_digest` changes when plan structure, requirements, relations, or realization bindings change.
@@ -569,10 +582,13 @@ Graph validation does not:
 
 The CLI uses the standard error envelope with `code`, `message`, `repair_instruction`,
 `help_topic`, `docs`, and `diagnostics`. Each diagnostic adds `severity`, `object_path`,
-`source_file`, `source_line`, and `details`. Bounded query failures use
-`composition_graph_query_error`; Ruby parse, load, and source-evaluation failures use
-`invalid_production_source`. Both preserve the failing source path and return JSON on
-stderr when `--json` was requested.
+`source_file`, `source_line`, and `details`. Bounded query or option failures use
+`composition_graph_query_error`; unreadable files use `unreadable_source`; Ruby syntax
+uses `invalid_ruby_source`; and evaluated DSL or dependency failures use
+`invalid_production_source`. Known file, syntax, and evaluation failures preserve the
+failing source path. Query and compile diagnostics may leave source identity unset. All
+four failures return JSON on stderr with exit code 1 even when `--json` was not requested;
+`--json` selects structured success output.
 
 ## Guided Procedure Integration
 

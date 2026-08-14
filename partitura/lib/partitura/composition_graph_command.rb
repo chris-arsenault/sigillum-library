@@ -19,6 +19,16 @@ module Partitura
       end
     end
 
+    class SourceInputError < StandardError
+      attr_reader :source, :original
+
+      def initialize(source, error)
+        @source = source.to_s
+        @original = error
+        super(error.message)
+      end
+    end
+
     def initialize(command)
       @command = command.to_s
     end
@@ -49,8 +59,10 @@ module Partitura
 
     def load_piece(source)
       Partitura.load_production_file(source)
-    rescue Production::CompileError, Errno::ENOENT, Errno::EACCES
+    rescue Production::CompileError
       raise
+    rescue Errno::ENOENT, Errno::EACCES, SyntaxError => error
+      raise SourceInputError.new(source, error), cause: error
     rescue LoadError, StandardError => error
       raise SourceEvaluationError.new(source, error), cause: error
     end

@@ -156,35 +156,52 @@ Partitura-owned domain failures use structured fields:
 {
   "status": "error",
   "code": "surface_event_count_mismatch",
-  "message": "pitches has 2 events but rhythm has 1 in bar 1",
-  "repair_instruction": "Make the two streams align event-by-event.",
+  "message": "phrase :long_line: pitches has 3 events but rhythm has 2 in bar 1.",
+  "repair_instruction": "Make the two streams align event-by-event, splitting the phrase if needed.",
   "help_topic": "split_pitch_rhythm",
   "docs": ["docs/architecture/partitura/surfaces/split_pitch_rhythm.md"],
+  "minimal_example": "phrase :line, surface: :split_pitch_rhythm do ...",
+  "phrase": "long_line",
+  "surface": "split_pitch_rhythm",
+  "section": "s9",
+  "span_bars": "1-2",
   "diagnostics": [
     {
       "severity": "error",
       "code": "surface_event_count_mismatch",
-      "message": "pitches has 2 events but rhythm has 1 in bar 1",
-      "object_path": null,
+      "message": "phrase :long_line: pitches has 3 events but rhythm has 2 in bar 1.",
+      "object_path": "phrase:long_line",
       "source_file": null,
       "source_line": null,
-      "repair_instruction": "Make the two streams align event-by-event.",
+      "repair_instruction": "Make the two streams align event-by-event, splitting the phrase if needed.",
       "help_topic": "split_pitch_rhythm",
-      "details": {}
+      "details": {
+        "docs": ["docs/architecture/partitura/surfaces/split_pitch_rhythm.md"],
+        "minimal_example": "phrase :line, surface: :split_pitch_rhythm do ...",
+        "phrase": "long_line",
+        "surface": "split_pitch_rhythm",
+        "section": "s9",
+        "span_bars": "1-2"
+      }
     }
   ]
 }
 ```
 
 The error says what failed, how to repair the mechanical problem, and which small topic
-to request. The nested diagnostic adds stable object and source identity without removing
-the legacy top-level fields. It does not claim to judge the resulting music.
+to request. The nested diagnostic adds a semantic object path and source identity when
+the failing boundary captured them, without removing the legacy top-level fields. Either
+identity may be `null`. It does not claim to judge the resulting music.
 
 Argument usage failures from the command parser remain short usage messages with exit
 code 2 unless a command documents a structured query boundary. Composition Graph
-`show`, `connections`, and `path` return `composition_graph_query_error` or
-`invalid_production_source` JSON on stderr with exit code 1 for query, parse, load, and
-source-evaluation failures. Other domain validation failures use the structured envelope.
+`show`, `connections`, and `path` always return failure JSON on stderr with exit code 1:
+`composition_graph_query_error` for query or option errors, `unreadable_source` for file
+access, `invalid_ruby_source` for Ruby syntax, and `invalid_production_source` for an
+evaluated DSL or dependency failure. Known file, syntax, and evaluation failures carry
+`source_file`; other source fields remain optional. `--json` selects structured success
+output and is not required for this error boundary. Other domain validation failures use
+the structured envelope.
 
 ## Guided Procedure Model
 
