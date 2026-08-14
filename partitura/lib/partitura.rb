@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "partitura/diagnostic"
 require_relative "partitura/marks"
 require_relative "partitura/model"
 require_relative "partitura/parser"

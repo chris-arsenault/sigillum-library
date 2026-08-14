@@ -156,6 +156,10 @@ class CompositionGraphTest < Minitest::Test
     codes = error.response.fetch(:errors).map { |issue| issue.fetch(:code) }
     assert_includes codes, "duplicate_span_id"
     assert_includes codes, "unknown_relation_target"
+    diagnostics = error.response.fetch(:diagnostics)
+    assert_includes diagnostics.map { |item| item.fetch(:code) }, "duplicate_span_id"
+    assert_includes diagnostics.map { |item| item.fetch(:code) }, "unknown_relation_target"
+    assert(diagnostics.all? { |item| item.fetch(:object_path).include?(":") })
 
     cyclic = Partitura::Production.piece("Cycle", id: :cycle) do
       section :s1, "One", bars: 1..2 do

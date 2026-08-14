@@ -19,7 +19,8 @@ module Partitura
                            "secondary views read authored assertions and only verify them against the music",
           available_exports: %w[musicxml midi],
           next_help_topics: %w[projections hybrid controls],
-          docs: ["docs/architecture/partitura/05_compile_api.md"]
+          docs: ["docs/architecture/partitura/05_compile_api.md"],
+          diagnostics: Lint.diagnostics(lints).map(&:to_h)
         }
       rescue CompileError => e
         e.response.merge(
@@ -40,7 +41,8 @@ module Partitura
                               "with a `lint do rule :name, warn: N, error: N end` block.",
           help_topic: "production",
           docs: ["docs/architecture/partitura/01_container.md"],
-          lints: lints
+          lints: lints,
+          diagnostics: Lint.diagnostics(lints).map(&:to_h)
         }
       end
 

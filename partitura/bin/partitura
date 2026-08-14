@@ -11,6 +11,7 @@
 require "json"
 require "optparse"
 require "fileutils"
+require_relative "../lib/partitura/diagnostic"
 
 BIN_DIR = __dir__
 LIBRARY_ROOT = File.expand_path("../..", __dir__)
@@ -81,10 +82,22 @@ def emit_error(response, exit_code: 1)
 end
 
 def structured_failure(code, message, repair, help_topic: "production", extra: {})
-  emit_error({
+  emit_error(Partitura::Diagnostic.envelope({
     status: "error", code: code, message: message, repair_instruction: repair,
     help_topic: help_topic, docs: ["docs/architecture/partitura/08_cli_and_guided_runs.md"]
-  }.merge(extra))
+  }.merge(extra)))
+end
+
+def source_failure(error, source: nil, help_topic: "production")
+  syntax = error.is_a?(SyntaxError)
+  structured_failure(
+    syntax ? "invalid_ruby_source" : "unreadable_source",
+    error.message,
+    syntax ? "Correct the Ruby syntax in the Partitura source and rerun the command." :
+             "Pass a readable Partitura Ruby source file and rerun the command.",
+    help_topic: help_topic,
+    extra: source ? { source_file: source } : {}
+  )
 end
 
 def guided_guard
@@ -110,6 +123,8 @@ rescue Partitura::Production::CompositionWorkflow::Error => e
   emit_error(e.to_h)
 rescue Partitura::Production::CompileError => e
   emit_error(e.response)
+rescue Errno::ENOENT, Errno::EACCES, SyntaxError => e
+  source_failure(e)
 end
 
 def evaluation_guard
@@ -117,6 +132,8 @@ def evaluation_guard
   yield
 rescue Partitura::Production::Evaluation::Error => e
   emit_error(e.to_h)
+rescue Errno::ENOENT, Errno::EACCES, SyntaxError => e
+  source_failure(e, help_topic: "evaluation")
 end
 
 def score_observation_guard
@@ -532,6 +549,8 @@ when "view"
       exit 0
     end
     emit_error(e.response)
+  rescue Errno::ENOENT, Errno::EACCES, SyntaxError => e
+    source_failure(e, source: source)
   end
 
 when "observe"
@@ -791,6 +810,8 @@ when "compile", "lint"
     end
   rescue Partitura::Production::CompileError => e
     command == "compile" ? (puts JSON.pretty_generate(e.response); exit 1) : emit_error(e.response)
+  rescue Errno::ENOENT, Errno::EACCES, SyntaxError => e
+    source_failure(e, source: source)
   end
 
 when "export"
@@ -811,6 +832,8 @@ when "export"
     File.binwrite(File.join(out_dir, "#{stem}.mid"), Partitura.production_midi(piece))
   rescue Partitura::Production::CompileError => e
     emit_error(e.response)
+  rescue Errno::ENOENT, Errno::EACCES, SyntaxError => e
+    source_failure(e, source: source)
   end
   puts JSON.pretty_generate(
     musicxml: File.join(out_dir, "#{stem}.musicxml"),
@@ -826,6 +849,8 @@ when "build"
     puts JSON.pretty_generate(exports: registry.export(movement))
   rescue Partitura::Production::CompileError => e
     emit_error(e.response)
+  rescue Errno::ENOENT, Errno::EACCES, SyntaxError => e
+    source_failure(e, source: registry_path)
   end
 
 when "cards"

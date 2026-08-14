@@ -3,6 +3,7 @@
 require "csv"
 require "digest"
 require "json"
+require_relative "diagnostic"
 require_relative "score_observation/canonical"
 require_relative "annotation_observation/source_set"
 require_relative "annotation_observation/score_features"
@@ -58,7 +59,7 @@ module Partitura
       end
 
       def to_h
-        {
+        Diagnostic.envelope({
           status: "error",
           code: code,
           message: message,
@@ -66,7 +67,7 @@ module Partitura
                               "with matching, digest-stable annotation sources.",
           help_topic: "annotation_observation",
           docs: ["docs/architecture/partitura/11_annotation_observation.md"]
-        }
+        })
       end
     end
 

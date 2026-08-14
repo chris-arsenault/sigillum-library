@@ -770,7 +770,10 @@ module Partitura
             repair_instruction: "Fix the graph declarations listed in `errors`, then rebuild the composition graph.",
             help_topic: "composition_graph",
             docs: ["docs/architecture/partitura/09_composition_graph.md"],
-            extra: { errors: @issues }
+            extra: {
+              errors: @issues,
+              diagnostics: @issues.map { |issue| Diagnostics.for_issue(issue) }
+            }
           )
         end
       end

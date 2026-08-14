@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../diagnostic"
+
 module Partitura
   module Production
     # Lint rules sit between compiler errors and musical judgment: they flag authoring
@@ -34,6 +36,20 @@ module Partitura
         lints.concat(surface_nudge_lints(phrases)) if config.fetch(:surface_nudges).fetch(:enabled)
         lints.concat(anacrusis_overlap_lints(piece)) if config.fetch(:anacrusis_overlaps).fetch(:enabled)
         lints
+      end
+
+      def diagnostics(lints)
+        lints.map do |lint|
+          Diagnostic.new(
+            severity: lint.fetch(:level),
+            code: lint.fetch(:rule),
+            message: lint.fetch(:message),
+            object_path: lint[:phrase] && "phrase:#{lint[:phrase]}",
+            repair_instruction: "Review the named phrase and apply the change described by the lint message.",
+            help_topic: lint[:help_topic],
+            details: lint.reject { |key, _| %i[level rule message phrase help_topic].include?(key) }
+          )
+        end.freeze
       end
 
       def effective_config(piece)

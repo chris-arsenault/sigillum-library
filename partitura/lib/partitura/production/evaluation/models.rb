@@ -3,6 +3,7 @@
 require "digest"
 require "time"
 require_relative "../composition_graph"
+require_relative "../../diagnostic"
 
 module Partitura
   module Production
@@ -25,7 +26,7 @@ module Partitura
         end
 
         def to_h
-          { status: "error", code: code, message: message }.merge(details)
+          Diagnostic.envelope({ status: "error", code: code, message: message }.merge(details))
         end
       end
 

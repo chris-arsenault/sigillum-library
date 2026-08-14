@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "../../diagnostic"
 require_relative "../composition_graph/models"
 
 module Partitura
@@ -8,7 +9,7 @@ module Partitura
       attr_reader :response
 
       def initialize(code:, message:, repair_instruction:, help_topic:, docs:, minimal_example: nil, extra: nil)
-        @response = {
+        @response = Diagnostic.envelope({
           status: "error",
           code: code,
           message: message,
@@ -16,12 +17,13 @@ module Partitura
           help_topic: help_topic,
           docs: docs,
           minimal_example: minimal_example
-        }.compact
-        @response.merge!(extra) if extra
+        }.compact.merge(extra || {}))
         super(message)
       end
 
-      CORE_RESPONSE_KEYS = %i[status code message repair_instruction help_topic docs minimal_example].freeze
+      CORE_RESPONSE_KEYS = %i[
+        status code message repair_instruction help_topic docs minimal_example diagnostics
+      ].freeze
 
       # Returns a copy of the error carrying authoring context (phrase id, span bars,
       # section id). Existing context is never overwritten, so the innermost frame wins.

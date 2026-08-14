@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "nokogiri"
+require_relative "diagnostic"
 require_relative "score_observation/canonical"
 require_relative "score_observation/source_reader"
 require_relative "score_observation/parser"
@@ -18,14 +19,14 @@ module Partitura
       end
 
       def to_h
-        {
+        Diagnostic.envelope({
           status: "error",
           code: code,
           message: message,
           repair_instruction: "Use an unencrypted, valid score-partwise MusicXML or MXL file.",
           help_topic: "score_observation",
           docs: ["docs/architecture/partitura/10_score_observation.md"]
-        }
+        })
       end
     end
 
