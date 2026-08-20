@@ -86,6 +86,30 @@ module Partitura
       }.freeze
 
       WRITTEN_TRANSPOSITIONS = {
+        "Clarinet" => {
+          written_diatonic: 1,
+          written_chromatic: 2,
+          diatonic: -1,
+          chromatic: -2,
+          octave_change: 0,
+          key_fifths_delta: 2
+        }.freeze,
+        "Trumpet" => {
+          written_diatonic: 1,
+          written_chromatic: 2,
+          diatonic: -1,
+          chromatic: -2,
+          octave_change: 0,
+          key_fifths_delta: 2
+        }.freeze,
+        "BassClarinet" => {
+          written_diatonic: 8,
+          written_chromatic: 14,
+          diatonic: -1,
+          chromatic: -2,
+          octave_change: -1,
+          key_fifths_delta: 2
+        }.freeze,
         "Horn" => {
           written_diatonic: 4,
           written_chromatic: 7,

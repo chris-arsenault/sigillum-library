@@ -82,7 +82,51 @@ class MusicXMLExporterControlsTest < Minitest::Test
     assert_empty REXML::XPath.match(document, "//part[3]/measure[3]/attributes/key | //part[3]/measure[3]/attributes/time")
   end
 
+  def test_bb_instruments_export_written_pitch_and_written_key
+    document = render_document(bb_transposition_piece)
+
+    assert_equal ["Clarinet", "Trumpet", "Bass Clarinet"],
+      REXML::XPath.match(document, "/score-partwise/part-list/score-part/score-instrument/instrument-name").map(&:text)
+
+    # Every Bb part notates the same written E4 and the written key two fifths
+    # sharper than the concert Bb of the source.
+    (1..3).each do |index|
+      assert_equal "E", text_at(document, "//part[#{index}]/measure[1]/note[1]/pitch/step"), "part #{index} step"
+      assert_equal "4", text_at(document, "//part[#{index}]/measure[1]/note[1]/pitch/octave"), "part #{index} octave"
+      assert_equal "0", text_at(document, "//part[#{index}]/measure[1]/attributes/key/fifths"), "part #{index} key"
+      assert_equal "-1", text_at(document, "//part[#{index}]/measure[1]/attributes/transpose/diatonic"), "part #{index} diatonic"
+      assert_equal "-2", text_at(document, "//part[#{index}]/measure[1]/attributes/transpose/chromatic"), "part #{index} chromatic"
+    end
+
+    # Clarinet and trumpet sound a major second below written; the bass
+    # clarinet sounds a major ninth below, so only it carries an octave change.
+    assert_empty REXML::XPath.match(document, "//part[1]/measure[1]/attributes/transpose/octave-change")
+    assert_empty REXML::XPath.match(document, "//part[2]/measure[1]/attributes/transpose/octave-change")
+    assert_equal "-1", text_at(document, "//part[3]/measure[1]/attributes/transpose/octave-change")
+  end
+
   private
+
+  def bb_transposition_piece
+    Partitura::Production.piece("Bb Transposition") do
+      meter "4/4"; key "Bb"
+      roster do
+        part :clarinet, "Clarinet", music21: "Clarinet", family: :woodwind
+        part :trumpet, "Trumpet", music21: "Trumpet", family: :brass
+        part :bass_clarinet, "Bass Clarinet", music21: "BassClarinet", family: :woodwind
+      end
+      section :s1, "Opening", bars: 1..1 do
+        span bars: 1..1 do
+          phrase(:clarinet_line, surface: :absolute) { events "D4:4" }
+          phrase(:trumpet_line, surface: :absolute) { events "D4:4" }
+          phrase(:bass_clarinet_line, surface: :absolute) { events "D3:4" }
+          placement :clarinet_line, part: :clarinet, at: "bar 1 beat 1", role: :foreground
+          placement :trumpet_line, part: :trumpet, at: "bar 1 beat 1", role: :foreground
+          placement :bass_clarinet_line, part: :bass_clarinet, at: "bar 1 beat 1", role: :bass
+        end
+      end
+    end
+  end
 
   def clef_export_piece
     Partitura::Production.piece("Clef Export") do
