@@ -267,6 +267,42 @@ class MusicXMLExporterTest < Minitest::Test
     assert_equal 1, REXML::XPath.match(document, "//backup").length
   end
 
+  def test_harp_grand_staff_preserves_instrument_and_glissando_with_bass_clef_clarinet
+    piece = Partitura::Production.piece("Harp And Bass Clarinet") do
+      meter "6/8"; key "d"
+      roster do
+        part :harp_rh, "Pedal Harp", music21: "Harp", family: :plucked,
+          notation_group: :pedal_harp, notation_staff: 1
+        part :harp_lh, "Pedal Harp", music21: "Harp", family: :plucked,
+          notation_group: :pedal_harp, notation_staff: 2
+        part :bass_clarinet, "Bass Clarinet", music21: "BassClarinet", family: :woodwind
+      end
+      section :s1, "Opening", bars: 1..1 do
+        span bars: 1..1 do
+          phrase(:upper, surface: :absolute) { events "D4:1.5{arp,gliss(} D5:.5{gliss)} r:1" }
+          phrase(:lower, surface: :absolute) { events "[Bb2,F3]:1.5{arp} [D3,A3]:.5 r:1" }
+          phrase(:bass, surface: :absolute) { events "D2:2 r:1" }
+          placement :upper, part: :harp_rh, at: "bar 1 beat 1", role: :foreground
+          placement :lower, part: :harp_lh, at: "bar 1 beat 1", role: :bass
+          placement :bass, part: :bass_clarinet, at: "bar 1 beat 1", role: :bass
+        end
+      end
+      control { clef :bass, at: "bar 1 beat 1", for: :bass_clarinet }
+    end
+
+    document = render_document(piece)
+
+    assert_equal 2, REXML::XPath.match(document, "/score-partwise/part-list/score-part").length
+    assert_equal "Pedal Harp", text_at(document, "//score-part[1]/part-name")
+    assert_equal "47", text_at(document, "//score-part[1]/midi-instrument/midi-program")
+    assert_equal "2", text_at(document, "//part[1]/measure/attributes/staves")
+    assert_equal %w[1 2], REXML::XPath.match(document, "//part[1]//note/staff").map(&:text).uniq
+    assert_equal %w[F 4], clef_signature(document, 2)
+    assert_equal %w[start stop], REXML::XPath.match(document, "//part[1]//glissando").map { |g| g.attributes["type"] }
+    assert_equal %w[D D], REXML::XPath.match(document, "//part[1]//note[notations/glissando]/pitch/step").map(&:text)
+    assert_equal %w[4 5], REXML::XPath.match(document, "//part[1]//note[notations/glissando]/pitch/octave").map(&:text)
+  end
+
   def test_dotted_tempo_preserves_notation_and_uses_quarter_normalized_sound_tempo
     piece = Partitura::Production.piece("Dotted Tempo Export") do
       meter "6/8"; key "C"; tempo "dotted-quarter = 52"

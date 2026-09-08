@@ -29,6 +29,21 @@ class MusicXMLExporterImportSafetyTest < Minitest::Test
     assert_operator names.index("type"), :<, names.index("notehead")
   end
 
+  def test_choke_renders_only_as_a_technical_mark
+    piece = single_part_piece(
+      "Choke Export", :pan, "Pan", music21: "Percussion", family: :percussion,
+      event_text: "D3:1{choke} A3:1{choke,accent} r:2", role: :rhythm
+    )
+    document = render_document(piece)
+    notes = REXML::XPath.match(document, "//note[pitch]")
+
+    assert_equal 2, REXML::XPath.match(document, "//technical/stopped").length
+    assert_empty REXML::XPath.match(document, "//articulations/stopped")
+    assert_empty REXML::XPath.match(document, "//words[text()='choke']")
+    assert_nil REXML::XPath.first(notes.first, "notations/articulations")
+    refute_nil REXML::XPath.first(notes.last, "notations/articulations/accent")
+  end
+
   def test_inactive_secondary_voice_does_not_emit_measure_rest_over_notes
     document = render_document(voice_rest_overlay_piece)
     bar_one = REXML::XPath.first(document, "/score-partwise/part/measure[@number='1']")

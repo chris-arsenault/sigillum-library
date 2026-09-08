@@ -56,7 +56,6 @@ module Partitura
           first.merge(
             "id" => "__group__#{group_name}",
             "name" => grand_staff_display_name(group_name, parts),
-            "music21_instrument" => "Piano",
             "render_kind" => "grand_staff",
             "staves" => 2,
             "source_parts" => parts

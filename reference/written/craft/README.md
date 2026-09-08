@@ -13,6 +13,11 @@ points here; the procedures name them).
   law; high-water-mark + dialect doctrine. (Its internal sections are cited as `s1`…`s6g`.)
 - `texture_identity_contrast_ledger.md` — Phase-A identity/contrast ledger: continuity identity,
   section job, fractalization target, detail mode, reserve role, and contrast relation.
+- `ensemble_binding_and_grid.md` — listening-feedback corrections (Basin Aria study), split into
+  boundaries (grid-layer identity, answer lanes, low-register spacing, declared harmony, device
+  preconditions) and gradients (phrase-break interludes, rhythm spectrum, interval physiognomy —
+  bias corrections, never to be universalized); includes the deaf composer's checklist and the
+  gradient/boundary encoding rule; cited as `ensemble_binding_and_grid:sN`, grown per correction cycle.
 
 **Melody craft**
 - `phrasing_variation_line.md` — the composer-decision lessons (repetition budgets,

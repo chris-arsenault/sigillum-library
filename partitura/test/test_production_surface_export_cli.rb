@@ -107,4 +107,33 @@ class ProductionSurfaceExportCliTest < Minitest::Test
     end
   end
 
+  def test_guided_gate_accepts_project_named_export_without_a_default_duplicate
+    Dir.mktmpdir("named_export_") do |dir|
+      source = File.join(dir, "score.rb")
+      File.write(source, RUBY_EXPORT_SOURCE)
+      run = Struct.new(:source_path).new(source)
+      gate = Partitura::Guided::Gates
+      refute gate.export_current(run).ok
+
+      stdout, stderr, status = Open3.capture3(
+        "ruby", File.expand_path("../bin/production_export", __dir__),
+        source, "--stem", File.basename(dir)
+      )
+      assert status.success?, stderr
+      named_export = JSON.parse(stdout).fetch("musicxml")
+      refute File.exist?(gate.export_musicxml_path(source))
+      assert gate.export_current(run).ok
+
+      old = File.mtime(source) - 60
+      File.utime(old, old, named_export)
+      refute gate.export_current(run).ok, "stale named exports must not pass"
+
+      _stdout, stderr, status = Open3.capture3(
+        "ruby", File.expand_path("../bin/production_export", __dir__), source
+      )
+      assert status.success?, stderr
+      assert gate.export_current(run).ok, "a current default export still passes"
+    end
+  end
+
 end

@@ -8,7 +8,7 @@ module Partitura
                                  fermatas].freeze
         TEXT_MARK_EXCLUSIONS = %w[
           lv harm trem trill trill( trill) slur( slur) tie( tie) gliss( gliss) cresc( cresc) dim( dim)
-          pizz arco rimshot xstick fermata
+          pizz arco rimshot xstick fermata choke
         ].freeze
         SUSTAINED_SEGMENT_MARKS = %w[trem].freeze
 

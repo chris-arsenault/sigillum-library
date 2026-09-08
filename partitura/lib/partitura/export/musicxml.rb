@@ -44,8 +44,7 @@ module Partitura
         "ten" => "tenuto",
         "marc" => "strong-accent",
         "spicc." => "spiccato",
-        "detache" => "detached-legato",
-        "choke" => "stopped"
+        "detache" => "detached-legato"
       }.freeze
       MIDI_PROGRAMS = {
         "BassClarinet" => 72,
