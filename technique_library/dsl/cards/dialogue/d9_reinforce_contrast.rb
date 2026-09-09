@@ -13,6 +13,10 @@ production_piece "Technique Card D9_REINFORCE_CONTRAST - D9_REINFORCE_CONTRAST" 
 #   (hitting/doubling WITH them) and CONTRASTING (answering in the lead's rests, moving against
 #   a held note). The answer-in-the-gap technique at its strongest -- a wind melody (breath =
 #   built-in gaps) over a comp that converses. NOT a piano-only device
+# Application: alternate shared attacks and selected answers when that serves
+# the phrase; do not fill every gap or treat sustained unison/octave writing as
+# a defect. Preserve a commissioned driver while coordinating its partners.
+# Guidance: reference/written/craft/ensemble_binding_and_grid.md sections 1, 14.
 
   roster do
     part :clarinet, "Clarinet", music21: "Clarinet", family: :woodwind, description: "Clarinet"

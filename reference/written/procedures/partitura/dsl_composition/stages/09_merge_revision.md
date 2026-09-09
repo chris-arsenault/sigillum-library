@@ -14,6 +14,13 @@ questions:
 - Does every simple passage have a positive reason: declaration, breath, exposure, suspension,
   silence, ritual lock, or release?
 - Does every dense passage have a musical job beyond activity?
+- Has a balance repair accidentally removed the main rhythmic/harmonic driver?
+- Do shared attacks, unison/octave phrases and interleaved voices clarify the
+  ensemble, or does each part keep introducing an unrelated line?
+- If melodic ownership changed, did the recognizable idea reach its new owner,
+  with the former owner's role recomposed rather than only shortened or removed?
+- Does each interruption develop a miniature gesture, and do the interruptions
+  differ from one another as well as from the surrounding paragraphs?
 - Are any spans only library technique demonstrations?
 - Do A/B or equivalent materials have identity and return?
 - Are labels such as lock, stripping, cameo, displacement, arrival, or breath audible without the

@@ -9,6 +9,21 @@ procedure by naming a form, citing research, filling a DSL file, and asking revi
 Every procedure artifact below is useful only if it changes notes, timing, register, harmony, role,
 texture, control, or silence.
 
+## Accumulated feedback
+
+At the start, read `reference/written/craft/composition_feedback.md` and follow
+the relevant owning references. Carry their musical questions into the form,
+material, ensemble and completion passes. Do not import a previous piece's
+progression, tempo, phrase lengths or freezes as universal rules. In a revision,
+read current user instructions and approved material before older verdicts.
+
+When further feedback arrives, encode its reusable mechanism in the owning
+library reference and update the coverage register. Correct conflicting recipes
+so an older instruction cannot reproduce the rejected habit. Use existing card
+examples where their actual notes fit; new cards require their own writing and
+validation procedure. If the user asks only to record feedback or is hand-editing,
+perform the library update without starting a score revision or overwriting exports.
+
 
 ## Cardinal Principle
 
@@ -272,10 +287,11 @@ exception - never "is it broken," with change as the exception.
 - There is always room for improvement. A "no change" musical_verdict is legal only
   when it names what you tried to improve and why the music is better without the
   change. "Nothing is broken" is not a verdict; it is the bias talking.
-- Edit means improve, not delete. Deletion feels safe because new notes can be wrong;
-  that safety is the tell. Every finding names music to COMPOSE - ornamented returns,
-  countermelodies, answers in phrase gaps, elaborated figures - never only what to
-  remove. A rest opened for breath is paired with music composed in the space it opens.
+- Edit for a musical relationship, not a smaller or larger note count. Do not
+  remove the driving layer merely because unrelated parts compete with it;
+  compose shared attacks, transfers, answers or clearer spacing. A deliberate
+  rest, withdrawal or held texture can itself be the improvement. Give it a
+  phrase function and continuation; do not automatically refill every opened space.
 - Projections and gates measure difference and validity, never quality. Apply "would a
   listener notice this is BETTER" to every edit; bookkeeping shuffles that only a
   spreadsheet can hear do not count as improvement.

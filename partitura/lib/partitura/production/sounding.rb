@@ -3,6 +3,7 @@
 require_relative "sounding/helpers"
 require_relative "sounding/profiles"
 require_relative "sounding/maps"
+require_relative "sounding/perceptual"
 
 module Partitura
   module Production
@@ -22,6 +23,7 @@ module Partitura
       include Helpers
       include Maps
       include Profiles
+      include Perceptual
     end
   end
 end

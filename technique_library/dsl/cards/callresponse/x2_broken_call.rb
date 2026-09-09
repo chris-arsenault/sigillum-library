@@ -8,6 +8,10 @@ production_piece "Technique Card X2_BROKEN_CALL - X2_BROKEN_CALL" do
 # behavior: the response interrupts BEFORE the call ends; the restart is interrupted earlier;
 #   the third time the response PRE-EMPTS and roles flip; they finish each other's last phrase.
 #   Bass walks the whole argument
+# Application: changing initiative gives the interruption its own narrative.
+# Adapt that development for a miniature scene; this eight-bar argument is not
+# a requirement to interrupt every paragraph or to use a repeated slowdown.
+# Guidance: reference/written/craft/ensemble_binding_and_grid.md section 7.
 
   roster do
     part :horn_caller, "Horn (caller)", music21: "Horn", family: :brass, description: "Horn"

@@ -76,7 +76,13 @@ module Partitura
         composite_stalls: ->(readout, bars:, **) { readout.composite_stalls(bars: bars) },
         bar_profile: ->(readout, bars:, part:) { readout.bar_profile(part: part, bars: bars) },
         figure_timeline: ->(readout, bars:, part:) { readout.figure_timeline(part: part, bars: bars) },
-        range_check: ->(readout, bars:, part:) { readout.range_check(part: part, bars: bars) }
+        range_check: ->(readout, bars:, part:) { readout.range_check(part: part, bars: bars) },
+        spectrum_grid: ->(readout, bars:, **) { readout.spectrum_grid(bars: bars) },
+        masking_report: ->(readout, bars:, part:) { readout.masking_report(part: part, bars: bars) },
+        roughness_profile: ->(readout, bars:, **) { readout.roughness_profile(bars: bars) },
+        beat_salience: ->(readout, bars:, **) { readout.beat_salience(bars: bars) },
+        binding_check: ->(readout, bars:, **) { readout.binding_check(bars: bars) },
+        ringing_grid: ->(readout, bars:, **) { readout.ringing_grid(bars: bars) }
       }.freeze
 
       def self.view_catalog

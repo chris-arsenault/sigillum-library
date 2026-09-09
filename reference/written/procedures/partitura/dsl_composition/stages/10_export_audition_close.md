@@ -32,8 +32,9 @@ least one. An audit unit is an EDITING pass, not a defect scan:
    lenses that were neglected while drafting - that is where the decay lives.
 3. Record findings as improvements to COMPOSE, by bar and part: not "is anything broken" but
    "what would make this passage better" - ornamented returns, answers in phrase gaps,
-   countermelodies, elaborated figures, sharper seams. Deletion-only findings are the
-   good-enough lens talking; pair every opened space with music composed into it.
+   countermelodies, elaborated figures, sharper seams or purposeful withdrawals.
+   Do not treat fewer notes as proof of clarity or require every opened space
+   to be filled. Judge what the resulting ensemble phrase communicates.
 4. Revise the DSL source itself, re-export, and commit the unit with the pass note recording
    what improved (the `improvements` field) and the carries closed. This is the full-ledger stage:
    every carry fed forward from earlier passes is closed in source here, or consciously carried on
@@ -48,6 +49,34 @@ compiler issue" or "mechanically valid" is not a musical verdict.
 Clean up only what belongs to this new composition: scratch MusicXML/MIDI, temporary analysis files,
 draft render artifacts, and outdated local status notes. Keep research and brief material that helps
 future work continue.
+
+## Notation, analysis and deliverables
+
+Inspect the actual interchange result: correct instrument clefs and transposition,
+the intended number of staves (for example one two-staff harp), and retained
+glissandi/slides, articulations and other required ornaments. Compare with the
+accepted source when importing; MIDI does not carry complete score notation.
+Validate MusicXML against its schema and compare musical pitches, onsets and
+tied durations with MIDI while accounting for transposing instruments. A schema
+error is an exporter/notation defect to resolve, not a reason to silently omit
+the requested technique.
+
+Run every analysis required by the user or project over the complete relevant
+score. For required perceptual review, use all six views described in
+`docs/architecture/partitura/12_perceptual_analysis.md`, judge flagged passages
+against the ensemble and exported controls, and report any runtime failure
+immediately. Repair the failure and rerun before claiming that requirement is
+complete. Do not replace musical judgment with fewer flags or higher note counts.
+State whether review used score, MIDI, modeled sound or actual audio, and whether
+another reviewer participated. Normal composition work must not depend on the
+user making a manual audio round trip.
+
+For revisions, verify approved/frozen passages including incoming ties, dynamics,
+tempo and resonance. Retain one clearly named current deliverable set; keep
+temporary analyses, schemas, comparison exports and scratch scripts outside the
+delivery directory. Preserve durable research and user-authored files. Never
+regenerate over the user's hand corrections without authorization; recorded
+feedback can update the library while the musical source remains untouched.
 
 
 ## Exit Criteria

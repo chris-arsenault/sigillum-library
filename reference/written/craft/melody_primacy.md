@@ -48,24 +48,41 @@
 - Stepwise motion = the singable path; leaps = rationed surprise at peaks.
 - Repetition establishes the hook; variation retains attention. Arc across the phrase.
 
-## OPERATIONAL RECIPES (the melody law — binding on every theme)
-R1 THE CELL: every theme reduces to a 1-bar cell of 2-4 pitches with a rhythmic identity
-   (repeated note, anacrusis snap, syncope, or dotted figure). The cell IS the meme.
-R2 SHAPE: phrase contour = common arch (rise then fall, or Zelda-descent) + exactly ONE
-   uncommon event: a leap >= P4 at the peak, or one foreign/flat tone. Not more.
-R3 QUESTION-ANSWER: themes are 4+4 (or 2+2): consequent restates the cell and resolves
-   the cadence the antecedent left open.
-R4 RHYTHM FIRST (clapping test): the theme must be identifiable from its onset pattern
-   alone. If clapped rhythm could be any theme, there is no theme.
-R5 REPETITION BUDGET: the cell sounds >=3 times within the 8-bar statement, verbatim or
-   sequenced — immediate restatement, not "development."
-R6 SINGABILITY: range <= a 10th; mostly stepwise; core statement uses values a person can
-   whistle at tempo (>= 8ths; ornaments excepted); no harmonic dependency for identity.
-R7 BARE TEST: the theme works completely unaccompanied. Sing it into a phone test.
-R8 FOREGROUND LAW: while the theme speaks, accompaniment recedes (dynamics one tier down,
-   register cleared, no competing motion in the melody's octave). Mario mix: tune on top.
-R9 ARPEGGIO PROHIBITION: a theme may OUTLINE a chord only if rhythm carries the identity
-   (Mario E-E-E). Arpeggiated figuration is accompaniment, never theme.
+## Operational questions for theme-led writing
+
+The former fixed recipes converted examples into universal laws. User feedback
+rejects that approach: phrase lengths, leap counts, repetition counts and
+duration inventories are choices, not acceptance quotas. Apply these questions
+to the intended style and forces; process-led and distributed themes may obtain
+their identity from the ensemble rather than a solo tune.
+
+R1 CELL: identify the recognizable head or gesture and what its return preserves.
+   It may be a small pitch cell, a rhythm, a contour or a longer phrase.
+R2 SHAPE: choose a directional contour and meaningful local events. Stepwise
+   motion, repeated notes and leaps are all available; do not add a mandatory leap.
+R3 PHRASE: compose a question, answer, continuation or other intended rhetoric.
+   Symmetric periods are useful options; avoid forcing every theme into 4+4.
+R4 RHYTHM: compare the themes' onset/accent/rest patterns by clapping them.
+   A shared rhythm may establish kinship; accidental sameness needs development.
+   Counted duration variety alone does not distinguish quarter/eighth runs.
+R5 RETURN: make repetition establish recognition and variation change consequence.
+   No minimum recurrence count or fixed eight-bar container is required.
+R6 SINGABILITY: judge tessitura, range, breath, vowel and gesture at the actual
+   tempo. A duration symbol alone cannot establish vocal practicality.
+R7 BARE TEST: read a solo-led theme without accompaniment to expose its shape;
+   also read the intended ensemble when harmony or distributed voices carry it.
+   Do not require the user to record an audition for a normal composition pass.
+R8 FOREGROUND: make the melody perceptually legible. Shared unison/octave attacks,
+   interleaved answers, spacing and articulation can help an active accompaniment
+   support it; do not automatically silence or demote the commissioned driver.
+R9 CHORD OUTLINE: arpeggiated material can be a theme when phrase, rhythm and
+   return give it identity. A chord-tone list is not sufficient evidence either way.
+
+When reallocating a theme between voices, transfer the recognizable material
+and adapt its register and breath; merely slowing the old owner loses the idea.
+An upper agile line and broader lower line are one useful aria relationship,
+not a permanent restriction on either voice. See
+[ensemble ownership and texture](ensemble_binding_and_grid.md#13-move-the-melodic-idea-when-its-ownership-is-wrong).
 
 Sources: APA/Jakubowski "Dissecting an Earworm"; Goldsmiths press; SAGE Arthur 2023 earworm
 theory; Wikipedia/LoC Gibson essay SMB theme; Hooktheory SMB; Classic FM Aerith analysis;
@@ -83,13 +100,13 @@ start-middle-end, saying something. Studied structure (verbatim from the score):
 - 16-bar proclamation answers LOW (2 octaves under the summit -- contrast), rising wave
   shapes each cresting higher, then the LONGEST note of the phrase + leading-tone lift ->
   arrival an octave above its own start.
-RULES:
-R10a Every clause = subject (the cell/head) + continuation + breath (longer values at the
-     clause end). No clause is rhythmically uniform bar-to-bar.
-R10b Clauses are RELATED: shared head-DNA, varied middles; escalation clauses may be exact
-     octave transpositions; cadence pitches PLAN the drama (down, down, up, SUMMIT).
-R10c The paragraph ends on a SUSTAINED arrival prepared by the longest note and/or a
-     leading lift. The summit appears ONCE.
-R10e R6's range cap applies PER CLAUSE; the paragraph may span wider through escalation.
-R10d Movements state the full melody at least once uninterrupted (the foreground law R8
-     holds for all 16-32 bars). Motif/cell reuse elsewhere = quotations FROM the melody.
+Application questions for this example, not a required paragraph shape:
+R10a What initiates, continues and ends each clause? A breath may be a rest,
+     sustained note or handoff; an even rhythm may carry a deliberate character.
+R10b What relates the clauses, and what changes their consequence?
+R10c What makes the arrival or interruption decisive? A sustained summit is one
+     answer; a cut, displaced cadence or unresolved departure can serve another.
+R10d Does the listener receive enough material to recognize its returns? An
+     uninterrupted statement and brief entries within texture are both options.
+R10e Judge range and continuity at both clause and paragraph scale, for the actual
+     performer and form; the example's proportions are not fixed limits.

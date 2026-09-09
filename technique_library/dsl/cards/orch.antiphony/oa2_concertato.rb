@@ -13,6 +13,10 @@ production_piece "Technique Card OA2_CONCERTATO - OA2_CONCERTATO" do
 #   idea, the full tutti (paired winds+brass+strings, f) seizes it back in mass; swaps tighten
 #   to 1 bar at b5-6, then tutti carries the cadence while the concertino threads a soft
 #   filigree descant above; terraced dynamics, Allegro
+# Application: contrast develops as exchanges tighten and roles combine. Adapt
+# the relationship to the piece's forces; a change of instrument names alone
+# does not create a new scene, and this tempo is not a universal contrast rule.
+# Guidance: reference/written/craft/texture_identity_contrast_ledger.md.
 
   roster do
     part :flute, "Flute", music21: "Flute", family: :woodwind, description: "Flute"

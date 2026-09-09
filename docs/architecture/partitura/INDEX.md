@@ -41,6 +41,7 @@ directory by default.
 | Construct or validate workflow responses | `partitura help protocol` | `08_cli_and_guided_runs.md` |
 | Compare candidates or completed scores | `partitura help evaluation` | `08_cli_and_guided_runs.md` |
 | Observe external MusicXML/MXL | `partitura help score_observation` | `10_score_observation.md` |
+| Inspect masking, ringing and rhythmic emphasis | `partitura help projections` | `12_perceptual_analysis.md` |
 | Bind supported external annotations | `partitura help annotation_observation` | `11_annotation_observation.md` |
 | Find a technique card | `partitura cards <term>` | `technique_library/dsl/README.md` |
 | Export MusicXML and MIDI | `partitura help export` | `05_compile_api.md`, `06_ruby_framework.md` |

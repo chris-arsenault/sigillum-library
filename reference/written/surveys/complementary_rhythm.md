@@ -103,23 +103,31 @@ beat 3, inner `C4` on "3&". The trailing answer limps.
   are built-in gaps. The piano comp converses by ALTERNATING two stances toward the lead's PLAYED
   notes: **reinforce** (hit/double WITH the lead — rhythmic + harmonic agreement, a shared accent) and
   **contrast** (answer in the lead's rests, or move against a held note with a surprising harmony /
-  contrary motion). The alternation is the life of it — pure reinforcement is doubling (dead), pure
-  contrast loses the lock. This is card **D9_REINFORCE_CONTRAST**. The timbral contrast does what
+  contrary motion). This specimen's conversation develops through that alternation; a different
+  passage may sustain doubling as its main event. This is card **D9_REINFORCE_CONTRAST**. The timbral contrast does what
   dynamics/register do in solo piano: keeps the melody in relief while the comp stays active.
 
 ## 5. Mechanics (how to construct it)
 
+Listening-feedback qualification: a unison or octave statement can be the
+intended dramatic event. Alternating reinforcement and contrast is an option,
+not a requirement to change stance every bar. The failure to address is
+unrelated concurrent motion; a groove, shared phrase or deliberate silence
+may each be the clearest solution.
+
 1. Write the melody first; **map its onsets and rests** on a beat-grid, marking strong-beat rests and
    long-note gaps.
-2. Put an answer in each gap: a **bass note** (anchors meter — strongest on a strong-beat rest), an
+2. Choose which gaps should carry an answer and which should remain open. Options include a **bass note** (anchors meter — strongest on a strong-beat rest), an
    **inner-voice fragment** (passing/neighbor), a **chord stab** (rootless, short), or a **fill run**
    (length matched to the gap).
-3. **Complementary value-classes:** the answer is active (short values) only while the melody is inert
-   (long/rest), and recedes when the melody is busy — no two competing fast streams.
+3. **Complementary value-classes:** an answer can become active while the melody holds/rests,
+   then recede or reinforce when the melody moves. Independent fast streams need a clear
+   contrapuntal relation; matched onsets can make several players act as one gesture.
 4. **Voice-leading payoff:** the gap-filler should **resolve** the held harmony, **anticipate** the
    next melodic arrival, or make a passing/neighbor connection — double duty (surface + counterpoint).
-5. **Continuous composite:** collapse all voices mentally — wherever the melody has a hole, some voice
-   attacks, so the union of attacks is a continuous stream (momentum, no dead air).
+5. **Composite phrase:** collapse all voices mentally. Where continuity is intended, the union
+   of attacks sustains it. Retain holes that create breath, tension or a scene cut; filling
+   every rest can make an aria busy even when each part looks sparse by itself.
 6. **Tune the offset:** dead-on the gap = clarity/anchor; 8th early = push; 8th late = limp/lay-back;
    16th off = grease. A consistent offset → Krebsian displacement (a persistent out-of-phase layer).
 

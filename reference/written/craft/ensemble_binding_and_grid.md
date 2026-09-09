@@ -18,9 +18,9 @@ syncopation and an exposed solo entrance do not need to masquerade as answers.
 The failure is an uncomposed relationship defended by a label. Judge the
 relationship in the complete passage and preserve the user's actual invariants.
 
-## 1. The grid layer is singular and its register roles are identity
+## 1. Preserve the chosen pulse layer and its register roles
 
-One layer owns the pulse (Basin Aria: the handpan lattice). That layer's
+Identify who owns the pulse (Basin Aria: the handpan lattice). That layer's
 identity is BOTH its rhythm and its register roles — which strokes are the
 low kick-hand and which are the high color-hand. Re-pitching its low anchors
 into the upper field preserves every attack and still destroys the beat,
@@ -28,42 +28,48 @@ because low-register strokes carry the pulse perceptually and high strokes
 ring and smear. Harmonic re-coloring of a grid layer therefore:
 
 - keeps low-role strokes low (nearest consonant low tone, same slot),
-- declares the chord ROOT on the macro-beats (beat 1 / mid-bar), so the
-  layer states the harmony rather than visiting its notes,
-- never changes the onset lattice.
+- articulates changing harmony through strong-beat anchors; use roots or an
+  intentional inversion, respecting the instrument's inventory,
+- preserves a frozen onset lattice during a pitch-only repair. A later request
+  for rhythmic revision may change those onsets while retaining the driving role.
 
-Corollary — the subdivision alignment law: other parts' short-value figures
-either DOUBLE the grid's subdivision cells slot-for-slot or sit entirely in
-grid-free slots (straddle). A figure that catches half of a grid cell and
-hangs its other note in a silent slot is a phase error, not syncopation
-(exception: runs of four or more, which establish their own stream).
+Coordinate short figures through shared attacks, complementary slots or a
+legible independent rhythm. Partial overlap alone does not establish a phase
+error; read the accent, continuation and composite phrase. Do not replace
+unrelated motion with compulsory lockstep or invent a minimum run length that
+makes counterpoint legal.
+
+If the ensemble feels busy, first inspect competing lines and their register,
+accents and handoffs. Retain an explicitly requested driving layer while
+coordinating the other motion. Selective thinning or withdrawal can mark a scene;
+removing the driver through most of the piece changes its identity. Brief fast
+accents can articulate a phrase without adding independent lines. See
+[handpan idiom](../../../technique_library/handpan_idiom.md).
 
 ## 2. The answer lane law: an interlocutor has one identity
 
-Call-and-answer binds into a perceived conversation only when the answering
-role is ONE voice: one timbre, one register lane, adjacent to or overlapping
-the band of the line it answers. The literature's echo/answer devices
-(Schubert's piano replies, comping under a held horn note) all satisfy this.
+For an established interlocutor, keep a recognizable timbre/register lane or
+compose the transfer of its contour and timing. A distributed answer can work;
+its continuity must be present in the notes rather than asserted by the label.
 
 The failure mode found in Basin Aria: the "answer" rotated per bar across
-harp-at-D4, clarinet-at-D2, viola-at-A3 — three octaves, four timbres. No
-listener binds those into an interlocutor; they are unrelated events that
-happen after the voice, and no performer can shape a line that has no lane.
+harp-at-D4, clarinet-at-D2, viola-at-A3. Those changes were not supported by a
+continuous phrase, so the events read as unrelated entries after the voice.
 
 Rules:
-- Assign the answering role to one part and one lane per span; write it in
-  the span's process text.
+- Assign the answering role and its lane or planned relay; write it in the
+  span's process text and realize the relationship in the notes.
 - An answer enters within a breath of the call's tail, overlapping it, and
   within roughly an octave of the call's band — or it carries the call's own
   contour so identity substitutes for proximity.
-- Other parts may sound during answers, but only in established continuous
-  roles (floor, grid, held field), never as competing responders.
+- Give the remaining parts intelligible roles. Several responders require a
+  composed conversation; rotating unrelated fills is not enough.
 
 ## 3. Off-beat entries need a metric alibi
 
-An entry off the macro-beats must be one of: (a) a pickup into the next
-strong beat, (b) an overlap-answer under a held note in the answer lane,
-(c) a written syncopation the grid supports. "Breath cushions" — bass notes
+For an entry intended to belong to a running groove, look for a pickup,
+overlap-answer, supported syncopation or legible independent rhythm. An exposed
+solo or deliberate interruption may instead break that groove. "Breath cushions" — bass notes
 arriving on weak eighths at phrase ends — are a device from unmetered music
 (recitative punctuation); over a running grid they read as a late player.
 In groove textures the bass function locks to the macro-beats and fuses
@@ -74,19 +80,20 @@ lower register is a second event, not a halo.
 
 ## 4. Harmony is declared, not visited
 
-A chord exists when its root is a primary driver on strong beats in the
-bass function and/or the grid layer — not when its tones merely appear. A
-key change exists only when the NEW key's distinguishing tones (the ones
-absent from the old key) become structural and the new tonic is re-anchored
-on strong beats, with the signature declared in the source (`key_change`).
+When a passage should expose a progression, make its harmonic changes audible
+through bass/anchor motion, chord quality and voice-leading. Scattered chord
+tones or a prose label are not sufficient evidence. Root-position strong-beat
+anchors are one clear approach, not the definition of every chord; inversions,
+pedals and deliberate ambiguity remain available. For a claimed key change,
+inspect the new tonal center, distinguishing tones and their structural role,
+and declare the intended signature in the source (`key_change`) when appropriate.
 
 The failure mode: "C major" bars against D natural minor that used no B
 natural — pandiatonic root-emphasis wearing the home scale, drawing zero
 accidentals, a key change in name only. Before claiming any modulation,
-list the tones that differ between the keys and verify they are load-bearing
-in the new bars. (D minor vs C major differ by ONE tone; D minor vs C minor
-by two; vs Eb minor by three — the fewer the distinguishing tones, the more
-deliberately they must be spent.)
+list the tones that differ between the actual keys/modes and verify they are
+load-bearing in the new bars. Compare pitch inventories directly rather than
+inferring the change from tonic names or a count of signature symbols.
 
 ## 5. A named device imports its preconditions
 
@@ -102,9 +109,10 @@ only its label is.
 
 Run before calling a texture done. The perceptual projections (virtual
 render: `spectrum_grid`, `masking_report`, `roughness_profile`,
-`beat_salience`, `binding_check`, `ringing_grid`) are experimental work, not
-part of the published inspection surface. When available, they can inform these;
-the questions remain the review lens the views serve:
+`beat_salience`, `binding_check`, `ringing_grid`) provide these inspection views.
+Read the [model contract](../../../docs/architecture/partitura/12_perceptual_analysis.md)
+for dynamics, tempo and calibration limits. The questions remain the review
+lens the views serve:
 
 - Which parts establish the meter, and where does the passage deliberately
   suspend it? Do not fill an intended silence to satisfy the grid.
@@ -133,6 +141,26 @@ every seam would be its own monotony. Reach for it when consecutive
 paragraphs share texture and the form needs air - and a species planted in
 one (the hemiola) can be spent later as a motif.
 
+The further failure was equating interruption with ritardando, long notes and
+extended repose. Contrast is relative: a relaxed aria may need a quicker,
+clipped or dance-like miniature; an agitated passage may benefit from stillness.
+A darker character need not move slowly, and a brighter one need not use the
+same scherzo gesture each time.
+
+Compose the interruption as a small scene: a recognizable opening gesture,
+some consequence or reversal, and an exit that changes how the next passage
+arrives. Think of a chapter-header vignette or a character's brief point of view.
+These functions can fit within a short phrase; they do not mandate three blocks
+or a fixed bar count. A tempo label or different chord alone does not supply
+that miniature narrative. Compare each interruption both with its neighbors
+and with earlier interruptions; repeated contrasting devices can become stale.
+
+Useful specimens: `dsl:callresponse/X2_BROKEN_CALL` develops an interruption
+through changing initiative; `dsl:orch.antiphony/OA2_CONCERTATO` develops
+alternating ensemble scale. They offer mechanisms, not compulsory templates.
+In the Basin Aria feedback, mostly faster interruptions were requested against
+the breezy aria. Preserve that as contextual guidance, not a universal tempo law.
+
 ## 8. The rhythm spectrum (a bias correction, not a quota)
 
 My measured bias: lead phrases that chain one or two adjacent duration
@@ -144,6 +172,14 @@ check whether its durations cluster in a narrow band and whether that
 narrowness is DOING something (a deliberate incantation, an even chant);
 if it is just my default, widen it. A phrase of uniform values chosen on
 purpose remains legal; uniformity as a habit is the defect.
+
+Compare themes with one another, not only against their own duration counts.
+Clap their heads and continuations: do pickups, repeated attacks, holds, rests,
+accent locations and phrase endings distinguish them? Two themes can use the
+same quarter/eighth vocabulary with different identities; adding a triplet to
+each can leave both equally generic. Carry rhythmic character through meaningful
+returns, adapting its consequence rather than stamping it under new pitches.
+See [melody guidance](melody_primacy.md).
 
 ## 9. Intervals are the phrase's physiognomy (a palette, not a checklist)
 
@@ -162,9 +198,10 @@ with a new stamp.
 ## 10. Gradients versus boundaries - how to encode feedback
 
 Corrections arrive in two kinds and must be encoded as what they are.
-**Boundaries** are user-stated invariants: the grid layer's rhythm is
-untouchable, sub-C3 harp tones pair only as fifths/octaves. Violating one
-is an error. **Gradients** are corrections to a measured bias: "use
+**Boundaries** are user-stated invariants with scope: for example, a frozen
+ending or a rhythm held fixed during a pitch-only repair. A later explicit
+instruction can change that scope; a past freeze is not permanent doctrine.
+Violating an active boundary is an error. **Gradients** are corrections to a measured bias: "use
 interludes more," "less phrase-level monotony," "better intervals." These
 name a direction and a reference example, not a rule; mechanically
 universalizing a gradient ("always break phrases," "every clause needs a
@@ -179,6 +216,12 @@ correction names a scheme (not a bar), restate it here at mechanism
 altitude — which relationship failed and what musical change addresses it —
 in the composer's own words, before or alongside repairing the piece. The
 projections verify what is countable; this file holds what is audible.
+
+Use [the feedback coverage register](composition_feedback.md) to find the
+owning craft reference and record provenance. Update that reference, conflicting
+recipes and relevant card usage notes; a piece-local log alone cannot teach the
+next composition. Record-only feedback authorizes library learning, not an
+unrequested score revision or export over the user's hand corrections.
 
 ## 12. Revision evidence must survive the export
 
@@ -206,3 +249,39 @@ Completion records describe the current source and export. If a pass is reverted
 mark its verdict as historical; never reuse its completed status as evidence for
 the restored score. A score-and-MIDI reading is useful evidence, but it is not
 a claim of hearing the intended instruments or of review by another musician.
+
+## 13. Move the melodic idea when its ownership is wrong
+
+Feedback that an agile lower line belongs in the upper voice calls for a
+transfer of the musical idea, not only deletion or lengthening below. Preserve
+the recognizable head, rhythmic character and phrase direction in the new
+owner, adapting register and breath. Compose the vacated role in relation to it.
+An agile basso or broad soprano can be a useful character inversion; if the
+inversion runs throughout, it loses contrast and may crowd the lower register.
+This is contextual orchestration judgment, not a ban on bass coloratura.
+
+## 14. Shared motion and texture can carry a passage
+
+Unison and octave gestures can be the foreground event. Interleaved voices can
+continue one thought. Held or repeating instrumental texture can lead while
+the melody appears only briefly, then withdraws. Compose that texture's harmony,
+pulse, color or direction so the intervening space remains music.
+
+Read the composite phrase: who reinforces a head, who takes its tail, who
+answers in a selected gap, and who sustains the harmonic field? Continuous
+independent counterlines are not required to keep every player useful. Neither
+must every gap be filled. A one-bar vocal call in a three-bar texture unit was
+a useful requested example, not a schedule for future pieces. Film/game
+references communicate dramatic function here; they are not requests to copy
+their melodies. `dsl:dialogue/D9_REINFORCE_CONTRAST` demonstrates shared attacks
+and answers; adapt the relation rather than its exact allocation of gaps.
+
+## 15. Endings need phrase direction; approved endings need protection
+
+Read the approach, melodic destination, bass motion, harmonic tension/release,
+breath and final resonance together. A string of slower bars or tonic labels
+does not establish a satisfying ending. A suspended or open ending is valid
+when its unresolved state is intended; a conventional cadence is not mandatory.
+After the user approves the ending, freeze its notes and expressive controls
+for unrelated revisions, including incoming ties, tempo and decay. Compare
+the result with the approved baseline, not merely the final bar's pitches.

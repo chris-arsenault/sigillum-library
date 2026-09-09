@@ -112,6 +112,22 @@ agents receive their row and adjacent rows.
 These are orchestrator and merge review questions. They enter composing briefs
 after translation into positive assignments.
 
+For interruptions, identify the miniature's own gesture, consequence and exit.
+Compare its pace, rhythmic behavior, character and ensemble relation with both
+neighbors and previous interruptions. A label such as "dark chorale" or a new
+tempo mark does not establish contrast in the notes. Repeated slow clearings
+can flatten a relaxed piece; repeated brisk scherzos can also become a habit.
+Choose the contrast relative to the surrounding music, without a fixed speed,
+length or recurrence quota. See
+[phrase-break interludes](ensemble_binding_and_grid.md#7-the-phrase-break-interlude-a-tool-not-a-schedule).
+
+Texture-led passages can feature a continuing instrumental groove or evolving
+field with brief melodic entries. The melody need not occupy every bar; unison
+or octave calls can unite voices that elsewhere act separately. Preserve a
+commissioned driver while arranging its partners, and give the texture a
+harmonic, rhythmic or color direction of its own. Sparse notation is not proof
+of clarity, and added attacks are not proof of development.
+
 - Which axis is the movement's identity, and where does it carry through?
 - Which axis changes at each mid-level boundary?
 - Which sections elaborate density, and which sections elaborate exposure,

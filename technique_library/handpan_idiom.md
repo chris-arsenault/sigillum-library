@@ -69,6 +69,14 @@ melody note / melody note / melody note / melody note
 
 The pitch list is necessary, but it is not the idiom.
 
+Choose the part's role before applying an idiom repair. A handpan commissioned
+as the main rhythmic and harmonic driver needs an ongoing two-hand groove with
+changing chord color. Sparse Ding calls and resonance wakes are other roles;
+they must not quietly replace the requested driver. The ensemble can become
+clearer through shared attacks, octave reinforcement and interleaved answers
+while the groove continues. See
+[ensemble feedback](../reference/written/craft/ensemble_binding_and_grid.md).
+
 ## Physical Model
 
 ### Ding
@@ -239,8 +247,9 @@ Useful functional groups:
 
 Unavailable chromatic tones such as C# or B natural must not be assigned to the
 handpan unless the exact instrument has those pitches. If the ensemble harmony
-needs those tones, the handpan should rest, play common tones, or use a
-percussive sound.
+needs those tones, assign them to a capable part. The pan can retain common-tone
+anchors, upper chord colors or a percussive pulse. Rest when the phrase calls
+for withdrawal, not automatically whenever harmony leaves its pitch set.
 
 ## DSL Authoring Guidance
 
@@ -292,8 +301,14 @@ For any exposed handpan part, include at least the relevant items from this list
 
 ### With Voice
 
-The handpan should rarely compete with vocal line as a second melody. Better
-roles are:
+Decide whether the pan is the driver, interlocutor or resonance color. For a
+driving role, coordinate its groove with the voice's head, holds and selected
+gaps. Shared pitch classes in unison/octaves can reinforce the melody, and
+upper-field motion can continue while the voice holds. Short 32nd-note accents
+may shape arrivals or replies; check their actual onset, touch, tempo and decay
+instead of treating a sixteenth-grid picture as sufficient evidence.
+
+For a subordinate or selectively thinned role, options include:
 
 - Ding or open fifth under a held vocal point;
 - soft slap/ghost pulse while the voice sustains;
@@ -308,13 +323,17 @@ Do not make handpan and harp both arpeggiate the same register. Pair them by job
 - handpan: attack, touch, pulse, fixed-scale identity;
 - harp: extended resonance, chromatic harmony, rolled structural sonority.
 
-If both play active figures, separate value class, register, and role.
+If both play active figures, compose their relation: shared strokes, alternating
+figures, or independently legible register/rhythm. Different rhythms alone do
+not guarantee clarity, and matched rhythms are not automatically redundant.
 
 ### With Low Instruments
 
-The Ding is not automatically the bass line. If bass clarinet, cello, basso, or
-another low part carries a line, the handpan should become a punctuating anchor,
-dry percussion, or resonance color.
+The Ding is not automatically the bass line. If another low part carries a
+line, coordinate its arrivals with the pan's low strokes and inspect spacing
+and resonance. Keep the requested pulse role; thin individual collisions or
+move competing motion where the phrase benefits. A low melodic part does
+not automatically demote the pan to occasional punctuation.
 
 ## Review Questions
 
@@ -331,14 +350,23 @@ Use these before accepting a handpan part:
   handpan part.
 - Is the handpan shaping the ensemble form through touch, resonance, and pulse,
   not merely adding exotic color?
+- If the pan is the driver, does it retain that role across the main passages,
+  with deliberate withdrawals rather than long accidental absences?
+- Do changing chord colors relieve a drone without erasing the groove?
 
 ## Common Repairs
 
+Choose a repair for the actual defect. These are alternatives, not a thinning
+pass to apply to every active phrase. When the problem is unrelated ensemble
+motion, first compose shared attacks and complementary phrases; preserve the
+pan's beat and low-role identity.
+
 - Replace scalar tails with a two-hand field pattern plus a rest.
 - Replace continuous pitched motion with Ding, field, ghost, field, slap.
-- Replace a downbeat pitch attack under a moving voice with a ghost or rest.
+- At a specific masked entry, try a shared pitch/attack, shorter decay, adjusted
+  register or a ghost/rest; judge which preserves the phrase and pulse.
 - Convert a cadence hit into muted Ding or palm-muted punctuation if the form
   wants denial.
 - Let harp take long resonance if the handpan needs dry pulse.
-- Let the handpan rest during chromatic harmony and return with a clearly
-  audible fixed-scale color.
+- During chromatic harmony, retain playable common-tone/percussive drive or
+  deliberately withdraw and return; the harmonic change alone does not decide.

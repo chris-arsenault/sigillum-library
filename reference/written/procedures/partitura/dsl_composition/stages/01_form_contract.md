@@ -42,6 +42,12 @@ Section | bars | state-change job | material | inputs | outputs | cadence/denial
 Use a fuller ledger from `texture_identity_contrast_ledger.md` only when the piece's scale needs it.
 The contract is accepted when it would guide different notes if any row changed.
 
+Apply the relevant [accumulated feedback](../../../../craft/composition_feedback.md):
+compare interruptions with their neighbors and one another, identify who owns
+the driving rhythm/harmony, and allow texture-led passages with brief shared
+melodic entries. Choose each relationship for this piece; do not inherit a
+fixed interruption schedule, slowdown or one-bar-in-three template.
+
 Beware the block-transition failure mode: four decent bars, four similar bars, then an abrupt new
 block. That shape can work only when the music itself makes block collision, ritual repetition, or
 stasis the point. Otherwise the contract should describe how melody, progression, register, role

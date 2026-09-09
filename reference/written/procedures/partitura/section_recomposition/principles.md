@@ -60,10 +60,11 @@ enough, and hunt hard errors instead of improvements. Every review in this proce
 runs in EDITING mode - "what would make this bar better," with keep as the justified
 exception - never AUDIT mode ("is it broken"). There is always room for improvement:
 a "no change" musical_verdict must name what you tried to improve and why the music is
-better without the change. Edit means improve, not delete: deletion feels safe because
-new notes can be wrong - that safety is the tell - so every finding names music to
-COMPOSE, and a rest opened for breath is paired with music composed in the opened
-space. The `improvements` pass-note field records what got compositionally better this
+better without the change. Edit for the musical relationship: shared attacks,
+transferred material, clearer spacing, developed replies, or a deliberate
+withdrawal with phrase function. Do not thin the driver to lower a count, and
+do not refill every rest as a rule. Held texture or silence may be the composed
+event. The `improvements` pass-note field records what got compositionally better this
 pass. If you can see a better version, write it - a pass does not leave a real
 improvement unmade. Only an improvement that genuinely depends on a later stage belongs
 elsewhere, as a `carry`.

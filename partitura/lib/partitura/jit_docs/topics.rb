@@ -383,7 +383,15 @@ hybrid],
           "Use harmony_with_melody to read foreground notes per bar against the declared chord and active bass.",
           "Use melody_analysis or melody_report for per-note tonal, harmonic, figuration, and motif readouts.",
           "Use controls to inspect anchors, tempo events, and scoped markings.",
-          "Use material/placement maps to avoid hidden stamping."
+          "Use material/placement maps to avoid hidden stamping.",
+          "Use the perceptual views (virtual render from spectral recipes + dynamics): masking_report " \
+          "for buried parts, binding_check for off-beat entries with no bound call, beat_salience for " \
+          "grid legibility, ringing_grid for audible decay incl. lv, spectrum_grid for band crowding, " \
+          "roughness_profile for sensory beating (exposed_clashes covers interval-class dissonance).",
+          "Perceptual dynamics carry across notes and reset at explicit marks; hairpins use model dB. " \
+          "Decay follows explicit tempo changes and beat flags follow the active meter. These are " \
+          "coarse score models, not calibrated audio judgments; read the model contract before adjudicating flags.",
+          "If a user-required analysis fails, surface and repair the blocker before declaring the pass complete."
         ],
         example: <<~BASH.strip,
             partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb foreground
@@ -396,7 +404,8 @@ hybrid],
             partitura/bin/partitura view experiments/partitura/production_hybrid_study.rb line --part clarinet
           BASH
         next_topics: %i[hybrid staff_grid controls phrase_placement examples export],
-        docs: ["docs/architecture/partitura/04_examples_manifest.md"]
+        docs: ["docs/architecture/partitura/04_examples_manifest.md",
+               "docs/architecture/partitura/12_perceptual_analysis.md"]
       }
     }.freeze
   end

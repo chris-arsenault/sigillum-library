@@ -78,19 +78,26 @@ Dorico import.
   (b2 in Hijaz/Phrygian-dominant), slides into sustained notes, trill-with-flat upper neighbor,
   melisma bursts (4-6 note runs) between phrase notes. Assign to oboe/English horn/solo violin.
 
-## 3. Placement Checklist (run per phrase)
+## 3. Placement Options (judge in the phrase)
+
+These are possible locations, not instructions to ornament every candidate.
+An ornament may be part of the theme's initial identity or a change on its
+return. Preserve its musical function rather than enforcing a blanket first-
+statement ban, recurrence rule or numeric density cap.
 
 1. PHRASE PEAK: accented appoggiatura (from above) on the highest note — or trill if held.
 2. LONG-NOTE ONSETS (>=2 beats): mordent, acciaccatura, or slide. LONG-NOTE EXITS: Nachschlag
    or turn into the next note.
 3. CADENTIAL APPROACH: trill on 2 over V with termination; at major structural cadences and
    climaxes, trill chain or stacked trills.
-4. REPEATED NOTES: acciaccatura or mordent on the 2nd/3rd repetition (never the first).
+4. REPEATED NOTES: an acciaccatura or mordent can refresh a repetition; choose
+   the occurrence by accent and phrase meaning.
 5. SECOND STATEMENT of a theme: ornamented reprise — embellish the return, not the exposition
-   (Mozart K.457 Adagio written-out variants; Chopin nocturne reprises). On the reprise apply
-   recipes 1-4 plus fill one leap with a run.
-6. NEVER ornament the first statement of a leitmotif; the ornament is information about
-   RETURN and INTENSIFICATION.
+   (Mozart K.457 Adagio written-out variants; Chopin nocturne reprises). Consider
+   the earlier options where they change the reprise's meaning.
+6. FIRST STATEMENT: keep a recognizable identity. If a grace, slide or turn
+   belongs to the head itself, expose it there; if it signifies later
+   intensification, reserve it for that event.
 
 ## 4. Instrument Idiom Table
 
@@ -104,14 +111,28 @@ Dorico import.
 - Timpani/perc: flams (single grace) and drags (double grace) before accents.
 - Tutti strings: section trills fine; section graces fine; portamento only solo or deliberate.
 
-## 5. Density Rules
+## 5. Continuity, density and imported notation
 
-- Solo line: up to 1 ornament per bar at climaxes, 1 per 2-4 bars normally. Tutti: 1 per
-  phrase (4-8 bars), preferably unison grace-snaps or section trills only.
-- Never two different ornament types on adjacent notes; minimum 1 beat plain after any ornament.
-- Density tracks the dramatic curve: exposition sparse -> development moderate ->
-  reprise/climax dense -> coda sparse.
-- Cap ornamented onsets at ~10-15% of melody notes in a solo line, ~3% in tutti.
+Choose ornament density by phrase, tempo, idiom and ensemble relation. A quiet
+solo may carry elaborate detail; a climax may become simpler through shared
+attacks. Adjacent ornaments can form a deliberate gesture. Do not mechanically
+apply a count per bar or an exposition-to-coda density curve.
+
+When a motif returns, decide which articulations, slides, turns or other
+features belong to its identity and which were local events. Carry the former
+or compose a meaningful transformation; do not copy every ornament through the
+whole piece or leave all later statements plain by accident. Distinguish
+restoring imported material from composing new embellishment, and record the
+evidence for restoration in the consumer project.
+
+When notation is missing after import, compare the accepted notation source
+with the imported result. Check glissandi/slides, grace notes, written turns,
+trills, articulations, ties/slurs, harmonics, tremolo and expressive controls as
+applicable. MIDI note parity does not establish notation parity. Use MusicXML
+for notation interchange and inspect the exported elements; do not infer an
+ornament's absence in the original from a MIDI import. Run the exporter/schema
+checks and preserve correct instrument clefs and staff grouping. See
+[completion and interchange review](../procedures/partitura/dsl_composition/stages/10_export_audition_close.md).
 
 Sources: Wikipedia Ornament/Trill/Variation; MyMusicTheory writing-out ornaments; MasterClass
 ornament guide; Niedt Nachschlag; Pianist Magazine; TheClassicNote Scheherazade; Bernstein

@@ -46,6 +46,12 @@ The comment is never a substitute for the notes.
 
 ## Finding Cards
 
+For lessons from previous compositions, start with
+[composition feedback](../../reference/written/craft/composition_feedback.md).
+It maps user corrections to craft guidance and actual card specimens. Read the
+specimen before applying it; adapt the musical relationship rather than turning
+its phrase length, density or sequence of gestures into a universal recipe.
+
 Use:
 
 ```bash

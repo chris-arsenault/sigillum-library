@@ -21,6 +21,9 @@ For theme-led pieces:
 
 - Name A, B, and any important secondary cells.
 - Give each material a rhythmic identity that survives the clapping test.
+- Compare the themes' heads and continuations side by side: pickup, accent,
+  hold, rest and exit. Shared duration classes can produce distinct identities;
+  adding triplets or another value class alone does not establish contrast.
 - Give the material a rhythm whose durations have metric function: what is held for weight, what is
   short because it leads to an event, where silence creates accent or breath, and where the cadence
   remains rhythmic instead of inert.
