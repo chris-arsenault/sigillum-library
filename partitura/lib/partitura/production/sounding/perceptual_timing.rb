@@ -9,7 +9,7 @@ module Partitura
         def initialize(piece)
           points = { Rational(0) => 120.0 }
           piece.tempo_events.each do |event|
-            next unless event.kind.to_s == "mark" && event.at && event.bpm&.positive?
+            next unless %w[mark playback].include?(event.kind.to_s) && event.at && event.bpm&.positive?
 
             points[piece.offset_for_reference(event.at)] = event.bpm.to_f
           end

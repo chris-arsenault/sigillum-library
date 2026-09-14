@@ -33,6 +33,15 @@ module Partitura
         mark(text, at: at)
       end
 
+      # Preserve a notation application's explicit tempo curve without printing
+      # a metronome mark at every playback sample. Units are quarter notes/minute.
+      def playback(bpm, at:)
+        value = Float(bpm)
+        raise ArgumentError, "playback tempo must be finite and positive" unless value.finite? && value.positive?
+
+        @piece.add_tempo_event(TempoEvent.new(kind: :playback, bpm: value, at: at))
+      end
+
       def ritardando(from:, to:)
         @piece.add_tempo_event(TempoEvent.new(kind: :ritardando, text: "rit.", from: from, to: to))
       end

@@ -113,7 +113,7 @@ module Partitura
 
     Anchor = Struct.new(:id, :at, keyword_init: true)
 
-    Control = Struct.new(:kind, :value, :at, :from, :to, :target, keyword_init: true)
+    Control = Struct.new(:kind, :value, :at, :from, :to, :target, :exact, keyword_init: true)
 
     KeyChange = Struct.new(:key, :at, keyword_init: true)
 

@@ -72,7 +72,7 @@ module Partitura
 
           ((hand.keys | export.keys) - shared).sort.each do |part|
             side = hand[part] || export[part]
-            has_notes = side.values.flatten(1).any? { |midi, _duration| !midi.nil? }
+            has_notes = side.values.flatten(1).any? { |midi, _onset, _duration| !midi.nil? }
             rows << { part: part, diffs: [], side: hand.key?(part) ? :hand : :export, 
 only_on_one_side_with_notes: has_notes }
           end
@@ -80,17 +80,8 @@ only_on_one_side_with_notes: has_notes }
         end
 
         def norm_events(events)
-          out = []
-          events.each do |midi, duration|
-            next if duration.zero?
-
-            if !out.empty? && midi.nil? && out.last[0].nil?
-              out[-1] = [nil, out.last[1] + duration]
-            else
-              out << [midi, duration]
-            end
-          end
-          out
+          events.reject { |midi, _onset, duration| midi.nil? || duration.zero? }
+                .sort_by { |midi, onset, duration| [onset, midi, duration] }
         end
       end
     end

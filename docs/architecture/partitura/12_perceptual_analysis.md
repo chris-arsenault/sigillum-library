@@ -35,7 +35,7 @@ hairpins. Sustained sounds follow the timeline while sounding. A plucked sound
 keeps its attack level and decays; later dynamic marks do not restrike it.
 
 `PerceptualTiming` integrates explicit tempo marks in quarter-note units, including
-dotted beat units and changes during a ringing tail. This matches MIDI's explicit
+dotted beat units, imported `tempo.playback` samples and changes during a ringing tail. This matches MIDI's explicit
 tempo timeline. Text-only ritardando/accelerando and a-tempo instructions do not
 invent a curve. Supply explicit tempo targets when the model needs those changes.
 Beat grouping uses the active bar's meter and beat pattern, not the opening meter.
@@ -52,5 +52,8 @@ The regular grid may miss shorter intervening events.
 
 Use these views alongside exported notation and MIDI inspection. MIDI velocities
 are not model dB, and MIDI does not realize all the score's expressive controls.
+MIDI note attacks map the same scoped dynamic/hairpin timeline onto its velocity
+table. This preserves relative dynamic shaping at attacks; it does not synthesize
+continuous swells during a held note, or realize trills and glissandi.
 When an analysis is required, a runtime failure is a blocker to report and repair;
 do not silently substitute a different check or declare the pass complete.

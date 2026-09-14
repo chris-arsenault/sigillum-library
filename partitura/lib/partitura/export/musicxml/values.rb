@@ -149,22 +149,35 @@ module Partitura
         end
 
         def parse_harmony(value)
-          match = value.to_s.match(/\A([A-Ga-g])([#b]?)(.*)\z/)
+          match = value.to_s.match(/\A([A-Ga-g])([#b]?)([^\/]*)(?:\/([A-Ga-g])([#b]?))?\z/)
           return nil unless match
 
           suffix = match[3].to_s
-          kind =
-            if suffix.match?(/m(?!aj)/)
-              "minor"
-            elsif suffix.match?(/7/)
-              "dominant"
-            else
-              "major"
-            end
+          kinds = {
+            "" => "major", "m" => "minor", "7" => "dominant",
+            "m7" => "minor-seventh", "maj7" => "major-seventh",
+            "m(maj7)" => "major-minor", "dim" => "diminished",
+            "dim7" => "diminished-seventh", "m7b5" => "half-diminished",
+            "aug" => "augmented", "aug7" => "augmented-seventh",
+            "sus2" => "suspended-second", "sus4" => "suspended-fourth",
+            "6" => "major-sixth", "m6" => "minor-sixth",
+            "9" => "dominant-ninth", "m9" => "minor-ninth", "maj9" => "major-ninth",
+            "11" => "dominant-11th", "13" => "dominant-13th"
+          }
+          quality = kinds.key?(suffix) ? suffix : suffix.sub(/(?:[#b]\d+)+\z/, "")
+          kind = kinds[quality]
+          return nil unless kind
+
+          degrees = suffix.delete_prefix(quality).scan(/([#b])(\d+)/).map do |accidental, degree|
+            { value: degree, alter: accidental_alter(accidental) }
+          end
           {
             step: match[1].upcase,
             alter: accidental_alter(match[2]),
-            kind: kind
+            kind: kind,
+            quality: quality,
+            bass: match[4] && { step: match[4].upcase, alter: accidental_alter(match[5]) },
+            degrees: degrees
           }
         end
 

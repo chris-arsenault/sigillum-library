@@ -52,6 +52,7 @@ class MusicXMLExporterControlsTest < Minitest::Test
   def test_text_control_honors_an_explicit_part_target
     document = render_document(targeted_text_piece)
 
+    assert_equal 2, REXML::XPath.match(document, "/score-partwise/part").length
     assert_empty REXML::XPath.match(document, "//part[1]//words")
     assert_equal "cellos only", text_at(document, "//part[2]//words")
   end

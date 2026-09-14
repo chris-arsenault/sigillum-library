@@ -25,7 +25,7 @@ library without changing the score or overwriting exports. Do not create a
 new standalone feedback document for each remark; extend the relevant owner
 and this coverage record when it adds a distinct lesson.
 
-## Feedback covered through 2026-09-09
+## Feedback covered through 2026-09-14
 
 Scope: the Basin Aria feedback in the current handoff conversation and the
 earlier user instructions retrieved below. This does not claim an audit of
@@ -48,6 +48,10 @@ every composition conversation across all repositories.
 | Required perceptual analysis was broken, unused and not reported. | [Model contract](../../../docs/architecture/partitura/12_perceptual_analysis.md), [completion review](../procedures/partitura/dsl_composition/stages/10_export_audition_close.md#notation-analysis-and-deliverables): run required views, report failures, repair and adjudicate findings. | Scores/models are evidence with limits, not proof of listening or independent review. |
 | Output clutter makes the latest version unclear. | [Deliverable discipline](../procedures/partitura/dsl_composition/stages/10_export_audition_close.md#notation-analysis-and-deliverables): one named current deliverable set; temporary comparisons outside outputs. | Preserve user hand edits and durable source/research; do not delete unfamiliar files. |
 | Teachings were encoded as absolutes. | [Ensemble §10](ensemble_binding_and_grid.md#10-gradients-versus-boundaries---how-to-encode-feedback): classify scope, correct bias and state when the previous choice remains useful. | Later explicit instructions supersede older scoped freezes. |
+| Handwritten equal pulses gain character through moving accents; solo lines mix holds, repetitions and late pickups. | [Ensemble §16](ensemble_binding_and_grid.md#16-rhythmic-identity-includes-accent-duration-and-the-distribution-of-motion): inspect accent, phrase gaps and ownership of motion alongside durations. | Observed in the September 14 export, especially 27–34 and 37–42. Equal values can be intentional. |
+| The chant builds through staged entries, local crescendos and a final acceleration; added vocal parts should remain selective afterward. | [Ensemble §17](ensemble_binding_and_grid.md#17-dynamics-and-reserved-forces-compose-the-buildup): let entrances and dynamic turns change the ensemble while held lines retain their character. | Full four-voice chant at 55–70 is authoritative; restraint applies to the continuation, not retroactively to that passage. |
+| The accelerated chant exit immediately drops into another slow passage. | [Contrast ledger review](texture_identity_contrast_ledger.md#movement-level-review): plan outgoing momentum and the next return; distinguish metronome tempo from surface pace. | An a-tempo return with later suspension fits this revision. Deliberate abrupt cuts remain available. |
+| Handwritten source withdraws the previously restored driver and expands its pitch range. | [Handpan review](../../../technique_library/handpan_idiom.md#review-questions): preserve current authored notes/rests during parity and declare the changed instrument assumptions. | Do not infer acoustic playability from a sampled score or impose an obsolete range/role contract. |
 
 ## Executable examples already available
 
@@ -82,3 +86,9 @@ Earlier exact prompts were read with `sulion-retrieve turn`:
 This is user-feedback synthesis, not a new claim of external music research or
 proof that the latest composition solved these problems. Keep subsequent
 listening corrections authoritative over an earlier agent's completion verdict.
+
+September 14 evidence: the current request and all eight individual parts plus
+the full MusicXML export in the Basin Aria consumer's raw directory. Pitched
+events agree across full score and parts. The owning references above use the
+observed notes, articulation and control positions; they do not claim a listening
+comparison or turn inferred lessons into universal prescriptions.

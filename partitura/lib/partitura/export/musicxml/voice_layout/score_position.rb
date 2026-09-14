@@ -118,7 +118,12 @@ module Partitura
 
         def key_at_bar(number)
           bar = bar_layout.fetch(number - 1)
-          event = key_changes.select { |candidate| rational(candidate.fetch("offset_ql")) <= bar.fetch(:start) }.last
+          local = Array(@data["controls"]).select do |control|
+            control["kind"] == "key_signature" &&
+              rendered_targets(control["target"]).any? { |target| target.fetch(:index) == @current_rendered_index }
+          end.map { |control| control.merge("key" => control.fetch("value")) }
+          timeline = (key_changes + local).sort_by { |candidate| rational(candidate.fetch("offset_ql")) }
+          event = timeline.select { |candidate| rational(candidate.fetch("offset_ql")) <= bar.fetch(:start) }.last
           event ? event.fetch("key") : @data["key"] || "C"
         end
 
@@ -153,7 +158,9 @@ module Partitura
         end
 
         def text_controls
-          Array(@data["controls"]).select { |control| control["kind"] == "text" }
+          Array(@data["controls"]).select do |control|
+            control["kind"] == "text" && control.dig("target", "type") == "all"
+          end
         end
       end
     end

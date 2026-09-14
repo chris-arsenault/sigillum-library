@@ -27,14 +27,15 @@ module Partitura
         "half-diminished" => "m7b5",
         "minor-seventh" => "m7",
         "major-seventh" => "maj7",
+        "major-minor" => "m(maj7)",
         "dominant-seventh" => "7",
         "suspended-fourth" => "sus4",
         "augmented" => "aug"
       }.freeze
       PART_KEYS = %w[flute trumpet trombone violin violoncello cello contrabass bass percussion].freeze
 
-      Note = Struct.new(:bar, :onset, :midi, :duration, :marks, :ties, keyword_init: true)
-      Meta = Struct.new(:part, :bar, :kind, :text, keyword_init: true)
+      Note = Struct.new(:bar, :onset, :midi, :duration, :marks, :ties, :staff, :voice, :pitch, keyword_init: true)
+      Meta = Struct.new(:part, :bar, :kind, :text, :onset, :staff, :data, keyword_init: true)
 
       module_function
 
@@ -58,13 +59,15 @@ module Partitura
       def verify(hand_path, export_path, bars: 1..10_000, perc_map: {}, beats: 2)
         first, last = normalize_bars(bars)
         percussion = normalize_map(perc_map)
-        sides = [hand_path, export_path].map do |path|
-          parts, = load_parts(path, last, percussion)
-          last = [last, max_content_bar(parts)].min
+        loaded = [hand_path, export_path].map { |path| load_parts(path, last, percussion).first }
+        last = [last, *loaded.map { |parts| max_content_bar(parts) }.max].min
+        sides = loaded.map do |parts|
           parts.transform_values do |notes|
             rebars = {}
-            merge_ties(fill_and_slice(notes, first, last, beats)).each do |note|
-              (rebars[note.bar] ||= []) << [note.midi, note.duration]
+            merge_ties(fill_and_slice(notes, first, last, beats), beats: beats).each do |note|
+              next unless note.midi
+
+              (rebars[note.bar] ||= []) << [note.midi, note.onset, note.duration]
             end
             rebars
           end
@@ -113,7 +116,14 @@ module Partitura
 
           load_measure(measure, number, state)
         end
-        tracks.fetch(:parts)[state.fetch(:name)] = state.fetch(:notes)
+        lanes = state.fetch(:notes).group_by(&:staff)
+        lanes.each do |staff, notes|
+          name = state.fetch(:name)
+          name = "#{name} [staff #{staff}]" if lanes.length > 1
+          raise ArgumentError, "duplicate MusicXML part identity: #{name}" if tracks.fetch(:parts).key?(name)
+
+          tracks.fetch(:parts)[name] = notes
+        end
       end
 
       def part_state(part_element, names, perc_map, tracks)
@@ -121,6 +131,7 @@ module Partitura
         {
           name: norm_part(names[part_element.attributes["id"]].to_s.strip),
           chromatic: transpose ? Integer(text_at(transpose, "chromatic", "0")) : 0,
+          diatonic: transpose ? Integer(text_at(transpose, "diatonic", "0")) : 0,
           octave_change: transpose ? Integer(text_at(transpose, "octave-change", "0")) : 0,
           divisions: 1,
           notes: [],
@@ -171,10 +182,14 @@ module Partitura
         when "forward"
           cursor + child_duration(child, state)
         when "harmony"
-          read_harmony(child, number, cursor, state.fetch(:tracks).fetch(:harmony))
+          onset = cursor + Rational(text_at(child, "offset", "0")) / state.fetch(:divisions)
+          read_harmony(child, number, onset, state.fetch(:tracks).fetch(:harmony))
           cursor
         when "direction"
           append_pending_direction(child, number, cursor, pending, state)
+          cursor
+        when "sound"
+          record_sound(child, number, cursor, state)
           cursor
         when "note"
           load_note(child, number, cursor, state)
@@ -188,20 +203,50 @@ module Partitura
       end
 
       def append_pending_direction(child, number, cursor, pending, state)
-        payload = read_direction(child, state.fetch(:name), number, state.fetch(:tracks).fetch(:meta))
-        pending << [cursor, payload] unless payload.empty?
+        offset = Rational(Integer(text_at(child, "offset", "0")), state.fetch(:divisions))
+        staff = text_at(child, "staff", "1")
+        meta = state.fetch(:tracks).fetch(:meta)
+        before = meta.length
+        payload = read_direction(child, state.fetch(:name), number, meta)
+        each_at(child, "direction-type/dynamics/*") do |dynamic|
+          meta << Meta.new(part: state.fetch(:name), bar: number, kind: "dynamic", text: dynamic.name)
+        end
+        each_at(child, "direction-type/words") do |words|
+          meta << Meta.new(part: state.fetch(:name), bar: number, kind: "text", text: words.text.to_s)
+        end
+        meta.drop(before).each do |row|
+          row.onset = cursor + offset
+          row.staff = staff
+          wedge = first_at(child, "direction-type/wedge")
+          row.data = { number: wedge.attributes["number"] || "1" } if row.kind == "wedge" && wedge
+        end
+        each_at(child, "sound") { |sound| record_sound(sound, number, cursor + offset, state) }
+        pending << [cursor + offset, payload, staff] unless payload.empty?
+      end
+
+      def record_sound(element, number, cursor, state)
+        return unless element.attributes["tempo"]
+
+        offset = Rational(Integer(text_at(element, "offset", "0")), state.fetch(:divisions))
+        state.fetch(:tracks).fetch(:meta) << Meta.new(
+          part: state.fetch(:name), bar: number, kind: "playback_tempo",
+          text: element.attributes["tempo"], onset: cursor + offset
+        )
       end
 
       def load_note(child, number, cursor, state)
-        if first_at(child, "chord") || first_at(child, "grace")
+        if first_at(child, "grace")
           state.fetch(:tracks).fetch(:meta) << Meta.new(part: state.fetch(:name), bar: number, kind: "warning", 
-text: "chord or grace note skipped")
+text: "grace note unsupported; restore explicitly before claiming notation parity")
           return cursor
         end
 
         duration = child_duration(child, state)
-        state.fetch(:notes) << imported_note(child, number, cursor, duration, state)
-        cursor + duration
+        chord = first_at(child, "chord")
+        onset = chord ? state.fetch(:previous_onset) : cursor
+        state[:previous_onset] = onset
+        state.fetch(:notes) << imported_note(child, number, onset, duration, state)
+        chord ? cursor : cursor + duration
       end
 
       def imported_note(child, number, onset, duration, state)
@@ -212,7 +257,24 @@ text: "chord or grace note skipped")
                else
                  read_pitch(child, state.fetch(:chromatic), state.fetch(:octave_change), state.fetch(:perc_map))
                end
-        Note.new(bar: number, onset: onset, midi: midi, duration: duration, marks: marks, ties: ties)
+        Note.new(bar: number, onset: onset, midi: midi, duration: duration, marks: marks, ties: ties,
+                 staff: text_at(child, "staff", "1"), voice: text_at(child, "voice", "1"),
+                 pitch: midi && concert_label(child, state, midi))
+      end
+
+      def concert_label(element, state, midi)
+        pitch = first_at(element, "pitch")
+        return midi_to_label(midi) unless pitch
+
+        letters = %w[C D E F G A B]
+        degree = Integer(text_at(pitch, "octave")) * 7 + letters.index(text_at(pitch, "step")) +
+                 state.fetch(:diatonic) + 7 * state.fetch(:octave_change)
+        octave, index = degree.divmod(7)
+        step = letters.fetch(index)
+        alter = midi - ((octave + 1) * 12 + STEP_PC.fetch(step))
+        return midi_to_label(midi) if alter.abs > 2
+
+        "#{step}#{alter.negative? ? 'b' * -alter : '#' * alter}#{octave}"
       end
 
       def read_harmony(element, bar, cursor, harmony_track)
@@ -226,6 +288,15 @@ text: "chord or grace note skipped")
           label += kind.attributes["text"]
         elsif kind
           label += KIND.fetch(kind.text.to_s, kind.text.to_s)
+        end
+        each_at(element, "degree") do |degree|
+          alter = Integer(text_at(degree, "degree-alter", "0"))
+          label += "#{alter.positive? ? '#' : 'b'}#{text_at(degree, 'degree-value')}" unless alter.zero?
+        end
+        bass = text_at(element, "bass/bass-step")
+        if bass
+          alter = Integer(text_at(element, "bass/bass-alter", "0"))
+          label += "/#{bass}#{alter.negative? ? 'b' * -alter : '#' * alter}"
         end
         harmony_track[[bar, cursor]] ||= label
       end
@@ -268,8 +339,9 @@ text: "chord or grace note skipped")
       end
 
       def attach_pending!(notes, bar, pending)
-        pending.each do |offset, payload|
-          target = pending_target(notes, bar, offset)
+        pending.each do |offset, payload, staff|
+          candidates = staff ? notes.select { |note| note.staff == staff } : notes
+          target = pending_target(candidates, bar, offset)
           target.marks = payload + target.marks if target
         end
       end
@@ -286,18 +358,22 @@ text: "chord or grace note skipped")
         notes.find { |note| ([note.bar, note.onset] <=> [bar, offset]) >= 0 }
       end
 
-      def merge_ties(notes)
+      def merge_ties(notes, beats: 2)
         merged = []
-        index = 0
-        while index < notes.length
-          note = notes[index]
-          if mergeable_tie_start?(note)
-            merged_note, index = merged_tie_note(notes, index)
-            merged << merged_note
+        active = {}
+        notes.sort_by { |note| [note.bar, note.onset] }.each do |note|
+          key = [note.staff, note.voice, note.midi]
+          previous = active[key]
+          contiguous = previous && ((previous.bar - 1) * beats + previous.onset + previous.duration ==
+                                     (note.bar - 1) * beats + note.onset)
+          if note.midi && note.ties.include?("stop") && contiguous
+            previous.duration += note.duration
           else
             merged << clone_note(note)
-            index += 1
+            previous = merged.last
           end
+          active.delete(key)
+          active[key] = previous if note.midi && note.ties.include?("start")
         end
         merged
       end
@@ -335,7 +411,10 @@ cursor]
           midi: note.midi,
           duration: note.duration,
           marks: note.marks,
-          ties: note.ties
+          ties: note.ties,
+          staff: note.staff,
+          voice: note.voice,
+          pitch: note.pitch
         )
       end
 
@@ -351,7 +430,7 @@ cursor]
       end
 
       def max_content_bar(parts)
-        parts.values.flatten.select { |note| note.midi }.map(&:bar).max || 1
+        parts.values.flatten.map(&:bar).max || 1
       end
 
       def norm_part(name)
@@ -359,7 +438,7 @@ cursor]
         special = special_part_name(normalized)
         return special if special
 
-        found = PART_KEYS.find { |key| normalized.include?(key) }
+        found = PART_KEYS.find { |key| normalized == key }
         return { "violoncello" => "cello", "contrabass" => "bass" }.fetch(found, found) if found
 
         normalized.empty? ? "?" : normalized

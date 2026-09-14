@@ -25,6 +25,9 @@ module Partitura
 
         def add_tempo_event_direction(directions, marks, event)
           kind = event["kind"]
+          if kind == "playback"
+            return add_direction(directions, 0, rational(event.fetch("offset_ql")), :hidden_tempo, bpm: event.fetch("bpm"))
+          end
           return add_tempo_mark_direction(directions, event) if tempo_mark_kind?(kind)
           return unless %w[ritardando accelerando a_tempo].include?(kind)
 
@@ -155,6 +158,10 @@ value: control.fetch("value"))
 
         def add_hairpin_control_direction(directions, control)
           rendered_notation_targets(control["target"]).each do |target|
+            if control["exact"]
+              add_exact_hairpin(directions, target, control)
+              next
+            end
             add_hairpin_direction(
               directions,
               target.fetch(:index),
@@ -164,6 +171,19 @@ value: control.fetch("value"))
               staff: target[:staff]
             )
           end
+        end
+
+        def add_exact_hairpin(directions, target, control)
+          index = target.fetch(:index)
+          start_offset = rational(control.fetch("from_offset_ql"))
+          end_offset = rational(control.fetch("to_offset_ql"))
+          kind = control.fetch("kind")
+          number = wedge_number_for_span(index, start_offset, end_offset,
+                                         key: [:exact_control, target[:staff], kind, start_offset, end_offset])
+          add_direction(directions, index, start_offset, :wedge, value: kind,
+                        staff: target[:staff], number: number, spread: wedge_hairpin_start_spread(kind))
+          add_direction(directions, index, end_offset, :wedge, value: "stop",
+                        staff: target[:staff], number: number, spread: wedge_hairpin_stop_spread(kind))
         end
 
         def rendered_notation_targets(target)

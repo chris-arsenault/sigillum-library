@@ -7,39 +7,7 @@ module Partitura
         private
 
         def single_staff_voices(part)
-          voices = voice_items_for_part(part.fetch("id"), staff: nil, voice_base: 1, tag_single_voice: false)
-          return voices unless needs_harmony_shadow_voice?(part)
-
-          tag_shadowed_single_staff_voices!(voices)
-          shadow_voice = next_shadow_voice_number(voices)
-          voices << { part_id: part.fetch("id"), staff: nil, voice: shadow_voice, bars: shadow_rest_bars(shadow_voice) }
-        end
-
-        def tag_shadowed_single_staff_voices!(voices)
-          voices.each_with_index do |voice, index|
-            number = voice[:voice] || (index + 1)
-            voice[:voice] = number
-            voice.fetch(:bars).each_value do |items|
-              items.each { |item| item[:voice] = number }
-            end
-          end
-        end
-
-        def next_shadow_voice_number(voices)
-          voices.filter_map { |voice| voice[:voice] }.max.to_i + 1
-        end
-
-        def needs_harmony_shadow_voice?(_part)
-          @current_rendered_index.to_i.zero? &&
-            Array(@data["controls"]).any? { |control| control["kind"] == "chord_symbol" }
-        end
-
-        def shadow_rest_bars(voice)
-          bar_layout.to_h do |bar|
-            item = full_bar_rest_item(bar)
-            item[:voice] = voice
-            [bar.fetch(:number), [item]]
-          end
+          voice_items_for_part(part.fetch("id"), staff: nil, voice_base: 1, tag_single_voice: false)
         end
 
         def voice_items_for_part(part_id, staff:, voice_base:, tag_single_voice:)

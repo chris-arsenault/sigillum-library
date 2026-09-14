@@ -121,6 +121,19 @@ Choose the contrast relative to the surrounding music, without a fixed speed,
 length or recurrence quota. See
 [phrase-break interludes](ensemble_binding_and_grid.md#7-the-phrase-break-interlude-a-tool-not-a-schedule).
 
+Read the outgoing motion before choosing the next section's tempo. In the
+2026-09-14 Basin Aria hand edit, a broad chant accumulates instrumental pulses
+and accelerates into its exit; an inherited slow recitative immediately after
+it spends that momentum before the return can happen. The requested repair is
+an a-tempo return, with suspended time placed later. This is a pacing decision,
+not a prohibition on abrupt cuts: a deliberate cut needs its own dramatic job.
+
+Track metronome tempo and surface pace separately. That chant uses the opening
+tempo for much of its length but feels slower through sustained choral values;
+its last two bars change both tempo and instrumental activity. Words such as
+"luminous" or "suspended" describe character and do not prescribe slowness.
+Check actual playback samples as well as printed tempo words when importing.
+
 Texture-led passages can feature a continuing instrumental groove or evolving
 field with brief melodic entries. The melody need not occupy every bar; unison
 or octave calls can unite voices that elsewhere act separately. Preserve a

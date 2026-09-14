@@ -48,15 +48,14 @@ module Partitura
         end
 
         def tempo_mark_event?(event)
-          (event["kind"].nil? || event["kind"] == "mark") && event["bpm"]
+          (event["kind"].nil? || %w[mark playback].include?(event["kind"])) && event["bpm"]
         end
 
         def part_track(part, index)
           channel = midi_channel(part, index)
           events = part_track_header(part, channel)
-          velocity = 72
           timed_events_for(part.fetch("id")).each do |event|
-            velocity = event_velocity(event, velocity)
+            velocity = event_velocity(event, part)
             events.concat(part_note_events(event, channel, velocity, part)) unless event["rest"]
           end
           build_track(events.sort_by { |tick, bytes| part_track_sort_key(tick, bytes, channel) })
@@ -85,9 +84,19 @@ module Partitura
           ]
         end
 
-        def event_velocity(event, current)
+        def event_velocity(event, part)
           local_dynamic = Array(event["local_marks"]).find { |mark| DYNAMIC_VELOCITY.key?(mark) }
-          local_dynamic ? DYNAMIC_VELOCITY.fetch(local_dynamic) : current
+          return DYNAMIC_VELOCITY.fetch(local_dynamic) if %w[fp sfz].include?(local_dynamic)
+
+          level = @dynamics.level(part.fetch("id").to_sym, rational(event.fetch("offset_ql")))
+          anchors = Production::SoundingReadout::PerceptualDynamics::LEVELS.map do |mark, db|
+            [db, DYNAMIC_VELOCITY.fetch(mark)]
+          end
+          return anchors.first.last if level <= anchors.first.first
+          return anchors.last.last if level >= anchors.last.first
+
+          low, high = anchors.each_cons(2).find { |left, right| level >= left.first && level <= right.first }
+          (low.last + (high.last - low.last) * (level - low.first) / (high.first - low.first)).round
         end
 
         def part_note_events(event, channel, velocity, part)

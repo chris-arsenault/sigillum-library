@@ -20,18 +20,20 @@ module Partitura
         ))
       end
 
-      def crescendo(from:, to:, **kwargs)
+      def crescendo(from:, to:, exact: false, **kwargs)
         @piece.add_control(Control.new(
           kind: :crescendo,
+          exact: exact,
           from: from,
           to: to,
           target: required_target(kwargs)
         ))
       end
 
-      def diminuendo(from:, to:, **kwargs)
+      def diminuendo(from:, to:, exact: false, **kwargs)
         @piece.add_control(Control.new(
           kind: :diminuendo,
+          exact: exact,
           from: from,
           to: to,
           target: required_target(kwargs)
@@ -92,6 +94,13 @@ module Partitura
         # Keys change at barlines: accept a bare "bar N" and pin it to beat 1.
         at = "#{at} beat 1" if at.is_a?(String) && at.match?(/\Abar\s+\d+\z/)
         @piece.add_key_change(KeyChange.new(key: value.to_s, at: at))
+      end
+
+      # A part-specific printed signature, independent of the analytical tonal
+      # context. Useful when imported parts change signatures at different bars.
+      def key_signature(value, at:, **kwargs)
+        @piece.add_control(Control.new(kind: :key_signature, value: value.to_s,
+                                      at: at, target: required_target(kwargs)))
       end
 
       # A harp pedal diagram: the seven pedals in diagram order D C B | E F G A,

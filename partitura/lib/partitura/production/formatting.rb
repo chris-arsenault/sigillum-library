@@ -43,6 +43,8 @@ module Partitura
 
     def tempo_summary(event)
       case event.kind
+      when :playback
+        "playback quarter = #{event.bpm} at #{event.at}"
       when :mark, :a_tempo
         "#{event.kind} #{event.text.inspect} at #{event.at}"
       else

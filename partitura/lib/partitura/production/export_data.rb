@@ -229,6 +229,7 @@ module Partitura
       base = {
         kind: control.kind.to_s,
         value: control.value,
+        exact: control.exact || nil,
         target: export_target(control.target)
       }.compact
       if control.at

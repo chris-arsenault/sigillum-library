@@ -25,12 +25,12 @@ module Partitura
             segments: segments,
             parts: parts.transform_values do |notes|
               notes.map do |note|
-                { bar: note.bar, onset: note.onset, pitch: note.midi && MusicXMLImport.midi_to_label(note.midi),
-                  duration: note.duration, marks: note.marks }
+                { bar: note.bar, onset: note.onset, pitch: note.pitch || (note.midi && MusicXMLImport.midi_to_label(note.midi)),
+                  duration: note.duration, marks: note.marks, ties: note.ties, staff: note.staff, voice: note.voice }
               end
             end,
             harmony: harmony,
-            meta: meta.map { |row| { part: row.part, bar: row.bar, kind: row.kind, text: row.text } }
+            meta: meta.map(&:to_h)
           }
         end
 
@@ -48,14 +48,14 @@ module Partitura
             harmony: harmony.map do |(bar, onset), chord|
               { bar:, onset: onset.to_s, chord: }
             end,
-            meta: meta.map { |row| { part: row.part, bar: row.bar, kind: row.kind, text: row.text } }
+            meta: meta.map { |row| row.to_h.merge(onset: row.onset&.to_s) }
           }
         end
 
         def render
           lines = []
           lines << "# Converted from: #{path}"
-          lines << "# Bars #{first}-#{last}; concert pitch; ties merged; durations quarter=1."
+          lines << "# Bars #{first}-#{last}; concert pitch; explicit ties; durations quarter=1."
           lines << "# Paste each block into a `phrase ... events %q{ ... }` body."
           parts.each { |part, notes| append_part(lines, part, notes) }
           append_harmony(lines)
@@ -71,9 +71,12 @@ module Partitura
               {
                 bar: note.bar,
                 onset: note.onset.to_s,
-                pitch: note.midi && MusicXMLImport.midi_to_label(note.midi),
+                pitch: note.pitch || (note.midi && MusicXMLImport.midi_to_label(note.midi)),
                 duration: note.duration.to_s,
-                marks: note.marks
+                marks: note.marks,
+                ties: note.ties,
+                staff: note.staff,
+                voice: note.voice
               }
             end
           end
@@ -90,7 +93,7 @@ module Partitura
           meta.each do |row|
             next unless row.part == part && (first..last).cover?(row.bar) && row.kind != "key"
 
-            lines << "  # m#{row.bar}: #{row.kind.upcase} #{row.text}"
+            lines << "  # m#{row.bar} offset=#{row.onset || 0} staff=#{row.staff || 1}: #{row.kind.upcase} #{row.text}"
           end
         end
 
@@ -107,22 +110,32 @@ module Partitura
         end
 
         def segment_body(notes, segment_first, segment_last)
-          MusicXMLImport.merge_ties(MusicXMLImport.fill_and_slice(notes, segment_first, segment_last, beats))
+          MusicXMLImport.fill_and_slice(notes, segment_first, segment_last, beats)
         end
 
         def render_body(lines, notes)
           current = nil
           line = []
-          notes.each do |note|
+          notes.group_by { |note| [note.bar, note.onset] }.each_value do |simultaneous|
+            sounding = simultaneous.reject { |note| note.midi.nil? }
+            simultaneous = sounding unless sounding.empty?
+            note = simultaneous.first
+            unless simultaneous.map { |item| [item.duration, item.ties.sort] }.uniq.length == 1
+              raise ArgumentError, "independent voices at bar #{note.bar}; import separate voices before rendering DSL"
+            end
             current ||= note.bar
             if note.bar != current
               lines << "          #{line.join(' ')} |"
               line = []
               current = note.bar
             end
-            token = note.midi ? MusicXMLImport.midi_to_label(note.midi) : "r"
+            pitches = simultaneous.filter_map { |item| item.pitch || (item.midi && MusicXMLImport.midi_to_label(item.midi)) }
+            token = pitches.empty? ? "r" : (pitches.length == 1 ? pitches.first : "[#{pitches.join(',')}]")
             token += ":#{MusicXMLImport.format_duration(note.duration)}"
-            token += "{#{note.marks.join(',')}}" unless note.marks.empty?
+            marks = simultaneous.flat_map(&:marks).uniq
+            marks << "tie)" if note.ties.include?("stop")
+            marks << "tie(" if note.ties.include?("start")
+            token += "{#{marks.join(',')}}" unless marks.empty?
             line << token
           end
           lines << "          #{line.join(' ')}" unless line.empty?

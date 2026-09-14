@@ -12,6 +12,15 @@ module Partitura
         read_arpeggio_marks(element, marks)
         read_glissando_marks(element, marks)
         read_let_ring_marks(element, marks)
+        marks << "fermata" if first_at(element, ".//notations/fermata")
+        waves = each_at(element, ".//ornaments/wavy-line").to_a
+        if waves.empty?
+          marks << "trill" if first_at(element, ".//ornaments/trill-mark")
+        else
+          waves.each do |wave|
+            marks << typed_span_mark(wave, "trill") if %w[start stop].include?(wave.attributes["type"])
+          end
+        end
         marks
       end
 
@@ -20,7 +29,9 @@ module Partitura
       end
 
       def read_slur_marks(element, marks)
-        each_at(element, ".//slur") { |slur| marks << typed_span_mark(slur, "slur") }
+        each_at(element, ".//slur") do |slur|
+          marks << typed_span_mark(slur, "slur") if %w[start stop].include?(slur.attributes["type"])
+        end
       end
 
       def read_arpeggio_marks(element, marks)

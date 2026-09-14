@@ -354,6 +354,19 @@ Use these before accepting a handpan part:
   with deliberate withdrawals rather than long accidental absences?
 - Do changing chord colors relieve a drone without erasing the groove?
 
+The user's later handwritten Basin Aria chant (2026-09-14, bars 55–70) deliberately
+withdraws the handpan after its initial strike and returns it for the accelerating
+exit at 69–70. This is a composed transfer of drive to clarinet and then viola,
+followed by a return; it supersedes the earlier local restoration boundary.
+Do not fill an authoritative rest because an older review said "preserve the
+driver." Read the incoming and outgoing roles and the latest scope together.
+
+An imported source may also specify pitches outside a previously declared
+fixed pan layout. Preserve those authored pitches during parity work and make
+the source's expanded range explicit. That is not proof that one acoustic pan
+can play them; distinguish a sampled/multi-pan score from a confirmed physical
+instrument specification before any later playability adaptation.
+
 ## Common Repairs
 
 Choose a repair for the actual defect. These are alternatives, not a thinning

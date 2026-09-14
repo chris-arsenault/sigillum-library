@@ -416,17 +416,30 @@ module Partitura
         def render_harmony(xml, value, offset: nil)
           parsed = parse_harmony(value)
           unless parsed
-            render_words_direction(xml, value)
+            render_words_direction(xml, value, offset: offset)
             return
           end
 
           xml.open("harmony")
-          render_offset(xml, offset)
           xml.open("root")
           xml.element("root-step", parsed.fetch(:step))
           xml.element("root-alter", parsed.fetch(:alter).to_s) unless parsed.fetch(:alter).zero?
           xml.close("root")
-          xml.element("kind", parsed.fetch(:kind))
+          xml.element("kind", parsed.fetch(:kind), "text" => parsed.fetch(:quality))
+          if (bass = parsed[:bass])
+            xml.open("bass")
+            xml.element("bass-step", bass.fetch(:step))
+            xml.element("bass-alter", bass.fetch(:alter).to_s) unless bass.fetch(:alter).zero?
+            xml.close("bass")
+          end
+          parsed.fetch(:degrees).each do |degree|
+            xml.open("degree")
+            xml.element("degree-value", degree.fetch(:value))
+            xml.element("degree-alter", degree.fetch(:alter).to_s)
+            xml.element("degree-type", "alter")
+            xml.close("degree")
+          end
+          render_offset(xml, offset)
           xml.close("harmony")
         end
 

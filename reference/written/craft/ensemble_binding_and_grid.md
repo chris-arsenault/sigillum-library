@@ -285,3 +285,46 @@ when its unresolved state is intended; a conventional cadence is not mandatory.
 After the user approves the ending, freeze its notes and expressive controls
 for unrelated revisions, including incoming ties, tempo and decay. Compare
 the result with the approved baseline, not merely the final bar's pitches.
+
+## 16. Rhythmic identity includes accent, duration and the distribution of motion
+
+The handwritten Basin Aria export of 2026-09-14 demonstrates several distinct
+mechanisms. These are observations of that score, not new mandatory recipes.
+
+- In 27–34 the clarinet often repeats equal eighth-note pulses, but accents move
+  within the bar while viola carries the melodic sentence. Equal durations can
+  produce an articulated character. A duration-class count misses this change.
+- In 37–42 the new solo soprano uses repeated clipped notes, isolated late
+  pickups, sustained heads and short releases. Its distinction from the earlier
+  choral paragraph lies in the placement and articulation of those events,
+  including the rests, not merely in having more sixteenths.
+- In 55–70 broad choral values remain the dominant character. A short solo turn
+  at 62 and the staccato/marcato repeated G at 65 briefly disturb that breadth.
+  Local quick motion has meaning because the surrounding holds remain long.
+
+Review rhythmic identity at three scales: the attack and its accent, the phrase
+and its gaps, and which ensemble layer owns motion over successive phrases.
+Do not diversify every layer simultaneously. The user's literal transcription
+is the specimen; its notes should not be generalized into a stamping helper.
+
+## 17. Dynamics and reserved forces compose the buildup
+
+In the same handwritten chant, the clarinet starts a restrained pulse at 59,
+viola joins on the other eighth-note slots at 63, and the handpan reenters at 69.
+The choir's long values remain intact while the supporting motion accumulates.
+The accelerating 69–70 exit is prepared by these entrances and crescendos.
+The added tenor and solo soprano also double or complete chords in selected
+earlier passages; their presence in the roster does not require continuous use.
+
+Compose a dynamic's function and location: an entrance can establish a new
+speaker, a local hairpin can turn a single phrase, a sudden level change can
+reveal a contrasting layer, and a delayed instrumental entrance can increase
+activity without making every existing line faster. Compare those events with
+the surrounding level and register. A broad swell in every part is one option,
+not the default interpretation of development.
+
+Reserve added voices for an audible purpose—emphasis, doubling, chord completion
+or a distinct solo thought—and give them silence elsewhere. Preserve a user's
+chosen full-choir passage when the restraint applies to its continuation.
+Check exact dynamic/hairpin offsets after export; shifted endpoints can change
+which gesture receives the emphasis even when all note pitches match.

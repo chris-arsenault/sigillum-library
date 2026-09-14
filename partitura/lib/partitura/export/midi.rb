@@ -10,6 +10,10 @@ module Partitura
       DIVISIONS = 10_080
 
       PROGRAMS = {
+        "Soprano" => 52,
+        "Tenor" => 52,
+        "Bass" => 52,
+        "SteelDrum" => 114,
         "BassClarinet" => 71,
         "Bassoon" => 70,
         "Clarinet" => 71,
@@ -58,6 +62,7 @@ module Partitura
 
         def initialize(piece)
           @data = deep_stringify(Production.export_data(piece))
+          @dynamics = Production::SoundingReadout::PerceptualDynamics.new(piece)
         end
 
         def render
