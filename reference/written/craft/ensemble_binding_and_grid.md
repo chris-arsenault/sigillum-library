@@ -286,6 +286,26 @@ After the user approves the ending, freeze its notes and expressive controls
 for unrelated revisions, including incoming ties, tempo and decay. Compare
 the result with the approved baseline, not merely the final bar's pitches.
 
+Review the entire closing segment, not just the last cadence. After a decisive
+buildup, an instrumental vamp, a full thematic head or a new collective entrance
+can reopen the piece even when the final bars themselves work. Later swells can
+grow from overlapping fragments and echoes while continuing to close. Compare
+the outgoing and incoming tempo, subdivision, register and dynamic weight;
+preserve enough of their relationship to make an intended handoff audible.
+If energy must subside, let the release follow an arrival and have a cadential
+function. A brief fanfare can supply that arrival, but neither a fanfare nor
+a fixed two-bar length is a general requirement.
+
+A fanfare followed by the same collective slowdown can merely postpone a
+momentum cliff. In the subsequent Basin Aria correction, the user asked for
+the rhythmic character of the handwritten solo at37 after the fanfare.
+Transfer activity to a clear speaker while the supporting ensemble loses
+weight; let that line reach a shared landing before releasing it. Retaining
+tempo alone is insufficient if every melodic line becomes broad or vanishes.
+Audit the next handoff too: an active replacement ending abruptly at its last
+bar has relocated the failure again. A closing solo can develop earlier
+rhythmic grammar without quoting a fresh theme head or reopening the form.
+
 ## 16. Rhythmic identity includes accent, duration and the distribution of motion
 
 The handwritten Basin Aria export of 2026-09-14 demonstrates several distinct

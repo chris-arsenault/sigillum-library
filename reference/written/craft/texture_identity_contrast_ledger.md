@@ -121,12 +121,36 @@ Choose the contrast relative to the surrounding music, without a fixed speed,
 length or recurrence quota. See
 [phrase-break interludes](ensemble_binding_and_grid.md#7-the-phrase-break-interlude-a-tool-not-a-schedule).
 
-Read the outgoing motion before choosing the next section's tempo. In the
+Read the outgoing motion before choosing the next phrase's tempo. In the
 2026-09-14 Basin Aria hand edit, a broad chant accumulates instrumental pulses
-and accelerates into its exit; an inherited slow recitative immediately after
-it spends that momentum before the return can happen. The requested repair is
-an a-tempo return, with suspended time placed later. This is a pacing decision,
-not a prohibition on abrupt cuts: a deliberate cut needs its own dramatic job.
+and accelerates into its exit. Restoring the opening dotted-quarter 52 afterward
+still failed: the outgoing speed was about 64.5, twelve uninterrupted pan
+sixteenths became eight attacks with gaps, the upper voices vanished, and the
+remaining parts became quieter together. Compare the incoming phrase with its
+actual predecessor, not merely with an older weak version of itself. An
+"a tempo" label or an active driver does not establish inherited momentum.
+
+If energy should continue, identify what crosses the seam: subdivision, tempo,
+register, dynamic weight, an unresolved line or harmonic tension. A decline can
+follow an arrival and belong to its cadence. Changing all of those dimensions
+downward at once is a strong release gesture; use it deliberately rather than
+calling it continuity. Abrupt cuts remain available when they have that job.
+
+Once the piece has entered its closing segment, give later material closing
+functions: cadential extension, echo, liquidation, a breath within the line,
+or a final gathering. A swell need not reintroduce a theme. Ties across a
+boundary, an entrance inside the preceding tail, and a delayed harmonic
+resolution can make familiar fragments continue toward the ending. In Basin
+Aria the user chose a two-bar fanfare before the decline and explicitly ruled
+out more reintroductions across 71–106. That length and form are local choices;
+the reusable question is whether each event completes the trajectory or opens
+another one.
+
+The next Basin Aria listening correction rejected the immediate decline after
+that fanfare: it moved the loss of momentum from71 to73. The user's alternative
+was the high solo character from37. A local arrival does not by itself justify
+a global fade. Follow which voice inherits initiative, how its rhythm remains
+active over lighter support, and where it hands the line to the next event.
 
 Track metronome tempo and surface pace separately. That chant uses the opening
 tempo for much of its length but feels slower through sustained choral values;
