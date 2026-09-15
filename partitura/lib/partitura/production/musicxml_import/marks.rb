@@ -30,7 +30,9 @@ module Partitura
 
       def read_slur_marks(element, marks)
         each_at(element, ".//slur") do |slur|
-          marks << typed_span_mark(slur, "slur") if %w[start stop].include?(slur.attributes["type"])
+          number = slur.attributes["number"]
+          name = number && number != "1" ? "slur:#{number}" : "slur"
+          marks << typed_span_mark(slur, name) if %w[start stop].include?(slur.attributes["type"])
         end
       end
 
@@ -44,7 +46,7 @@ module Partitura
 
       def read_glissando_marks(element, marks)
         each_at(element, ".//glissando") { |gliss| marks << typed_span_mark(gliss, "gliss") }
-        each_at(element, ".//slide") { |slide| marks << typed_span_mark(slide, "gliss") }
+        each_at(element, ".//slide") { |slide| marks << typed_span_mark(slide, "slide") }
       end
 
       def read_let_ring_marks(element, marks)

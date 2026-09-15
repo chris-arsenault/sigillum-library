@@ -5,9 +5,9 @@ module Partitura
     module SoundingReadout
       module ArticulationBreath
         ARTICULATION_MARKS = %w[
-          stacc accent ten marc slur( slur) arp arp:up arp:down gliss( gliss) lv trill pizz
+          stacc accent ten marc slur( slur) arp arp:up arp:down gliss( gliss) slide( slide) lv trill pizz
         ].freeze
-        PRESENCE_MARKS = %w[stacc ten slur( accent marc arp arp:down gliss( lv].freeze
+        PRESENCE_MARKS = %w[stacc ten slur( accent marc arp arp:down gliss( slide( lv].freeze
 
         def articulation_map(part: nil, bars: nil)
           lines = ["# Articulation Map (sounding)"]
@@ -36,7 +36,7 @@ module Partitura
         end
 
         def articulation_census(events)
-          marks = events.flat_map { |event| event.marks.map(&:to_s) }
+          marks = events.flat_map { |event| event.marks.map { |mark| Marks.unnumbered(mark.to_s) } }
           ARTICULATION_MARKS.to_h { |mark| [mark, marks.count(mark)] }
         end
 
@@ -50,6 +50,7 @@ module Partitura
             "slurs=#{balanced_mark_count(census, 'slur(', 'slur)')}",
             "arp=#{rolls}",
             "gliss=#{balanced_mark_count(census, 'gliss(', 'gliss)')}",
+            "slide=#{balanced_mark_count(census, 'slide(', 'slide)')}",
             "lv=#{census.fetch('lv')}",
             "trill=#{census.fetch('trill')}",
             "pizz=#{census.fetch('pizz')}"
@@ -77,7 +78,7 @@ module Partitura
         end
 
         def mark_presence_bars(events, mark)
-          events.select { |event| event.marks.map(&:to_s).include?(mark) }
+          events.select { |event| event.marks.any? { |item| Marks.unnumbered(item.to_s) == mark } }
                 .map { |event| bar_of(event.offset) }.uniq.sort
         end
 

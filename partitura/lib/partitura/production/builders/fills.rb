@@ -102,7 +102,7 @@ module Partitura
     class FillMaterialRealizer
       # Reversal must also reverse spanner direction, or a slurred fill retrogrades
       # into `slur)` before `slur(` and exports broken notation.
-      SPANNER_FLIP = %w[slur cresc dim gliss trill tie].to_h { |name| ["#{name}(", "#{name})"] }
+      SPANNER_FLIP = %w[slur cresc dim gliss slide trill tie].to_h { |name| ["#{name}(", "#{name})"] }
                                                        .then { |open| open.merge(open.invert) }.freeze
 
       def initialize(material, options = {})
@@ -147,7 +147,9 @@ module Partitura
       end
 
       def flip_spanners(marks)
-        marks.map { |mark| SPANNER_FLIP.fetch(mark, mark) }
+        marks.map do |mark|
+          Marks::NUMBERED_SLUR.match?(mark) ? mark.tr("()", ")(") : SPANNER_FLIP.fetch(mark, mark)
+        end
       end
 
       def invert(events, axis)

@@ -97,6 +97,44 @@ class MusicXMLExporterImportSafetyTest < Minitest::Test
     assert_equal notes.last, found
   end
 
+  def test_slide_and_glissando_keep_distinct_notation_and_import_marks
+    piece = single_part_piece(
+      "Slide Round Trip", :harp, "Harp", music21: "Harp", family: :plucked,
+      event_text: "E5:.5{slide(} C6:.5{slide)} F5:1{gliss(} G3:2{gliss)}", role: :foreground
+    )
+    document = render_document(piece)
+    slides = REXML::XPath.match(document, "//notations/slide")
+    glissandi = REXML::XPath.match(document, "//notations/glissando")
+
+    assert_equal %w[start stop], slides.map { |e| e.attributes['type'] }
+    assert_equal %w[solid solid], slides.map { |e| e.attributes['line-type'] }
+    assert_equal %w[start stop], glissandi.map { |e| e.attributes['type'] }
+    assert_equal %w[wavy wavy], glissandi.map { |e| e.attributes['line-type'] }
+    assert_empty REXML::XPath.match(document, "//words").map(&:text).compact.grep(/slide|gliss/)
+    notes = REXML::XPath.match(document, "//note[pitch]")
+    assert_equal [["slide("], ["slide)"], ["gliss("], ["gliss)"]],
+                 notes.map { |n| Partitura::Production::MusicXMLImport.read_marks(n) }
+    assert_includes Partitura::Production::Readout.new(piece).render(:articulation_map), "slide=1"
+  end
+
+  def test_overlapping_slurs_retain_their_own_start_and_stop_numbers
+    piece = single_part_piece(
+      "Overlapping Slurs", :voice, "Voice", music21: "Voice", family: :vocal,
+      event_text: "G5:1{slur(} D5:1{slur:2(} D5:1{slur)} C#5:1{slur:2)}", role: :foreground
+    )
+    document = render_document(piece)
+    spans = REXML::XPath.match(document, "//notations/slur")
+    assert_equal [["start", "1"], ["start", "2"], ["stop", "1"], ["stop", "2"]],
+                 spans.map { |s| [s.attributes['type'], s.attributes['number'] || '1'] }
+    notes = REXML::XPath.match(document, "//note[pitch]")
+    assert_equal [["slur("], ["slur:2("], ["slur)"], ["slur:2)"]],
+                 notes.map { |n| Partitura::Production::MusicXMLImport.read_marks(n) }
+    assert_empty REXML::XPath.match(document, "//words").map(&:text).compact.grep(/slur/)
+    assert_includes Partitura::Production::Readout.new(piece).render(:articulation_map), "slurs=2"
+    assert Partitura::Marks.valid?("slur:16(")
+    refute Partitura::Marks.valid?("slur:17(")
+  end
+
   private
 
   def notehead_piece

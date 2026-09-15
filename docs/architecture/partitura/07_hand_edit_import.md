@@ -60,8 +60,9 @@ embedded callers.
 - **Cursor tracking**: `backup`/`forward` are followed, so dynamics, technique
   words, and chord symbols anchor to their true beat, not document order.
 - **Inline marks**: articulations (`stacc`, `accent`, `marc`, `ten`), slurs
-  (`slur(`/`slur)`), dynamics (`{mf}`), rolled chords (`<arpeggiate>` →
-  `arp`/`arp:down`), glissandi (`<glissando>`/`<slide>` → `gliss(`/`gliss)`),
+  (`slur(`/`slur)`; numbered overlaps retain `slur:2(`/`slur:2)`), dynamics (`{mf}`), rolled chords (`<arpeggiate>` →
+  `arp`/`arp:down`), glissandi (`<glissando>` → `gliss(`/`gliss)`) and straight
+  slides (`<slide>` → `slide(`/`slide)`),
   laissez vibrer (`<tied type="let-ring">` → `lv`), and technique words
   (`{txt:pizz.}`, spaces become underscores). Chord-name words are filtered
   out of `txt:` marks because they already land in the HARMONY TRACK.

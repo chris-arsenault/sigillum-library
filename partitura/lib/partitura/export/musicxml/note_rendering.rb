@@ -7,7 +7,7 @@ module Partitura
         EMPTY_NOTATION_KEYS = %i[tie_types articulations technicals arpeggios ornaments spanners
                                  fermatas].freeze
         TEXT_MARK_EXCLUSIONS = %w[
-          lv harm trem trill trill( trill) slur( slur) tie( tie) gliss( gliss) cresc( cresc) dim( dim)
+          lv harm trem trill trill( trill) slur( slur) tie( tie) gliss( gliss) slide( slide) cresc( cresc) dim( dim)
           pizz arco rimshot xstick fermata choke
         ].freeze
         SUSTAINED_SEGMENT_MARKS = %w[trem].freeze
@@ -281,6 +281,11 @@ module Partitura
         end
 
         def render_spanner_notation(xml, mark)
+          if Marks::NUMBERED_SLUR.match?(mark)
+            xml.empty("slur", "type" => (mark.end_with?("(") ? "start" : "stop"),
+                             "number" => mark[/\d+/])
+            return
+          end
           case mark
           when "slur("
             xml.empty("slur", "type" => "start")
@@ -290,11 +295,15 @@ module Partitura
             xml.empty("glissando", "type" => "start", "line-type" => "wavy")
           when "gliss)"
             xml.empty("glissando", "type" => "stop", "line-type" => "wavy")
+          when "slide("
+            xml.empty("slide", "type" => "start", "line-type" => "solid")
+          when "slide)"
+            xml.empty("slide", "type" => "stop", "line-type" => "solid")
           end
         end
 
         def spanner_mark?(mark)
-          %w[slur( slur) gliss( gliss)].include?(mark)
+          %w[slur( slur) gliss( gliss) slide( slide)].include?(mark) || Marks::NUMBERED_SLUR.match?(mark)
         end
 
         def notehead_for_marks(marks)
@@ -322,7 +331,8 @@ module Partitura
         end
 
         def reserved_text_mark?(mark)
-          DYNAMICS.include?(mark) || ARTICULATIONS.key?(mark) || TEXT_MARK_EXCLUSIONS.include?(mark)
+          DYNAMICS.include?(mark) || ARTICULATIONS.key?(mark) || TEXT_MARK_EXCLUSIONS.include?(mark) ||
+            Marks::NUMBERED_SLUR.match?(mark)
         end
 
         def tie_types_for(item)

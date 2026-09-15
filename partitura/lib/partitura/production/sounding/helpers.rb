@@ -175,7 +175,7 @@ module Partitura
         def slur_length_distribution(evs)
           state = { dist: Hash.new(0), depth: 0, count: 0 }
           evs.sort_by(&:offset).each do |event|
-            update_slur_distribution!(state, event.marks.map(&:to_s))
+            update_slur_distribution!(state, event.marks.map { |mark| Marks.unnumbered(mark.to_s) })
           end
           state.fetch(:dist)
         end

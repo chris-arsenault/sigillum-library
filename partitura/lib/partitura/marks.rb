@@ -9,20 +9,25 @@ module Partitura
     ARTICULATIONS = %w[stacc accent ten marc spicc. detache choke].freeze
     TECHNIQUES = %w[harm lv trem pizz arco rimshot xstick].freeze
     ORNAMENTS = %w[trill].freeze
-    SPANNERS = %w[slur( slur) tie( tie) cresc( cresc) dim( dim) gliss( gliss) trill( trill)].freeze
+    SPANNERS = %w[slur( slur) tie( tie) cresc( cresc) dim( dim) gliss( gliss) slide( slide) trill( trill)].freeze
     ARPEGGIOS = %w[arp arp:up arp:down arp:non].freeze
     HOLDS = %w[fermata].freeze
+    NUMBERED_SLUR = /\Aslur:(?:[1-9]|1[0-6])[()]\z/.freeze
 
     ALL = (DYNAMICS + ARTICULATIONS + TECHNIQUES + ORNAMENTS + SPANNERS + ARPEGGIOS + HOLDS).freeze
 
-    # `txt:` carries free text (vocal syllables, `txt:con_sord.`); it is the only open
-    # prefix. Techniques above must never be spelled as `txt:` labels.
+    # `txt:` carries free text (vocal syllables, `txt:con_sord.`). Numbered slurs
+    # use the bounded form above. Techniques must never be spelled as `txt:` labels.
     TEXT_PREFIX = "txt:"
 
     module_function
 
     def valid?(mark)
-      ALL.include?(mark) || mark.start_with?(TEXT_PREFIX)
+      ALL.include?(mark) || NUMBERED_SLUR.match?(mark) || mark.start_with?(TEXT_PREFIX)
+    end
+
+    def unnumbered(mark)
+      NUMBERED_SLUR.match?(mark) ? mark.sub(/:\d+/, "") : mark
     end
 
     def vocabulary_lines
@@ -32,6 +37,7 @@ module Partitura
         "techniques: #{TECHNIQUES.join(' ')}",
         "ornaments: #{ORNAMENTS.join(' ')} (single note) / trill( trill) (span)",
         "spanner pairs: #{SPANNERS.join(' ')}",
+        "overlapping slurs: slur:2( slur:2) (numbers 1–16; unnumbered slurs use 1)",
         "rolled chords: #{ARPEGGIOS.join(' ')}",
         "holds: #{HOLDS.join(' ')} (notation only - MIDI playback keeps the written duration; " \
         "use tempo ritardando/a_tempo for timed holds)",
