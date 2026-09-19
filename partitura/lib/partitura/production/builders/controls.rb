@@ -20,6 +20,10 @@ module Partitura
         ))
       end
 
+      def swing(value, at:)
+        @piece.add_control(Control.new(kind: :swing, value: value.to_s, at: at, target: :all))
+      end
+
       def crescendo(from:, to:, exact: false, **kwargs)
         @piece.add_control(Control.new(
           kind: :crescendo,

@@ -116,6 +116,10 @@ module Partitura
 
         def add_control_direction(directions, control)
           case control["kind"]
+          when "swing"
+            value = control.fetch("value")
+            label = value == "off" ? "Straight timing" : "2:1 #{value} pairs (durations written out)"
+            add_direction(directions, 0, rational(control.fetch("offset_ql")), :words, value: label)
           when "dynamic"
             add_dynamic_control_direction(directions, control)
           when "crescendo", "diminuendo"

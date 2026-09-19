@@ -28,7 +28,7 @@ module Partitura
         end
 
         def ticks(quarter_length)
-          Integer(quarter_length * DIVISIONS)
+          (quarter_length * DIVISIONS).round
         end
 
         def time_signature_bytes(value)

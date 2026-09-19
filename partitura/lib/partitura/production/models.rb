@@ -8,6 +8,7 @@ require_relative "models/event_resolution"
 require_relative "models/validation"
 require_relative "models/checkpoint_validation"
 require_relative "models/tie_validation"
+require_relative "swing_timeline"
 
 module Partitura
   module Production
@@ -47,12 +48,14 @@ module Partitura
       end
 
       def set_meter(value, beat_pattern: nil)
+        @swing_timeline = nil
         @meter_value = value.to_s
         @beat_pattern = beat_pattern
         @bar_length = Production.meter_to_bar_length(@meter_value)
       end
 
       def add_meter_change(value, at:, beat_pattern: nil)
+        @swing_timeline = nil
         bar = Production.parse_bar_boundary(at)
         if bar == 1
           set_meter(value, beat_pattern: beat_pattern)
@@ -91,10 +94,12 @@ module Partitura
       end
 
       def add_anchor(id, at:)
+        @swing_timeline = nil
         @anchors[id.to_sym] = Anchor.new(id: id.to_sym, at: at)
       end
 
       def add_control(control)
+        @swing_timeline = nil
         @controls << control
       end
 
@@ -107,6 +112,7 @@ module Partitura
       end
 
       def add_section(section)
+        @swing_timeline = nil
         @sections << section
       end
 
@@ -263,6 +269,30 @@ module Partitura
         else
           Rational(reference)
         end
+      end
+
+      def swing_timeline
+        @swing_timeline ||= SwingTimeline.new(self, override: @swing_override)
+      end
+
+      def realized_offset_for_reference(reference)
+        swing_timeline.offset(offset_for_reference(reference))
+      end
+
+      # A non-mutating timing context for complete straight comparisons. The
+      # source declarations remain shared; all methods execute on this copy.
+      def with_swing(mode)
+        unless %i[off declared].include?(mode)
+          raise ArgumentError, "swing override must be :off or :declared"
+        end
+        copy = dup
+        copy.instance_variable_set(:@swing_override, mode == :off ? :off : nil)
+        copy.instance_variable_set(:@swing_timeline, nil)
+        copy
+      end
+
+      def timing_basis
+        @swing_override == :off ? :straight_override : :realized
       end
 
       def validate!

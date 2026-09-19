@@ -10,6 +10,17 @@ require "partitura"
 # roughness, beat salience, binding, and ring. These tests pin the defect
 # classes the views exist to catch (from the Basin Aria correction cycle).
 class ProductionPerceptualViewsTest < Minitest::Test
+  def test_ghost_reduces_only_its_event_level
+    event = Struct.new(:part, :offset, :marks)
+    model = Object.new.extend(Partitura::Production::SoundingReadout::Perceptual)
+    model.define_singleton_method(:dynamic_db_for) { |_part, _offset| -6 }
+    normal = model.send(:event_level, event.new(:drum, 0, []))
+    ghost = model.send(:event_level, event.new(:drum, 1, ["ghost"]))
+    following = model.send(:event_level, event.new(:drum, 2, []))
+    assert_in_delta 10.0**(-12.0 / 20), ghost / normal, 1e-12
+    assert_equal normal, following
+  end
+
   def test_masking_flags_a_quiet_line_under_a_loud_same_band_wall
     piece = Partitura.production_piece("Masked") do
       meter "6/8", beat_pattern: [3, 3]

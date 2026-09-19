@@ -53,6 +53,24 @@ module Partitura
           @all_sounding ||= Production.merge_authored_ties(@piece.timed_events.reject(&:rest?))
         end
 
+        def pitched_sounding
+          @pitched_sounding ||= all_sounding.reject { |event| unpitched_part?(event.part) }
+        end
+
+        def unpitched_part?(name)
+          part = @piece.parts[name]
+          part && (part.family.to_s == "percussion" || !part.percussion_map.empty?)
+        end
+
+        def append_pitch_scope(lines, spectral: false)
+          excluded = @piece.parts.keys.select { |name| unpitched_part?(name) }
+          return lines if excluded.empty?
+
+          note = "# Pitched parts only; excludes unpitched parts: #{excluded.join(', ')}."
+          note += " Unpitched spectra and masking are not modeled." if spectral
+          lines << note
+        end
+
         def event_midi(event)
           event.pitches.map { |pitch| midi_of(pitch) }.min
         end
@@ -159,7 +177,7 @@ module Partitura
             next unless control.kind.to_s == "dynamic"
 
             level = DYN_ORDER.index(control.value.to_s)
-            [@piece.offset_for_reference(control.at), level] if level
+            [@piece.realized_offset_for_reference(control.at), level] if level
           end
         end
 

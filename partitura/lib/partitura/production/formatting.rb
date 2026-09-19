@@ -7,6 +7,7 @@ module Partitura
     def format_duration(value)
       value = Rational(value)
       return value.numerator.to_s if value.denominator == 1
+      return "#{value.numerator}/#{value.denominator}" unless (value * 10_000).denominator == 1
 
       text = format("%.4f", value.to_f).sub(/0+\z/, "").sub(/\.\z/, "")
       text.start_with?("0.") ? text.sub(/\A0/, "") : text
@@ -34,7 +35,7 @@ module Partitura
     def control_summary(control)
       target = Array(control.target).join(",")
       case control.kind
-      when :dynamic, :pedal, :text
+      when :dynamic, :pedal, :text, :swing
         "#{control.kind} #{control.value} at #{control.at} for #{target}"
       else
         "#{control.kind} from #{control.from} to #{control.to} for #{target}"

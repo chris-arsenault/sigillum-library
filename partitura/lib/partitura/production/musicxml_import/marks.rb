@@ -12,6 +12,8 @@ module Partitura
         read_arpeggio_marks(element, marks)
         read_glissando_marks(element, marks)
         read_let_ring_marks(element, marks)
+        notehead = first_at(element, "notehead")
+        marks << "ghost" if notehead && notehead.attributes["parentheses"] == "yes"
         marks << "fermata" if first_at(element, ".//notations/fermata")
         waves = each_at(element, ".//ornaments/wavy-line").to_a
         if waves.empty?

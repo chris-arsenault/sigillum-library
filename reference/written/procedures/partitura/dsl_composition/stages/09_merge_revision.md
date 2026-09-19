@@ -31,6 +31,13 @@ questions:
 
 Also perform the merge checks imported from the agent procedure:
 
+- **Passage context.** Apply the
+  [passage-context test](../../../../craft/MELODY_CRAFT_DOCTRINE.md#the-whole-is-the-unit-of-analysis)
+  to notes, chord colors, rhythms and dynamics. Read their preparation, bar-level
+  gesture and continuation. Does locally competent material accumulate into a
+  phrase with direction, or does each beat restart the argument? Distinguish
+  vertical tension from tonal surprise and expressive effect; do not assign
+  emotional character from a chord suffix or accidental alone.
 - **Seams.** Walk every span and section boundary, including two bars before and after: pickup,
   momentum, caesura, overlap, resonance tail, interruption, and re-entry.
 - **Journey and single voice.** Confirm the destination, axis split, dialect, and pacing read as one

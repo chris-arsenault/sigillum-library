@@ -18,6 +18,7 @@ module Partitura
         "Bassoon" => 70,
         "Clarinet" => 71,
         "Contrabass" => 43,
+        "ElectricBass" => 33,
         "Flute" => 73,
         "Harp" => 46,
         "Horn" => 60,
@@ -61,7 +62,8 @@ module Partitura
         include Values
 
         def initialize(piece)
-          @data = deep_stringify(Production.export_data(piece))
+          @data = deep_stringify(Production.export_data(piece, exact_timing: true))
+          @data["timed_events"] = exact_timed_events(piece)
           @dynamics = Production::SoundingReadout::PerceptualDynamics.new(piece)
         end
 
@@ -71,6 +73,19 @@ module Partitura
           tracks << notes_track while tracks.length < desired_track_count
           header = "MThd".b + [6, 1, tracks.length, DIVISIONS].pack("Nnnn")
           header + tracks.join.b
+        end
+
+        private
+
+        # The general export adapter uses floats. Keep the model's rationals
+        # for tie joins and dynamic boundaries, quantizing only at MIDI ticks.
+        def exact_timed_events(piece)
+          piece.timed_events(include_rests: true).map do |event|
+            data = Production.export_timed_event(piece, event).merge(
+              offset_ql: event.offset, duration_ql: event.duration, end_offset_ql: event.end_offset
+            )
+            deep_stringify(data)
+          end
         end
       end
     end

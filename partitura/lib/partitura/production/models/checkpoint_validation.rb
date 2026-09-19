@@ -46,7 +46,15 @@ module Partitura
         base = Slot.new(staff_bar: staff_bar, lane: lane, part_id: part_id, duration: duration,
                         part_events: sounding_by_part.fetch(part_id, []))
         tokens.each_with_index do |token, index|
-          verify_checkpoint_slot!(fill_slot(base, index, bar_start + (duration * index)), token)
+          authored_start = bar_start + (duration * index)
+          realized_start = swing_timeline.offset(authored_start)
+          realized_end = swing_timeline.offset(authored_start + duration)
+          slot = fill_slot(base, index, realized_start)
+          slot.duration = realized_end - realized_start
+          # Recompute attacks after assigning this unequal realized slot.
+          slot.attacks = slot.part_events.select { |event| event.offset >= realized_start && event.offset < realized_end }
+                             .sort_by(&:offset)
+          verify_checkpoint_slot!(slot, token)
         end
       end
 

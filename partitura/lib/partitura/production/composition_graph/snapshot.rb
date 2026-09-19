@@ -48,6 +48,7 @@ module Partitura
         def normalize_score(data)
           normalize(
             title: data.fetch(:title),
+            timing_basis: data.fetch(:timing_basis),
             piece_path: graph.piece_path.to_s,
             parts: data.fetch(:parts),
             meter_events: data.fetch(:meter_events),

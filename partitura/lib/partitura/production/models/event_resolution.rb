@@ -7,6 +7,11 @@ module Partitura
     # notes are clipped (a lint warns) and overlapped rests vanish silently.
     module EventResolution
       def timed_events(include_rests: false)
+        authored_timed_events(include_rests: include_rests).map { |event| swing_timeline.realize(event) }
+          .sort_by { |event| [event.offset, event.part.to_s, event.pitch.to_s] }
+      end
+
+      def authored_timed_events(include_rests: false)
         resolve_anacrusis_overwrites(timed_events_unresolved(include_rests: include_rests))
           .sort_by { |event| [event.offset, event.part.to_s, event.pitch.to_s] }
       end

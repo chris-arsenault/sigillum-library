@@ -39,6 +39,11 @@ end
     `G3:1{tie(} | G3:.5{tie)}`.
   - `{trill}` (one note) or `{trill(}` ... `{trill)}` — trill mark + wavy extension.
   - `{pizz}` / `{arco}` — bowing state (real `pizzicato="yes"` on every note until cancelled).
+  - `{ghost}` — a parenthesized notehead and event-local -12 dB amplitude reduction
+    in MIDI velocity and perceptual models. It leaves the ongoing dynamic unchanged
+    and prints no dynamic direction. Combine it with `stacc` when a short release
+    is intended; ghost alone does not change pitch or duration. For pitched voices
+    the pitch remains specified; for percussion the assigned device is unchanged.
   - `{fermata}` — hold on the event (`<fermata/>` in notation; MIDI playback keeps the written
     duration — pair with `tempo` `ritardando`/`a_tempo` when the hold must be timed).
   - `{slur(}` ... `{slur)}`, `{cresc(}` ... `{cresc)}`, `{dim(}` ... `{dim)}` — slur/wedge spanner pairs.

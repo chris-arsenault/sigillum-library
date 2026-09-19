@@ -223,11 +223,15 @@ hybrid],
         docs: ["docs/architecture/partitura/surfaces/absolute.md", "docs/architecture/partitura/surfaces/controls.md"]
       },
       controls: {
-        use_when: "Write anchors, scoped dynamics, hairpins, pedals, text controls, or tempo changes.",
+        use_when: "Write global swing, anchors, scoped dynamics, hairpins, pedals, text controls, or tempo changes.",
         rules: [
           "Use inline event marks only for marks tied to one event.",
           "Use `control` for marks that span time or target one part, a family, a role, a list, or all parts.",
           "Use `tempo` for score tempo and tempo changes; do not repeat tempo markings in part material.",
+          "Use `control { swing :eighth|:sixteenth|:off, at: ... }` globally; write straight source durations. " \
+          "All sounding views and exports realize exact 2:1 pairs; explicit tuplets require swing off.",
+          "Swing changes use barlines or boundaries shared by old/new pairs. Incomplete final pairs stay straight.",
+          "For a complete straight comparison, pass `piece.with_swing(:off)` to exporters or readouts; source stays unchanged.",
           "Tempo beat units are semantic: `dotted-quarter = 52` means 52 dotted-quarter beats per minute " \
           "(quarter = 78 for playback).",
           "Beat units are whole, half, quarter, eighth, 16th, and 32nd, with dotted-, double-dotted-, and " \
@@ -261,7 +265,7 @@ hybrid],
             end
           RUBY
         next_topics: %i[marks absolute split_pitch_rhythm phrase_placement projections export],
-        docs: ["docs/architecture/partitura/surfaces/controls.md"]
+        docs: ["docs/architecture/partitura/surfaces/controls.md", "docs/architecture/partitura/13_global_swing_plan.md"]
       },
       texture: {
         use_when: "Compose a composite sounding mechanism directly: broken-chord engine, distributed chord, " \

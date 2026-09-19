@@ -46,7 +46,7 @@ module Partitura
             next unless control.kind.to_s == "dynamic" && targets(control, part)
             next unless LEVELS.key?(control.value.to_s)
 
-            values[@piece.offset_for_reference(control.at)] = LEVELS.fetch(control.value.to_s)
+            values[@piece.realized_offset_for_reference(control.at)] = LEVELS.fetch(control.value.to_s)
           end
           # Local marks take precedence at the same offset. Include rests and
           # tie continuations: their written dynamic affects subsequent sound.
@@ -63,7 +63,7 @@ module Partitura
           controls = @piece.controls.filter_map do |control|
             next unless %w[crescendo diminuendo].include?(control.kind.to_s) && targets(control, part)
 
-            [@piece.offset_for_reference(control.from), @piece.offset_for_reference(control.to),
+            [@piece.realized_offset_for_reference(control.from), @piece.realized_offset_for_reference(control.to),
              control.kind.to_s == "crescendo" ? 6.0 : -6.0]
           end
           open = {}

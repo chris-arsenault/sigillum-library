@@ -24,6 +24,8 @@ tempo do
 end
 
 control do
+  swing :sixteenth, at: "bar 9 beat 1"
+  swing :off, at: "bar 13 beat 1"
   dynamic :mf, at: "bar 9 beat 1", for: :piano_upper
   dynamic :pp, at: "bar 13 beat 1", for: [:clarinet, :solo_violin]
   crescendo from: "bar 9 beat 1", to: "bar 12 beat 3.5", for: :string
@@ -66,3 +68,31 @@ end
 
 Use `controls` to inspect anchors, tempo events, and scoped controls. Use `compile` before export
 when checking exact offsets and target selectors.
+
+## Global swing
+
+`swing :eighth`, `:sixteenth`, and `:off` are global controls and take no `for:`.
+Write straight durations in phrases. The shared timing layer maps each complete
+pair to exact 2:1 durations: eighth pairs span one quarter, sixteenth pairs span
+half a quarter. It maps event starts and ends, so rests, chords, long notes,
+pickups and tie chains follow the same clock in every part. Controls and tempo
+locations follow that clock too. Pairing restarts at each barline; an incomplete
+terminal pair in an odd meter stays straight. Changes must land at a barline or
+a pair boundary shared by both modes. Conflicting declarations fail compilation.
+
+Active complete pairs require binary authored event endpoints. Literal thirds or
+other nonbinary event boundaries there raise `nonbinary_swing_timing`; write
+straight values or turn swing off for explicit tuplets. Imports retain literal
+timing and never infer a swing control. MusicXML writes out the resulting tuplets
+and prints an explanatory direction, without adding a second playback swing.
+
+Phrase and placement views show authored values. Timed-event and sounding views
+show realized values; `controls` shows both authored references and realized
+quarter-length offsets. Authored checkpoint slots use the same endpoint map.
+`piece.authored_timed_events` exposes the resolved straight source stream, while
+`piece.timed_events` and `piece.realized_offset_for_reference` realize the controls.
+
+For a full straight comparison, use `straight = piece.with_swing(:off)` and pass
+that context to both exporters and readouts. It shares the unchanged source but
+disables swing for notes, controls and tempo together. `with_swing(:declared)`
+restores the declared timeline. The comparison must not be a MIDI-only retiming.

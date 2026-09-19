@@ -5,8 +5,8 @@ module Partitura
     module SoundingReadout
       module ClashesStalls
         def exposed_clashes(bars: nil)
-          rows = all_sounding.map(&:offset).uniq.sort.flat_map do |offset|
-            exposed_clash_rows(all_sounding, offset, bars)
+          rows = pitched_sounding.map(&:offset).uniq.sort.flat_map do |offset|
+            exposed_clash_rows(pitched_sounding, offset, bars)
           end
           clash_header(rows).join("\n")
         end
@@ -68,6 +68,7 @@ module Partitura
             "# adjudicate before fixing: prepared suspensions, cadential V7s, pedal stacks, " \
             "and resolving passing tones are correct music"
           ]
+          append_pitch_scope(lines)
           lines.concat(rows.empty? ? ["(no findings at severity >= 2)"] : rows)
         end
 

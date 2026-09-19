@@ -68,7 +68,9 @@ R4 RHYTHM: compare the themes' onset/accent/rest patterns by clapping them.
 R5 RETURN: make repetition establish recognition and variation change consequence.
    No minimum recurrence count or fixed eight-bar container is required.
 R6 SINGABILITY: judge tessitura, range, breath, vowel and gesture at the actual
-   tempo. A duration symbol alone cannot establish vocal practicality.
+   tempo. A duration symbol or absence of rests cannot establish vocal
+   practicality. Read [Breathing and notated silence](#breathing-and-notated-silence)
+   before proposing breath-related edits.
 R7 BARE TEST: read a solo-led theme without accompaniment to expose its shape;
    also read the intended ensemble when harmony or distributed voices carry it.
    Do not require the user to record an audition for a normal composition pass.
@@ -83,6 +85,16 @@ and adapt its register and breath; merely slowing the old owner loses the idea.
 An upper agile line and broader lower line are one useful aria relationship,
 not a permanent restriction on either voice. See
 [ensemble ownership and texture](ensemble_binding_and_grid.md#13-move-the-melodic-idea-when-its-ownership-is-wrong).
+
+An interval revision must change the listener's recognition and expectation,
+not merely the pitch-distance histogram. In the September 17 Boreal Pocket
+review, scalar tails had made several melodies sound like etudes. Replacing
+every tail with different chord skips risks the same failure. Give a gesture
+an anchor that returns, an interrupted repetition, a leap with a destination,
+or a continuation that changes its consequence. Preserve a characteristic
+neighbor resolution when it belongs to the motif. Read the phrase without
+accompaniment and then with its answering voices; neither leap counts nor
+harmonic coverage establishes a memorable sentence.
 
 Sources: APA/Jakubowski "Dissecting an Earworm"; Goldsmiths press; SAGE Arthur 2023 earworm
 theory; Wikipedia/LoC Gibson essay SMB theme; Hooktheory SMB; Classic FM Aerith analysis;
@@ -110,3 +122,36 @@ R10d Does the listener receive enough material to recognize its returns? An
      uninterrupted statement and brief entries within texture are both options.
 R10e Judge range and continuity at both clause and paragraph scale, for the actual
      performer and form; the example's proportions are not fixed limits.
+
+## Breathing and notated silence
+
+Compose the phrase first. Singers and wind players can take a little time from
+the end of a phrase or between long notes without a written rest. Continuous
+notation does not imply a single uninterrupted breath. Preserve the intended
+note values and sustained line when normal performance phrasing provides room.
+
+- **Written rests compose audible silence:** punctuation, separation, rhythmic
+  tension, an answer window or a deliberate cutoff. Do not routinely shorten
+  phrase-ending notes by an eighth or half-beat merely to encode inhalation.
+  That habit produces clipped endings and hesitant, fragmented lines.
+- **Breathing follows the phrase:** consider its direction, text or vowel,
+  articulation, tempo, tessitura, dynamics and the performer. A long note can
+  lead into a natural release and breath; holding it is not itself inhalation.
+  Do not assign a breath quota, fixed rest length or maximum bar count.
+- **Breath marks specify placement when it matters:** use them where a particular
+  release is musically important or ambiguous. Do not mark every ordinary
+  phrase boundary. A deliberate tie or uninterrupted solo sustain still needs
+  contextual judgment; not every note boundary is an equally good breath point.
+- **Ensemble continuity differs from individual breathing:** choral sections
+  can stagger breaths while maintaining a held sonority. A soloist needs an
+  individual opportunity, but that need does not imply a collective rest.
+
+`breath_map` inventories explicit rest windows and spans of continuous notation.
+Its current label "breathless spans" is not evidence that a performer cannot
+breathe there. It does not establish breathing opportunities from phrase shape
+or performance practice. Before recommending any change, identify the actual
+phrase whose demands are awkward and explain why its existing releases or
+transitions do not suffice. If they do suffice, leave the notation alone.
+
+This guidance does not prohibit expressive rests, precise releases or passages
+intentionally written to sound breathless.

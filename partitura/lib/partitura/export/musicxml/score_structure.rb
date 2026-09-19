@@ -163,6 +163,7 @@ module Partitura
 
         def render_voices_in_measure(xml, voices, bar)
           voice_items = renderable_measure_voice_items(voices, bar)
+          prepare_measure_accidentals(voice_items, bar)
           rendered_voice_count = 0
           voice_items.each do |items|
             render_backup(xml, bar.fetch(:length)) if rendered_voice_count.positive?

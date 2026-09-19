@@ -21,7 +21,7 @@ module Partitura
         end
 
         def phrases
-          lines = ["# Phrases"]
+          lines = ["# Phrases (authored timing; placement controls are not applied)"]
           @piece.phrases.each_value do |phrase|
             lines << "#{phrase.id} surface=#{phrase.surface} duration=#{Production.format_duration(phrase.duration)}"
             lines << "  #{phrase.events.map(&:to_s).join(' ')}"
@@ -30,13 +30,13 @@ module Partitura
         end
 
         def placements
-          lines = ["# Placements"]
+          lines = ["# Placements (authored locations)"]
           @piece.placements.each { |placement| lines << placement_line(placement) }
           lines.join("\n")
         end
 
         def timed_events(bars: nil)
-          lines = ["# Timed Events"]
+          lines = ["# Timed Events (#{@piece.timing_basis})"]
           @piece.timed_events.each do |event|
             next unless in_bars?(event.offset, bars)
 
@@ -89,12 +89,22 @@ module Partitura
         end
 
         def controls
-          lines = ["# Controls"]
+          lines = ["# Controls (authored locations; #{@piece.timing_basis} offsets below)"]
           @piece.anchors.each_value { |anchor| lines << "anchor #{anchor.id}=#{anchor.at}" }
           @piece.meter_timeline.each { |event| lines << "meter #{Production.meter_summary(event)}" }
-          @piece.tempo_events.each { |event| lines << "tempo #{Production.tempo_summary(event)}" }
-          @piece.controls.each { |control| lines << Production.control_summary(control) }
+          @piece.tempo_events.each do |event|
+            lines << "tempo #{Production.tempo_summary(event)}#{realized_control_locations(event)}"
+          end
+          @piece.controls.each do |control|
+            lines << "#{Production.control_summary(control)}#{realized_control_locations(control)}"
+          end
           lines.join("\n")
+        end
+
+        def realized_control_locations(event)
+          references = event.at ? [event.at] : [event.from, event.to]
+          values = references.map { |reference| Production.format_duration(@piece.realized_offset_for_reference(reference)) }
+          " [realized ql: #{values.join('..')}]"
         end
 
         def material_map

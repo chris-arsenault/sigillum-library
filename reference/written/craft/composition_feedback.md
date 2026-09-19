@@ -25,7 +25,7 @@ library without changing the score or overwriting exports. Do not create a
 new standalone feedback document for each remark; extend the relevant owner
 and this coverage record when it adds a distinct lesson.
 
-## Feedback covered through 2026-09-14
+## Feedback covered through 2026-09-15
 
 Scope: the Basin Aria feedback in the current handoff conversation and the
 earlier user instructions retrieved below. This does not claim an audit of
@@ -54,6 +54,59 @@ every composition conversation across all repositories.
 | The whole last segment is closing; swells are welcome but no more reintroductions. | [Ensemble §15](ensemble_binding_and_grid.md#15-endings-need-phrase-direction-approved-endings-need-protection) and [contrast ledger](texture_identity_contrast_ledger.md#movement-level-review): use cadential extensions, fading echoes and connected fragments to complete one trajectory. | A two-bar fanfare before the decline is the chosen Basin Aria option. Neither two bars nor continuous decline is a universal rule. |
 | The fanfare only moved the abrupt decline from71 to73; use the high solo character at37. | [Ensemble §§15/16](ensemble_binding_and_grid.md) and [contrast ledger](texture_identity_contrast_ledger.md#movement-level-review): transfer initiative to an active solo over lighter support, then compose its next handoff. | Borrow rhythmic grammar without a new thematic exposition. Check beyond the replacement's endpoint; a delayed cliff is still a cliff. |
 | Handwritten source withdraws the previously restored driver and expands its pitch range. | [Handpan review](../../../technique_library/handpan_idiom.md#review-questions): preserve current authored notes/rests during parity and declare the changed instrument assumptions. | Do not infer acoustic playability from a sampled score or impose an obsolete range/role contract. |
+| Breath review mistakes continuous notation for impossible breathing, contributing to unnecessary rests and clipped note endings. | [Primary breathing guidance](melody_primacy.md#breathing-and-notated-silence), [seam guidance](MELODY_CRAFT_DOCTRINE.md#seams--phrase-ends) and [long-note phrasing](phrasing_variation_line.md#3-where-the-long-note-goes): preserve full written values when phrase endings or transitions between long notes provide natural breaths. Interpret `breath_map` as a rest inventory, not a physiological verdict. | Written rests still compose audible silence; breath marks clarify meaningful placement. Judge solo continuity and choral staggered breathing separately. No rest quota or automatic breath markings. |
+| Notes and chords are composed or judged only against the immediate beat, leaving technically competent material without bar- and phrase-level direction. | [Passage-context test](MELODY_CRAFT_DOCTRINE.md#the-whole-is-the-unit-of-analysis), [harmonic construction](melody_theory_foundations.md), [span composition](../procedures/partitura/dsl_composition/stages/05_span_pass.md) and [whole-piece review](../procedures/partitura/dsl_composition/stages/09_merge_revision.md): establish expectations from the preceding music, shape a phrase trajectory, choose details for their role in it and review through the continuation. | Applies to rhythm, rests, dynamics and pacing as well as pitch. Vertical tension, tonal surprise and expressive effect are distinct. No mandatory chromaticism, consonance, cadence or phrase length. |
+
+## September 17: rejected funk arrangement
+
+The Boreal Pocket user rejected the whole arrangement, identified the
+connected middle as the only musical passage but not funk, supplied their
+own bass/kit MIDI, and requested an entire rewrite with clipped fast chant.
+The owning [funk survey](../surveys/funk_pocket.md) now corrects its conflicting
+no-shared-attacks recipes: preserve a clock, meaningful repetition and real
+voicings; judge bass/ghost/backbeat relationships at their actual attacks.
+The chant's identity must come from repeated-note rhythm and releases,
+not simply short durations applied to a sung arpeggio. An independent
+reading also found self-contained one-bar melodic arches and repeated
+closing cadences; connect the phrase across those local boxes.
+
+This records observed failures and the direction of the authorized rewrite.
+It does not assert user acceptance or attribute the failure to a particular
+model. The supplied source is the evidence; no additional genre rule or
+universal pitch/duration quota follows from it.
+
+The subsequent September 17 delivery drew three further corrections: alternating
+dynamic symbols should be standard accents and other marks; bassoon and other
+melodies sounded like up/down etudes; the imported return after 73 lost notes.
+[Melody questions](melody_primacy.md#operational-questions-for-theme-led-writing)
+now distinguish recognizable interval gestures from generic chord-skipping tails.
+[Ensemble §§12/17](ensemble_binding_and_grid.md) distinguish notation-consumer
+verification from numeric parity, and phrase dynamics from local attack weight.
+The screenshot at 77 and the actual source/XML are the evidence. The previous
+favorable score review did not establish that those relationships worked; a
+compiler result must not overrule the user's listening and import evidence.
+
+The next listening correction rejected the persistent funk-band hierarchy and
+asked for an orchestral story using funk motifs. The user then clarified that
+the electric-bass/kit examples were convenient writing vehicles; the original
+commission assigns the bass hook to bassoon, sparse anchors to contrabass and
+melodic rhythm functions to strings. Electric bass was a mistaken addition.
+[Movement-level review](texture_identity_contrast_ledger.md#movement-level-review)
+now distinguishes actual consequential development from new labels and records
+the reference-instrumentation boundary. Sparse concert percussion is permitted
+in this piece; a full kit is not its default. The user's global-swing request
+also requires a shared timing transform across every part and sounding view,
+rather than individually inserted triplets mixed with straight subdivisions.
+
+The following listening correction still found the piece halting: frequent
+surprise rhythms in every line, no anchor or audible chordal support, and a
+middle that substituted half/quarter notes for a working dance accompaniment.
+The [funk survey](../surveys/funk_pocket.md) now explicitly permits conventional
+four/eight-bar repetition, recurring accents and shared chord attacks. Melodic
+and harmonic development can happen over an unchanged foundation. Applying
+more syncopation or removing the pulse to make the work seem orchestral would
+repeat the failure. This is a correction to the rejected scheme, not a ban on
+free rhythm or a claim that the next delivery has passed listening review.
 
 ## Executable examples already available
 
@@ -104,3 +157,21 @@ Further correction: user turn `39573893` in the same session, retrieved with
 `--include user --mode lexical`, identifies the postponed decline at73 and
 names the solo at37 as the desired model. This supersedes acceptance of an
 immediate collective fade after the two-bar fanfare.
+
+September 15 breathing correction: in the current Basin Aria conversation,
+the user rejected the review's inference that the chant lacked breath spots
+because it had no written rests. Phrase endings and transitions between long
+notes already provide opportunities. The user identified this inference as a
+recurring source of awkward rests and incomplete note values and requested an
+update to the primary guidance. This supersedes that review recommendation;
+it authorizes library guidance changes, not changes to the handwritten score.
+
+Further September 15 correction: after the user chose B-natural in the harp
+over A7, the agent inferred a lighter character from the natural ninth alone.
+The user's report emphasized its departure from the passage's established
+B-flat color and identified the broader compositional failure: judging notes
+and chords at the immediate beat while neglecting the bar and phrase. The
+lesson is a change to generation and review practice, not a fixed affect label
+for that pitch or a request to revise the score. The user's reported edit and
+listening judgment are the evidence; this record does not claim an imported
+revision or an audio comparison.

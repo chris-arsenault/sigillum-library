@@ -17,6 +17,7 @@ module Partitura
       module Perceptual
         Partial = Struct.new(:part, :midi, :freq, :onset, :notated_end, :audible_end,
                              :amp, :tau, :attack, keyword_init: true)
+        Envelope = Struct.new(:part, :onset, :audible_end, :amp, :tau, :attack_count, keyword_init: true)
 
         RECIPES = {
           "SteelDrum" => { partials: [1.0, 0.55, 0.3, 0.12], ring: 3.0 },
@@ -49,6 +50,7 @@ module Partitura
         def spectrum_grid(bars: nil)
           lines = ["# Spectrum Grid (virtual render; rows = frequency bands, cols = #{STEP} ql slots, " \
                    "digit = level 1-9 log scale)"]
+          append_pitch_scope(lines, spectral: true)
           each_selected_bar(bars) do |bar, start, length|
             slots = (length / STEP).to_i
             grid = band_level_grid(start, length, slots)
@@ -66,6 +68,7 @@ module Partitura
         def masking_report(bars: nil, part: nil)
           lines = ["# Masking Report (virtual render; best fundamental-band attack share per part/bar; " \
                    "BURIED <15%, at risk <28%; sustained audibility needs separate review)"]
+          append_pitch_scope(lines, spectral: true)
           flagged = 0
           each_selected_bar(bars) do |bar, start, length|
             attack_shares(start, length).each do |pname, (share, band, dominators)|
@@ -85,6 +88,7 @@ module Partitura
         def roughness_profile(bars: nil)
           lines = ["# Roughness Profile (virtual render; Plomp-Levelt sensory dissonance per slot, " \
                    "digits 0-9; worst instants listed with their partial owners)"]
+          append_pitch_scope(lines, spectral: true)
           worst = []
           each_selected_bar(bars) do |bar, start, length|
             slots = (length / STEP).to_i
@@ -105,7 +109,7 @@ module Partitura
         end
 
         def beat_salience(bars: nil)
-          lines = ["# Beat Salience (virtual render; squared fundamental amplitudes by phase; " \
+          lines = ["# Beat Salience (virtual render; squared attack amplitudes by phase, including unpitched attacks; " \
                    "off-beat peaks are review flags, not errors)"]
           phase_energy = Hash.new(0.0)
           bar_flags = []
@@ -131,6 +135,9 @@ module Partitura
         def binding_check(bars: nil)
           lines = ["# Binding Check (virtual render; flags off-beat entries without a nearby held call " \
                    "or ensemble attack; deliberate scene cuts require score judgment)"]
+          if @piece.parts.keys.any? { |name| unpitched_part?(name) }
+            lines << "# Unpitched parts supply attack/grid binding, never pitch-distance calls."
+          end
           unbound = 0
           entries_in(bars).each do |event, phase, bar|
             next if macro_phases(bar).include?(phase)
@@ -153,6 +160,9 @@ module Partitura
         def ringing_grid(bars: nil)
           lines = ["# Ringing Grid (virtual render; X = attack, digits = audible level while " \
                    "ringing or sustaining, . = inaudible; lv rings past the notated duration)"]
+          if @piece.parts.keys.any? { |name| unpitched_part?(name) }
+            lines << "# Unpitched attacks are retained; their decay uses a generic percussion envelope, not device spectra."
+          end
           each_selected_bar(bars) do |bar, start, length|
             slots = (length / STEP).to_i
             lines << "--- b#{bar}"
@@ -170,8 +180,20 @@ module Partitura
         private
 
         def perceptual_cloud
-          @perceptual_cloud ||= all_sounding.flat_map { |event| event_partials(event) }
+          @perceptual_cloud ||= pitched_sounding.flat_map { |event| event_partials(event) }
                                             .sort_by(&:freq)
+        end
+
+        # Attack timing and decay do not require a pitched fundamental. Keep
+        # them for drum-map events without assigning pitches to device labels.
+        def perceptual_envelopes
+          @perceptual_envelopes ||= all_sounding.map do |event|
+            ring = recipe_for(event.part)[:ring]
+            tau = ring && (ring / 3.0)
+            Envelope.new(part: event.part, onset: event.offset,
+                         audible_end: audible_end_for(event, tau), amp: event_level(event),
+                         tau: tau, attack_count: event.pitches.length)
+          end
         end
 
         def event_partials(event)
@@ -222,6 +244,7 @@ module Partitura
           db = 0 if marks.include?("sfz")
           db += 4 if marks.include?("accent")
           db += 6 if marks.include?("marc")
+          db += Marks::GHOST_ATTENUATION_DB if marks.include?("ghost")
           10.0**(db / 20.0)
         end
 
@@ -378,10 +401,10 @@ module Partitura
 
         def attack_energy_by_phase(start, length)
           per_phase = Hash.new(0.0)
-          perceptual_cloud.each do |partial|
-            next unless partial.attack && partial.onset >= start && partial.onset < start + length
+          perceptual_envelopes.each do |envelope|
+            next unless envelope.onset >= start && envelope.onset < start + length
 
-            per_phase[partial.onset - start] += partial.amp**2
+            per_phase[envelope.onset - start] += envelope.attack_count * envelope.amp**2
           end
           per_phase
         end
@@ -432,7 +455,9 @@ module Partitura
         end
 
         def nearest_call(event)
-          held = all_sounding.select do |other|
+          return nil if unpitched_part?(event.part)
+
+          held = pitched_sounding.select do |other|
             other.part != event.part && other.offset < event.offset &&
               other.end_offset > event.offset
           end
@@ -447,7 +472,8 @@ module Partitura
         end
 
         def binding_verdict(event, call)
-          return [:unbound, "nothing is sounding to answer"] unless call
+          return [:unbound, "unpitched entry has no nearby ensemble attack"] if unpitched_part?(event.part)
+          return [:unbound, "no pitched call is sounding to answer"] unless call
 
           distance = (event_midi(call) - event_midi(event)).abs
           gap = (event.offset - call.offset).to_f
@@ -462,11 +488,11 @@ module Partitura
         def ring_cell(part_name, time)
           attack = false
           level = 0.0
-          perceptual_cloud.each do |partial|
-            next unless partial.part == part_name && partial.attack
+          perceptual_envelopes.each do |envelope|
+            next unless envelope.part == part_name
 
-            attack ||= partial.onset >= time && partial.onset < time + STEP
-            amp = partial_amp_at(partial, time)
+            attack ||= envelope.onset >= time && envelope.onset < time + STEP
+            amp = partial_amp_at(envelope, time)
             level = amp if amp > level
           end
           return "X" if attack

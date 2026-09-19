@@ -86,6 +86,88 @@ class MusicXMLExporterImportSafetyTest < Minitest::Test
     assert_equal "eighth", text_at(first_rest, "notations/tuplet/tuplet-actual/tuplet-type")
   end
 
+  def test_mixed_half_beat_tuplets_after_straight_values_have_complete_groups
+    piece = single_part_piece(
+      "Mixed half-beat tuplets", :flute, "Flute", music21: "Flute", family: :woodwind,
+      event_text: "r:2.5 A3:1/3 C4:1/6 D4:.5 C4:1/3 B3:1/6"
+    )
+    document = render_document(piece)
+    notes = REXML::XPath.match(document, "//note[time-modification]")
+
+    assert_equal 4, notes.length
+    assert_equal %w[16th 16th 16th 16th], notes.map { |note| text_at(note, "time-modification/normal-type") }
+    assert_equal %w[start stop start stop], notes.map { |note| REXML::XPath.first(note, "notations/tuplet").attributes["type"] }
+    assert_equal %w[3360 1680 3360 1680], notes.map { |note| text_at(note, "duration") }
+  end
+
+  def test_mixed_note_rest_tuplets_keep_each_half_beat_of_an_odd_length_run
+    piece = single_part_piece(
+      "Odd half-beat run", :flute, "Flute", music21: "Flute", family: :woodwind,
+      event_text: "D3:1/3 r:1/6 D3:1/3 D3:1/6 D3:1/3 r:1/6 r:.5 A2:.5 r:1.5"
+    )
+    document = render_document(piece)
+    notes = REXML::XPath.match(document, "//note[time-modification]")
+
+    assert_equal 6, notes.length
+    assert_equal ["16th"], notes.map { |note| text_at(note, "time-modification/normal-type") }.uniq
+    assert_equal 3, REXML::XPath.match(document, "//tuplet[@type='start']").length
+    assert_equal 3, REXML::XPath.match(document, "//tuplet[@type='stop']").length
+  end
+
+  def test_mixed_chord_tuplets_mark_first_member_once_and_keep_other_members_in_group
+    piece = single_part_piece(
+      "Chord half-beats", :viola, "Viola", music21: "Viola", family: :string,
+      event_text: "r:.5 [C4,E4]:1/3{accent,stacc,harm} [D4,F4]:1/6{accent} r:3"
+    )
+    document = render_document(piece)
+
+    assert_equal 4, REXML::XPath.match(document, "//note[pitch and time-modification]").length
+    assert_equal 1, REXML::XPath.match(document, "//tuplet[@type='start']").length
+    assert_equal 1, REXML::XPath.match(document, "//tuplet[@type='stop']").length
+    assert_empty REXML::XPath.match(document, "//note[chord]/notations/tuplet")
+    assert_empty REXML::XPath.match(document, "//note[chord]/beam")
+    assert_empty REXML::XPath.match(document, "//note[chord]/notations/articulations")
+    assert_equal 2, REXML::XPath.match(document, "//notations/articulations/accent").length
+    assert_equal 2, REXML::XPath.match(document, "//notations/technical/harmonic").length
+    assert_equal ["16th"], REXML::XPath.match(document, "//time-modification/normal-type").map(&:text).uniq
+  end
+
+  def test_ghost_noteheads_do_not_create_dynamic_directions_and_roundtrip
+    piece = single_part_piece(
+      "Ghost articulation", :snare, "Snare", music21: "Percussion", family: :percussion,
+      event_text: "C3:1{mf} C3:1{ghost} C3:1 C3:1{ghost,xstick}", role: :rhythm
+    )
+    document = render_document(piece)
+    heads = REXML::XPath.match(document, "//notehead")
+
+    assert_equal %w[normal x], heads.map(&:text)
+    assert_equal %w[yes yes], heads.map { |head| head.attributes["parentheses"] }
+    assert_equal ["mf"], REXML::XPath.match(document, "//dynamics/*").map(&:name)
+    assert_empty REXML::XPath.match(document, "//words")
+    ghost_notes = REXML::XPath.match(document, "//note[notehead]")
+    assert ghost_notes.all? { |note| Partitura::Production::MusicXMLImport.read_marks(note).include?("ghost") }
+  end
+
+  def test_long_rest_keeps_writable_triplet_remainder_before_final_subdivision
+    piece = single_part_piece(
+      "Late chord", :viola, "Viola", music21: "Viola", family: :string,
+      event_text: "r:23/6 [C#4,G4]:1/6"
+    )
+    document = render_document(piece)
+    rests = REXML::XPath.match(document, "//note[rest]")
+    assert_equal %w[20160 15120 3360], rests.map { |note| text_at(note, "duration") }
+    assert_equal 1, REXML::XPath.match(document, "//tuplet[@type='start']").length
+    assert_equal 1, REXML::XPath.match(document, "//tuplet[@type='stop']").length
+    REXML::XPath.match(document, "//note").each do |note|
+      base = Partitura::Export::MusicXML::Values::NOTE_TYPE_DURATIONS.key(text_at(note, "type"))
+      dots = REXML::XPath.match(note, "dot").length
+      written = base * (2 - Rational(1, 2**dots))
+      actual = REXML::XPath.first(note, "time-modification/actual-notes")&.text
+      written *= Rational(text_at(note, "time-modification/normal-notes").to_i, actual.to_i) if actual
+      assert_equal Rational(text_at(note, "duration").to_i, 10_080), written
+    end
+  end
+
   def test_pending_metadata_uses_lexicographic_bar_and_onset_order
     notes = [
       Partitura::Production::MusicXMLImport::Note.new(bar: 1, onset: 0, midi: 60, duration: 1, marks: [], ties: []),

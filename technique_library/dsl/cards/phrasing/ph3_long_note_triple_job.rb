@@ -9,14 +9,17 @@ production_piece "Technique Card PH3_LONG_NOTE_TRIPLE_JOB - PH3_LONG_NOTE_TRIPLE
 # category: phrasing
 # card: PH3_LONG_NOTE_TRIPLE_JOB
 # cite: phrasing_variation_line s3 ; Wiedemann b20 ; Kietzer m7
-# behavior: EVERY LONG NOTE DOES THREE JOBS AT ONCE: reward (the expressive peak), breath (the
-#   player recovers), pivot (the music changes figure or register out of it). Three long
+# behavior: Long-note arrivals combine reward (the expressive peak), breath at the
+#   release, and pivot (the music changes figure or register out of it). Three long
 #   notes, three placements: b3 the CROWN - the highest note held at the phrase peak,
 #   pivoting into the descent (hold the high note, singer logic); b6 the FLOOR - the long
 #   low tonic that is simultaneously a phrase floor and the LAUNCHPAD of the arpeggio
-#   flight; b9 the SEAL. Never a long note parked mid-phrase as mere rest: if a spot exists
-#   only so the player can breathe, the piece sounds like it stopped. From Wiedemann b8/20/28
-#   and Kietzer's crown C#6 at m7.
+#   flight; b9 the SEAL. From Wiedemann b8/20/28 and Kietzer's crown C#6 at m7.
+# usage: This specimen demonstrates long-note arrivals without explicit rests at b3/b6.
+#   A performer can breathe at a release without shortening the written note value.
+#   Its final rest is punctuation, not a required breathing template. Do not require
+#   every long note to do all three jobs. Primary guidance:
+#   reference/written/craft/melody_primacy.md#breathing-and-notated-silence
 
   roster do
     part :clarinet, "Clarinet", music21: "Clarinet", family: :woodwind, description: "solo line, lesson: where the long note goes"

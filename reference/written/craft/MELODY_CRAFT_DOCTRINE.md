@@ -106,19 +106,23 @@ voice-leading). Default: the downbeat lands the **root**; a strong beat on the 3
 *intentional* mislead/color, not an accident. The payoff is that a repeated cell **travels** —
 the same shape recolored by a new chord each pass — instead of restating flat. Every theme
 DECLARES the progression it exposes; this is craft/judgment, not a gate.
+Naming that progression or fitting each beat to its chord does not establish
+phrase direction. Apply the [passage-context test](#the-whole-is-the-unit-of-analysis)
+before accepting the individual choices.
 
 ## SEAMS / PHRASE-ENDS
 
-Cadences and phrase-ends are where energy tends to go to die: long held notes and full-bar
-rests. Fix every seam with the SAME move — **keep momentum THROUGH the seam:**
-1. **Approach** the high / cadential note with a run (e.g. a triplet anacrusis); don't
-   just state it.
-2. **Keep the breath SHORT** (e.g. a half-beat rest, not a full beat) — a breath, not dead air.
-3. **Hand off with a pickup** across section boundaries, so phrases connect rather than stop.
-4. **Adapt the head's pickup to its dramatic position** — e.g. calm repeated-note pickup at
-   the opening, rising scalar pickup at the climax. The motif's approach changes with the moment.
-5. **Cadences stay rhythmic** — a dotted snap on the 3–2, ti–do with the tonic re-struck,
-   rather than one inert held note. A landing can still lift, hand off, and have rhythm.
+Decide whether a seam continues, releases, suspends or cuts. A held arrival can
+complete a phrase without a run, re-struck tonic or pickup. When momentum should
+continue, a pickup, overlap or active supporting part may carry it; choose from
+the actual outgoing and incoming phrases rather than applying one seam recipe.
+
+**Performer breathing does not require a written rest.** Ordinary phrase-end
+releases and transitions between long notes can provide it. Do not subtract a
+fixed half-beat from held notes to make room, or add pickups to compensate for
+the resulting gaps. Write a rest when its audible silence serves the music;
+specify a breath mark only when placement needs clarification. Follow the
+primary [breathing guidance](melody_primacy.md#breathing-and-notated-silence).
 
 ## RANGE / SINGABILITY
 
@@ -130,6 +134,57 @@ too high, drop it an octave and add a transition down into it — keeping the cl
 proclamation/special moments can break range deliberately.)
 
 ## THE WHOLE IS THE UNIT OF ANALYSIS
+
+**Local correctness is not sufficient musical coherence.** A succession of
+defensible notes, voicings and rhythms can still lack a bar-level gesture or a
+phrase with direction. Compose and assess what the listener has been led to
+expect, what changes that expectation, and what follows from the change.
+
+Work from the passage into its details, then read the details back through the
+passage:
+
+1. **Establish the context from the actual music.** Read the preceding phrase,
+   the full phrase under consideration and its continuation. Identify the
+   tonal or modal color, recurring gestures, bass motion, harmonic rhythm,
+   register, density and dynamic trajectory already established. Use musical
+   boundaries, not a fixed number of neighboring bars or only chord labels.
+2. **Give the phrase direction.** Decide what it continues, departs from,
+   delays, recalls or completes. Shape the bars into that trajectory before
+   choosing individual embellishments. A static field, unresolved ending or
+   deliberate interruption can have direction through expectation and timing;
+   a conventional cadence is not required.
+3. **Make each salient detail serve that direction.** A pitch may fit the
+   immediate chord yet change the passage's color; a dissonance may preserve
+   a familiar melodic thread. A rest, accent, fill or dynamic swell can work
+   within one beat while repeatedly breaking the larger line. Judge contour,
+   accumulation, release and the relationship between successive bars, not
+   just the legality or variety of their contents.
+4. **Re-read through the consequence.** Compare the original and proposed
+   gesture with their preparation and continuation. Ask what expectation the
+   change serves and whether its benefit survives the whole phrase. Do not
+   stop at the attractive chord or repaired beat. If no phrase-level benefit
+   is evident, keeping the existing material is a valid verdict.
+
+Keep three judgments distinct: **vertical tension** in the current voicing;
+**tonal or modal surprise** relative to the established passage; and
+**expressive effect** in the phrase's trajectory. An interval or chord suffix
+does not by itself establish that a moment is lighter, darker, calmer or more
+exotic. Register, articulation, duration, instrumentation and prior exposure
+also matter; score-derived interpretations remain interpretations.
+
+For example, in a D-minor passage that has established B-flat, B-flat over A7
+is a locally tense flat ninth but belongs to the familiar palette. B-natural
+is a natural ninth over that same chord and a departure from the established
+sixth degree. Aligning two instruments on B-natural can remove their pitch
+disagreement while making that departure more prominent. It does not prove
+that the result is less dissonant in context or emotionally lighter. This is
+an example of relational judgment, not a rule that B-natural is always exotic
+or that chromatic notes require correction.
+
+Use this test while generating material as well as reviewing it. A brief
+verdict should identify the established expectation, the gesture's effect and
+its continuation, with actual bars or notes as evidence. Naming a device,
+passing a vertical check or assigning each bar a prose job is not that evidence.
 
 - **Don't over-reduce to a cell.** A theme is 8–16 bars of often *irreducible* content. The
   power comes from pitch + chord progression + melodic resolution as much as (or more than)
@@ -154,11 +209,11 @@ two distinct devices that can live there and keep them straight:
 
 Three linked lessons about the variable degree:
 
-1. **Segregate the two forms of the degree by section; do not mix them in a bar.** Let one form
-   carry the head/first idea and quarantine the other to the back-half cadences. They then read
-   as **two distinct harmonizations / key-colours**, not a wrong note. Throwing both forms into
-   the same bar at random just sounds wrong. The sanctioned exception is a *deliberate* half-step
-   move at the cadence (the lower form stepping up to the higher), which reads as motion, not error.
+1. **Establish a color so its alteration has a context.** Separating variants by
+   section is one option; chromatic motion, mixture and cross-relations within
+   a bar or phrase can also be expressive. Read their preparation and
+   consequence before calling them errors or improvements. Do not enforce
+   segregation or infer the effect from the accidental alone.
 2. **Distinct sectional harmonizations buy two things.** (a) Later harmonization gets far
    easier — each region already implies its own chord-world; it's *"not a chord progression,
    but distinct harmonizations."* (b) They enable **thematic repetition with a surprise**.

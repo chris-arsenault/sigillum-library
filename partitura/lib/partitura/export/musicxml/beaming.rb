@@ -29,27 +29,28 @@ module Partitura
         end
 
         def split_tuplet_index_group(items, indexes)
-          beat_groups = beat_tuplet_index_groups(items, indexes)
-          return beat_groups if beat_groups
-
-          same_duration_tuplet_index_groups(items, indexes)
+          complete_tuplet_index_groups(items, indexes)
         end
 
-        def beat_tuplet_index_groups(items, indexes)
+        # A mixed eighth/sixteenth triplet pair occupies half a quarter,
+        # not a whole beat. Its common reference unit is a sixteenth.
+        # Close the smallest complete group rather than discarding an
+        # entire run when its total is not a multiple of a quarter.
+        def complete_tuplet_index_groups(items, indexes)
           groups = []
           current = []
           total = Rational(0)
           indexes.each do |index|
             current << index
             total += items.fetch(index).fetch(:duration)
-            return nil if total > 1
-            next unless total == 1
+            normal_type = Values::NOTE_TYPE_DURATIONS[total / 2]
+            next unless normal_type
 
-            groups << { indexes: current, normal_type: "eighth" }
+            groups << { indexes: current, normal_type: normal_type }
             current = []
             total = Rational(0)
           end
-          current.empty? ? groups : nil
+          groups + same_duration_tuplet_index_groups(items, current)
         end
 
         def same_duration_tuplet_index_groups(items, indexes)

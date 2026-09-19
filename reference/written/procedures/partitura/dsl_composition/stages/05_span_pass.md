@@ -6,6 +6,13 @@ Before composing each substantial span, write a compact micro-decision table:
 Bars/phrase | active engine | event/change | per-bar jobs | beat-level mechanism/rest | parts with jobs | input material | output material | checks needed
 ```
 
+Before choosing notes, apply the
+[passage-context test](../../../../craft/MELODY_CRAFT_DOCTRINE.md#the-whole-is-the-unit-of-analysis).
+Read the incoming phrase and establish how this span changes its expectations
+and where it leads. Carry tonal color, recurring gestures, bass direction,
+harmonic rhythm and dynamic momentum into the decisions. A sequence of locally
+fitting notes or individually labeled bar jobs is not yet a phrase.
+
 For every span, write the music in this order:
 
 1. Foreground or primary engine.
@@ -32,10 +39,13 @@ Use the surface that exposes the job:
 After each span or small section, run the loop:
 
 1. Compose the exact DSL material.
-2. Project the span.
-3. State the musical verdict in one or two sentences.
+2. Project the span with its preparation and continuation, extending to musical
+   phrase boundaries where the effect depends on them.
+3. State the musical verdict in one or two sentences: what expectation the
+   passage establishes, what the gesture does to it, and what follows. Cite
+   actual musical evidence rather than only a chord-fit result or device name.
 4. Revise the notes, controls, placements, or span shape if the verdict exposes weakness.
-5. Re-project the changed area.
+5. Re-project the changed area through its phrase-level consequence.
 
 Use focused projections:
 
@@ -50,9 +60,11 @@ partitura view SOURCE.rb controls
 ```
 
 Read the ensemble_grid as a conductor (every attack in a stratum, choirs together, punctuation
-shared); adjudicate exposed_clashes findings musically (prepared suspensions, cadential sevenths,
-pedal stacks, and resolving passing tones are correct music - fix only the unprepared exposed
-clashes).
+shared); adjudicate exposed_clashes findings in their passage context.
+Prepared suspensions, cadential sevenths, pedal stacks and passing tones may
+carry the line; an unprepared dissonance can also be intentional. Neither a
+flag nor its absence decides whether a note belongs. Compare vertical tension
+with the established tonal color and the phrase's direction before editing.
 
 A span passes when the active engine, bass, accompaniment, and any gesture claim are audible in the
 notation. A clean projection is not enough.

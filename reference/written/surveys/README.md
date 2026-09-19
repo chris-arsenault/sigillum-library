@@ -22,6 +22,9 @@ by what they cover. Cards and procedures cite them by name.
 - `running_counterpoint.md`, `sixteenth_deployment.md` — moving inner lines / 16th deployment.
 - `complementary_rhythm.md`, `reinforce_contrast.md` — composite-rhythm continuity vs. lead reinforcement/contrast.
 - `ground_bass.md` — ground-bass / passacaglia as a cumulative engine.
+- `funk_pocket.md` — funk pocket without a drum kit: the 16th grid and the weighted One,
+  bass-line pitch grammar, assigning kick/backbeat/chank to pitched players so they stay
+  melodic, horn-section role for strings, three groove dialects for section contrast.
 
 **Orchestration**
 - `orchestration_techniques.md` — the orchestration survey, covering every family (winds, brass,

@@ -7,7 +7,8 @@ module Partitura
   module Marks
     DYNAMICS = %w[ppp pp p mp mf f ff fff fp sfz].freeze
     ARTICULATIONS = %w[stacc accent ten marc spicc. detache choke].freeze
-    TECHNIQUES = %w[harm lv trem pizz arco rimshot xstick].freeze
+    TECHNIQUES = %w[harm lv trem pizz arco rimshot xstick ghost].freeze
+    GHOST_ATTENUATION_DB = -12
     ORNAMENTS = %w[trill].freeze
     SPANNERS = %w[slur( slur) tie( tie) cresc( cresc) dim( dim) gliss( gliss) slide( slide) trill( trill)].freeze
     ARPEGGIOS = %w[arp arp:up arp:down arp:non].freeze
@@ -35,6 +36,8 @@ module Partitura
         "dynamics: #{DYNAMICS.join(' ')}",
         "articulations: #{ARTICULATIONS.join(' ')}",
         "techniques: #{TECHNIQUES.join(' ')}",
+        "ghost: parenthesized notehead and local -12 dB playback/model attenuation; " \
+        "does not print or change the ongoing dynamic",
         "ornaments: #{ORNAMENTS.join(' ')} (single note) / trill( trill) (span)",
         "spanner pairs: #{SPANNERS.join(' ')}",
         "overlapping slurs: slur:2( slur:2) (numbers 1–16; unnumbered slurs use 1)",

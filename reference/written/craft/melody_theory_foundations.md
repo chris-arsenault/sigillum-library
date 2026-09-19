@@ -118,11 +118,12 @@ theory — Aldwell & Schachter, Kostka & Payne — to be applied, with that cave
 - *Progression-first:* sketch T–PD–D–T (descending-5th roots) FIRST, place chord tones on strong
   beats, decorate with NCTs.
 - *Melody-first (the common working order):* (1) write the line freely, as if unharmonized; (2) lay a
-  candidate progression under it; (3) NUDGE the structural tones (strong-beat / long notes) onto chord
-  tones of each chord, leaving the pitches you displaced as passing/neighbor NCTs; (4) smooth the
-  contour for voice-leading so the line connects by step instead of leaping to chase the chords.
-  Iterate the chords and the nudges together. Either order, the OUTPUT is the same: a line whose
-  strong-beat skeleton spells a nameable progression.
+  candidate progression under it; (3) read the structural tones against both the
+  chords and the phrase's direction. Retain purposeful accented tensions and
+  melodic continuities rather than automatically moving each strong-beat note
+  onto a chord tone; (4) adjust harmony and melody together so the line retains
+  its shape instead of chasing each chord. Either order should produce a
+  coherent harmonic journey, not just individually compatible verticals.
 
 **The downbeat carries the root (by default).** The strong beat usually lands the chord ROOT — the most
 stable, most legible read. A strong beat on the 3rd / 5th / 7th is an *intentional* color or mislead (a
@@ -137,6 +138,13 @@ until its strong-beat skeleton spells a specific progression you can write down.
 "provisional/pending" is the concrete melody-writing failure that produces flat lines — the line is
 built with no harmonic skeleton to give its strong beats meaning. Every theme DECLARES the progression
 it exposes; the structural tones are checked against it (§8 item 5).
+
+That declaration is only one part of the review. A locally available extension
+may be foreign to the surrounding passage, and a familiar dissonance may carry
+its continuity. Judge choices through the actual bar and phrase, following the
+[passage-context test](MELODY_CRAFT_DOCTRINE.md#the-whole-is-the-unit-of-analysis).
+This is craft guidance from composition feedback, not an additional claim of
+external research verification.
 
 > Partial sources fetched: musictheory.pugetsound.edu *CircleOfFifths*; smbutterfield IBMT
 > *diatonic circle-of-fifths*; beyondmusictheory *chromatic mediants*; learnjazzstandards
@@ -260,6 +268,11 @@ while sitting *above* it in pitch.
 ## 8. THE CONSTRUCT-&-CRITIQUE CHECKLIST (operational — the anti-doodle)
 
 Run this to BUILD a line and to DIAGNOSE one that wanders:
+
+Begin with the [passage-context test](MELODY_CRAFT_DOCTRINE.md#the-whole-is-the-unit-of-analysis):
+established expectations, phrase direction, the bar-level gesture and its
+continuation. The local checks below cannot substitute for that reading or
+prove that a phrase works merely because its individual beats are defensible.
 
 1. **Deep line** — sing the skeletal `^3-^2-^1` / `^5-…-^1` descent. None present → it wanders. (§0,6)
 2. **Tonic frame** — begins on a tonic-triad tone, ends `^2-^1` or `^7-^1` by step. (§1)

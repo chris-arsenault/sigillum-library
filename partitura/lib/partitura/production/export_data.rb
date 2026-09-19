@@ -7,11 +7,11 @@ module Partitura
     # In-memory structured view of a compiled piece, consumed directly by the
     # MusicXML/MIDI exporters and analysis. This is not a serialized format and
     # has no schema: it is a private adapter between the model and the exporters.
-    def export_data(piece)
+    def export_data(piece, exact_timing: false)
       piece.validate!
       export_header(piece).merge(
-        export_timeline(piece),
-        export_content(piece),
+        export_timeline(piece, exact_timing: exact_timing),
+        export_content(piece, exact_timing: exact_timing),
         export_projection(piece)
       )
     end
@@ -22,32 +22,34 @@ module Partitura
         id: piece.id&.to_s,
         graph_path: piece.id && "piece:#{piece.id}",
         title: piece.title,
+        timing_basis: piece.timing_basis.to_s,
+        swing_realized: piece.swing_timeline.active?,
         meter: piece.meter_value,
         beat_pattern: piece.beat_pattern,
         bar_length_ql: rational_number(piece.bar_length)
       }.compact
     end
 
-    def export_timeline(piece)
+    def export_timeline(piece, exact_timing: false)
       {
         meter_events: piece.meter_timeline.map { |event| export_meter_event(piece, event) },
         key: piece.key_value,
         key_changes: piece.key_changes.map { |kc| export_key_change(piece, kc) },
         tempo_marks: piece.tempo_marks,
-        tempo_events: piece.tempo_events.map { |event| export_tempo_event(piece, event) },
-        anchors: piece.anchors.values.map { |anchor| export_anchor(piece, anchor) },
-        controls: piece.controls.map { |control| export_control(piece, control) },
+        tempo_events: piece.tempo_events.map { |event| export_tempo_event(piece, event, exact: exact_timing) },
+        anchors: piece.anchors.values.map { |anchor| export_anchor(piece, anchor, exact: exact_timing) },
+        controls: piece.controls.map { |control| export_control(piece, control, exact: exact_timing) },
         total_duration_ql: rational_number(piece.total_duration)
       }
     end
 
-    def export_content(piece)
+    def export_content(piece, exact_timing: false)
       {
         parts: piece.parts.values.map { |part| export_part(part) },
         sections: piece.sections.map { |section| export_section(section, piece) },
         phrases: piece.phrases.values.map { |phrase| export_phrase(phrase) },
         placements: export_placements(piece),
-        timed_events: piece.timed_events(include_rests: true).map { |event| export_timed_event(piece, event) }
+        timed_events: piece.timed_events(include_rests: true).map { |event| export_timed_event(piece, event, exact: exact_timing) }
       }
     end
 
@@ -129,6 +131,7 @@ module Partitura
         id: phrase.id.to_s,
         graph_path: "phrase:#{phrase.id}",
         surface: phrase.surface.to_s,
+        timing_basis: "authored",
         material_id: phrase.material_id&.to_s,
         material_relation: phrase.material_relation&.to_s,
         duration_ql: rational_number(phrase.duration),
@@ -167,6 +170,7 @@ module Partitura
         id: placement.id&.to_s,
         graph_path: placement.id && "placement:#{placement.id}",
         phrase_id: placement.phrase_id.to_s,
+        timing_basis: "authored",
         phrase_path: "phrase:#{placement.phrase_id}",
         part: placement.part.to_s,
         role: placement.role.to_s,
@@ -181,7 +185,7 @@ module Partitura
       }.compact
     end
 
-    def export_timed_event(piece, event)
+    def export_timed_event(piece, event, exact: false)
       {
         part: event.part.to_s,
         role: event.role.to_s,
@@ -194,9 +198,9 @@ module Partitura
         pitch_label: event.pitch_label,
         event_type: event.event_type,
         rest: event.rest?,
-        duration_ql: rational_number(event.duration),
-        offset_ql: rational_number(event.offset),
-        end_offset_ql: rational_number(event.end_offset),
+        duration_ql: time_number(event.duration, exact),
+        offset_ql: time_number(event.offset, exact),
+        end_offset_ql: time_number(event.end_offset, exact),
         offset_label: piece.format_offset(event.offset),
         source: event.source,
         local_marks: event.marks,
@@ -205,12 +209,13 @@ module Partitura
       }.compact
     end
 
-    def export_anchor(piece, anchor)
-      offset = piece.offset_for_reference(anchor.at)
+    def export_anchor(piece, anchor, exact: false)
+      offset = piece.realized_offset_for_reference(anchor.at)
       {
         id: anchor.id.to_s,
         at: anchor.at.to_s,
-        offset_ql: rational_number(offset),
+        offset_ql: time_number(offset, exact),
+        authored_offset_ql: time_number(piece.offset_for_reference(anchor.at), exact),
         offset_label: piece.format_offset(offset)
       }
     end
@@ -225,35 +230,36 @@ module Partitura
       }
     end
 
-    def export_control(piece, control)
+    def export_control(piece, control, exact: false)
       base = {
         kind: control.kind.to_s,
-        value: control.value,
+        value: control.kind.to_s == "swing" && piece.timing_basis == :straight_override ? "off" : control.value,
         exact: control.exact || nil,
         target: export_target(control.target)
       }.compact
       if control.at
-        offset = piece.offset_for_reference(control.at)
+        offset = piece.realized_offset_for_reference(control.at)
         base.merge(
           at: control.at.to_s,
-          offset_ql: rational_number(offset),
+          offset_ql: time_number(offset, exact),
+          authored_offset_ql: time_number(piece.offset_for_reference(control.at), exact),
           offset_label: piece.format_offset(offset)
         )
       else
-        from_offset = piece.offset_for_reference(control.from)
-        to_offset = piece.offset_for_reference(control.to)
+        from_offset = piece.realized_offset_for_reference(control.from)
+        to_offset = piece.realized_offset_for_reference(control.to)
         base.merge(
           from: control.from.to_s,
           to: control.to.to_s,
-          from_offset_ql: rational_number(from_offset),
-          to_offset_ql: rational_number(to_offset),
+          from_offset_ql: time_number(from_offset, exact),
+          to_offset_ql: time_number(to_offset, exact),
           from_offset_label: piece.format_offset(from_offset),
           to_offset_label: piece.format_offset(to_offset)
         )
       end
     end
 
-    def export_tempo_event(piece, event)
+    def export_tempo_event(piece, event, exact: false)
       base = {
         kind: event.kind.to_s,
         text: event.text,
@@ -263,20 +269,21 @@ module Partitura
         per_minute: event.per_minute
       }.compact
       if event.at
-        offset = piece.offset_for_reference(event.at)
+        offset = piece.realized_offset_for_reference(event.at)
         base.merge(
           at: event.at.to_s,
-          offset_ql: rational_number(offset),
+          offset_ql: time_number(offset, exact),
+          authored_offset_ql: time_number(piece.offset_for_reference(event.at), exact),
           offset_label: piece.format_offset(offset)
         )
       else
-        from_offset = piece.offset_for_reference(event.from)
-        to_offset = piece.offset_for_reference(event.to)
+        from_offset = piece.realized_offset_for_reference(event.from)
+        to_offset = piece.realized_offset_for_reference(event.to)
         base.merge(
           from: event.from.to_s,
           to: event.to.to_s,
-          from_offset_ql: rational_number(from_offset),
-          to_offset_ql: rational_number(to_offset),
+          from_offset_ql: time_number(from_offset, exact),
+          to_offset_ql: time_number(to_offset, exact),
           from_offset_label: piece.format_offset(from_offset),
           to_offset_label: piece.format_offset(to_offset)
         )
@@ -352,6 +359,10 @@ module Partitura
 
     def rational_number(value)
       Rational(value).to_f
+    end
+
+    def time_number(value, exact)
+      exact ? Rational(value) : rational_number(value)
     end
 
     def tempo_events_from_marks(marks)

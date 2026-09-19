@@ -11,7 +11,7 @@ module Partitura
           piece.tempo_events.each do |event|
             next unless %w[mark playback].include?(event.kind.to_s) && event.at && event.bpm&.positive?
 
-            points[piece.offset_for_reference(event.at)] = event.bpm.to_f
+            points[piece.realized_offset_for_reference(event.at)] = event.bpm.to_f
           end
           elapsed = 0.0
           ordered = points.sort

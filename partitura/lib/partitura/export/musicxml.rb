@@ -2,6 +2,7 @@
 
 require "date"
 
+require_relative "musicxml/accidentals"
 require_relative "musicxml/beaming"
 require_relative "musicxml/builder"
 require_relative "musicxml/control_layout"
@@ -47,10 +48,12 @@ module Partitura
         "detache" => "detached-legato"
       }.freeze
       MIDI_PROGRAMS = {
+        "Bass" => 53,
         "BassClarinet" => 72,
         "Bassoon" => 71,
         "Clarinet" => 72,
         "Contrabass" => 44,
+        "ElectricBass" => 34,
         "Flute" => 74,
         "Harp" => 47,
         "Horn" => 61,
@@ -124,6 +127,14 @@ module Partitura
           chromatic: 0,
           octave_change: -1,
           key_fifths_delta: 0
+        }.freeze,
+        "ElectricBass" => {
+          written_diatonic: 7,
+          written_chromatic: 12,
+          diatonic: 0,
+          chromatic: 0,
+          octave_change: -1,
+          key_fifths_delta: 0
         }.freeze
       }.freeze
 
@@ -162,6 +173,7 @@ module Partitura
       end
 
       class Renderer
+        include Accidentals
         include Beaming
         include ControlLayout
         include DirectionRendering
@@ -172,7 +184,7 @@ module Partitura
         include VoiceLayout
 
         def initialize(piece)
-          @data = deep_stringify(Production.export_data(piece))
+          @data = deep_stringify(Production.export_data(piece, exact_timing: true))
         end
 
         def render

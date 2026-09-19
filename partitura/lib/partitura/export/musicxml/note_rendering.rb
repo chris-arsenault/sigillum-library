@@ -8,7 +8,7 @@ module Partitura
                                  fermatas].freeze
         TEXT_MARK_EXCLUSIONS = %w[
           lv harm trem trill trill( trill) slur( slur) tie( tie) gliss( gliss) slide( slide) cresc( cresc) dim( dim)
-          pizz arco rimshot xstick fermata choke
+          pizz arco rimshot xstick ghost fermata choke
         ].freeze
         SUSTAINED_SEGMENT_MARKS = %w[trem].freeze
 
@@ -34,9 +34,11 @@ module Partitura
 
         def render_pitched_notes(xml, item, pitches)
           pitches.each_with_index do |pitch_name, index|
-            # Tuplet start/stop is a per-event notation: emitting it on every
-            # chord member unbalances the bracket count and breaks renderers.
-            note_item = index.positive? && item[:tuplet] ? item.merge(tuplet: nil) : item
+            # Beams and tuplet boundaries belong to the chord event. Repeating
+            # a beam start on its second pitch can make importers open a beam
+            # inside the chord and discard the following music.
+            note_item = index.positive? ? item.merge(tuplet: nil, beams: nil, chord_member: true) : item
+            note_item = note_item.merge(accidental: item.fetch(:accidentals, {})[index])
             percussion_entry, instrument_id = mapped_percussion_note(pitch_name)
             xml.open("note")
             xml.empty("chord") if index.positive?
@@ -103,6 +105,7 @@ module Partitura
           duration_name, dots = duration_type(duration)
           xml.element("type", duration_name)
           dots.times { xml.empty("dot") }
+          xml.element("accidental", item[:accidental]) if item[:accidental]
           render_time_modification(xml, item)
         end
 
@@ -133,7 +136,10 @@ module Partitura
 
         def render_notehead(xml, item)
           notehead = notehead_for_marks(item.fetch(:marks))
-          xml.element("notehead", notehead) if notehead
+          ghost = item.fetch(:marks).include?("ghost")
+          return unless notehead || ghost
+
+          xml.element("notehead", notehead || "normal", ghost ? { "parentheses" => "yes" } : {})
         end
 
         def render_beams(xml, item)
@@ -186,7 +192,7 @@ module Partitura
           {
             tie_types: tie_types_for(item),
             marks: marks,
-            articulations: marks.filter_map { |mark| ARTICULATIONS[mark] },
+            articulations: item[:chord_member] ? [] : marks.filter_map { |mark| ARTICULATIONS[mark] },
             technicals: marks.select { |mark| %w[harm lv choke].include?(mark) },
             arpeggios: marks.select { |mark| mark.start_with?("arp") },
             ornaments: marks.select { |mark| %w[trill trill( trill) trem].include?(mark) },

@@ -9,6 +9,7 @@ module Partitura
             "# Implied Harmony (sounding; per-bar CHORD CANDIDATES from duration+beat-weighted pitch classes - " \
             "a reading aid, not an analysis)"
           ]
+          append_pitch_scope(lines)
           harmony_weights_by_bar(bars).each { |bar, weights| lines << implied_harmony_line(bar, weights) }
           lines.join("\n")
         end
@@ -18,6 +19,7 @@ module Partitura
           lines = ["# Harmony Check (declared chord track vs sounding pitch classes - where they disagree, " \
                    "either the notes or the declaration is wrong, or the bar is deliberately linear/" \
                    "contrapuntal - a standing MISMATCH is legal when your audit says so by bar)"]
+          append_pitch_scope(lines)
           if chords.empty?
             lines << "(no chord track declared; declare per-bar chords in a span: chords \"b1:F b2:Bb\")"
             return lines.join("\n")
@@ -67,17 +69,17 @@ module Partitura
 
         def ensemble_grid(bars: nil)
           notes = Production.merge_authored_ties(@piece.timed_events(include_rests: true).reject(&:rest?))
-          lines = ["# Ensemble Grid (16th resolution; X=attack -=sustain .=silent; beats separated by |)"]
+          lines = ["# Ensemble Grid (exact per-bar resolution, at least 16ths; X=attack -=sustain .=silent; beats separated by |)"]
           ensemble_grid_range(notes, bars).each { |bar| append_ensemble_grid_bar(lines, bar, notes) }
           lines.join("\n")
         end
 
-        def ensemble_grid_row(bar, part, notes)
+        def ensemble_grid_row(bar, part, notes, resolution: ensemble_grid_resolution(bar, notes))
           bar_start = @piece.offset_for(bar, 1)
-          steps = (@piece.bar_length_for(bar) / Rational(1, 4)).to_i
-          beat_bounds = beat_starts(bar).map { |beat| ((beat - bar_start) / Rational(1, 4)).to_i }
+          steps = (@piece.bar_length_for(bar) / resolution).to_i
+          beat_bounds = beat_starts(bar).map { |beat| ((beat - bar_start) / resolution).to_i }
           steps.times.each_with_object(+"") do |step, row|
-            time = bar_start + Rational(step, 4)
+            time = bar_start + step * resolution
             row << "|" if step.positive? && beat_bounds.include?(step)
             row << ensemble_grid_cell(part, time, notes)
           end
@@ -88,7 +90,7 @@ module Partitura
           notes.each do |event|
             next unless event.part == part
 
-            return "X" if (event.offset - time).abs < Rational(1, 100)
+            return "X" if event.offset == time
 
             cell = "-" if event.offset < time && event.end_offset > time
           end
@@ -97,8 +99,19 @@ module Partitura
 
         private
 
+        def ensemble_grid_resolution(bar, notes)
+          start = @piece.offset_for(bar, 1)
+          length = @piece.bar_length_for(bar)
+          boundaries = notes.flat_map { |event| [event.offset - start, event.end_offset - start] }
+                            .select { |offset| offset >= 0 && offset <= length }
+          values = [Rational(1, 4), length, *boundaries]
+          denominator = values.map(&:denominator).reduce(1, :lcm)
+          numerator = values.map { |value| (value * denominator).to_i }.reduce(0, :gcd)
+          Rational(numerator, denominator)
+        end
+
         def harmony_weights_by_bar(bars)
-          all_sounding.group_by { |event| bar_of(event.offset) }
+          pitched_sounding.group_by { |event| bar_of(event.offset) }
                       .sort
                       .filter_map { |bar, events| [bar, weighted_pitch_classes(events)] if in_bar_number?(bar, bars) }
         end
@@ -138,9 +151,10 @@ module Partitura
         end
 
         def append_ensemble_grid_bar(lines, bar, notes)
-          lines << "--- b#{bar}"
+          resolution = ensemble_grid_resolution(bar, notes)
+          lines << "--- b#{bar} (#{resolution} ql per cell)"
           @piece.parts.each_key do |pname|
-            lines << "  #{pname.to_s.ljust(10)} #{ensemble_grid_row(bar, pname, notes)}"
+            lines << "  #{pname.to_s.ljust(10)} #{ensemble_grid_row(bar, pname, notes, resolution: resolution)}"
           end
         end
       end

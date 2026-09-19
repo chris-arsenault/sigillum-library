@@ -66,6 +66,38 @@ class PercussionExportTest < Minitest::Test
     assert_includes midi, [0x91, 67, 72].pack("C*")
   end
 
+  def test_chamber_band_exports_finger_bass_at_sounding_pitch_and_maps_the_kit
+    piece = chamber_band_piece
+    document = render_document(piece)
+    midi = Partitura::Export::MIDI.render(piece)
+    bass = REXML::XPath.first(document, "/score-partwise/part-list/score-part[5]")
+    kit = REXML::XPath.first(document, "/score-partwise/part-list/score-part[7]")
+    kit_notes = REXML::XPath.match(document, "/score-partwise/part[7]/measure/note[unpitched]")
+
+    assert_equal 7, REXML::XPath.match(document, "/score-partwise/part").length
+    assert_equal 8, midi.byteslice(10, 2).unpack1("n")
+    assert_equal "34", text_at(bass, "midi-instrument/midi-program")
+    assert_equal ["F", "4"], clef_signature(document, 5)
+    assert_equal "-1", text_at(document, "/score-partwise/part[5]/measure/attributes/transpose/octave-change")
+    assert_equal "G", text_at(document, "/score-partwise/part[5]/measure/note/pitch/step")
+    assert_equal "3", text_at(document, "/score-partwise/part[5]/measure/note/pitch/octave")
+    assert_includes midi, [0xC4, 33].pack("C*")
+    assert_includes midi, [0x94, 43, 72].pack("C*")
+
+    assert_equal ["percussion", nil], clef_signature(document, 7)
+    assert_equal %w[10 10 10 10 10 10], REXML::XPath.match(kit, "midi-instrument/midi-channel").map(&:text)
+    assert_equal %w[37 41 43 46 51 52], REXML::XPath.match(kit, "midi-instrument/midi-unpitched").map(&:text)
+    assert_empty REXML::XPath.match(document, "/score-partwise/part[7]/measure/note/pitch")
+    assert_equal 9, kit_notes.length
+    assert_equal %w[F G C G C A E F G], kit_notes.map { |note| text_at(note, "unpitched/display-step") }
+    assert_equal %w[4 5 5 5 5 4 5 5 5], kit_notes.map { |note| text_at(note, "unpitched/display-octave") }
+    assert_equal %w[I7-1 I7-3], kit_notes.first(2).map { |note| instrument_id(note) }
+    refute_nil REXML::XPath.first(kit_notes[1], "chord")
+    [36, 40, 42, 45, 50, 51].each do |pitch|
+      assert_includes midi, [0x99, pitch, 72].pack("C*")
+    end
+  end
+
   private
 
   def instrument_id(note)
@@ -115,6 +147,50 @@ class PercussionExportTest < Minitest::Test
           placement :flute_line, part: :flute, at: "bar 1 beat 1", role: :foreground
           placement :battery_line, part: :battery, at: "bar 1 beat 1", role: :rhythm
           placement :violin_line, part: :violin, at: "bar 1 beat 1", role: :foreground
+        end
+      end
+    end
+  end
+
+  def chamber_band_piece
+    Partitura::Production.piece("Chamber Band Export") do
+      meter "4/4"
+      key "G minor"
+      roster do
+        part :bassoon, "Bassoon", music21: "Bassoon", family: :woodwind
+        part :violin, "Violin", music21: "Violin", family: :string
+        part :viola, "Viola", music21: "Viola", family: :string
+        part :cello, "Cello", music21: "Violoncello", family: :string
+        part :bass, "Electric Bass", music21: "ElectricBass", family: :string
+        part :voice, "Bass Voice", music21: "Bass", family: :voice
+        part :kit, "Drum Kit", music21: "Percussion", family: :percussion,
+          percussion_map: {
+            "C2" => :concert_bass_drum,
+            "E2" => :electric_snare,
+            "F#2" => :closed_hi_hat,
+            "A2" => :low_tom,
+            "D3" => :high_tom,
+            "Eb3" => :ride
+          }
+      end
+      section :s1, "Opening", bars: 1..1 do
+        span bars: 1..1 do
+          phrase(:bassoon_line, surface: :absolute) { events "D3:4" }
+          phrase(:violin_line, surface: :absolute) { events "Bb4:4" }
+          phrase(:viola_line, surface: :absolute) { events "F4:4" }
+          phrase(:cello_line, surface: :absolute) { events "G3:4" }
+          phrase(:bass_line, surface: :absolute) { events "G2:4" }
+          phrase(:voice_line, surface: :absolute) { events "D3:4" }
+          phrase(:kit_line, surface: :absolute) do
+            events "[C2,F#2]:.25 r:.75 [E2,F#2]:.25 r:.5 E2:.25 A2:.5 D3:.5 Eb3:.5 F#2:.5"
+          end
+          placement :bassoon_line, part: :bassoon, at: "bar 1 beat 1", role: :foreground
+          placement :violin_line, part: :violin, at: "bar 1 beat 1", role: :harmony
+          placement :viola_line, part: :viola, at: "bar 1 beat 1", role: :harmony
+          placement :cello_line, part: :cello, at: "bar 1 beat 1", role: :harmony
+          placement :bass_line, part: :bass, at: "bar 1 beat 1", role: :bass
+          placement :voice_line, part: :voice, at: "bar 1 beat 1", role: :foreground
+          placement :kit_line, part: :kit, at: "bar 1 beat 1", role: :rhythm
         end
       end
     end

@@ -85,6 +85,21 @@ module Partitura
         end
 
         def event_velocity(event, part)
+          velocity = dynamic_event_velocity(event, part)
+          marks = Array(event["local_marks"])
+          attack_db = 0
+          attack_db += 4 if marks.include?("accent")
+          attack_db += 6 if marks.include?("marc")
+          attack_db += Marks::GHOST_ATTENUATION_DB if marks.include?("ghost")
+
+          # Use the perceptual model's event-local attack adjustments as a
+          # velocity approximation. Combine before clipping so a ghost accent
+          # is attenuated from the original dynamic, not a saturated attack.
+          # Nothing here changes the prevailing dynamic of following notes.
+          (velocity * 10.0**(attack_db / 20.0)).round.clamp(1, 127)
+        end
+
+        def dynamic_event_velocity(event, part)
           local_dynamic = Array(event["local_marks"]).find { |mark| DYNAMIC_VELOCITY.key?(mark) }
           return DYNAMIC_VELOCITY.fetch(local_dynamic) if %w[fp sfz].include?(local_dynamic)
 
@@ -101,7 +116,7 @@ module Partitura
 
         def part_note_events(event, channel, velocity, part)
           start_tick = ticks(rational(event.fetch("offset_ql")))
-          end_tick = ticks(rational(event.fetch("offset_ql")) + rational(event.fetch("duration_ql")))
+          end_tick = performed_end_tick(event, start_tick)
           event_pitches(event).flat_map do |pitch|
             midi = midi_pitch_for_part(part, pitch)
             [
@@ -109,6 +124,18 @@ module Partitura
               [end_tick, [0x80 | channel, midi, 0].pack("C*")]
             ]
           end
+        end
+
+        def performed_end_tick(event, start_tick)
+          offset = rational(event.fetch("offset_ql"))
+          duration = rational(event.fetch("duration_ql"))
+          staccato = Array(event["local_marks"]).include?("stacc")
+          # Authored ties explicitly sustain; coalescing has already combined
+          # their durations. An untied staccato uses a half-duration MIDI gate,
+          # independent of automatic notation splits, without moving onsets.
+          return ticks(offset + duration) unless staccato && !authored_tie_start?(event) && !tie_close?(event)
+
+          [ticks(offset + duration / 2), start_tick + 1].max
         end
 
         def midi_pitch_for_part(part, pitch)

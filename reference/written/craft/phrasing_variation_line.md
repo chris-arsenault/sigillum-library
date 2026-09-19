@@ -48,15 +48,18 @@ Every long note in these pieces does THREE jobs at once:
 
 - **Reward** - it is the phrase's expressive peak (Kietzer's only long note before the
   final bar is the melodic crown C#6 at b7: hold the high note, singer logic).
-- **Breath** - the clarinetist recovers there (Wiedemann's three dotted-quarters at 8,
-  20, 28 are the only recovery points in 36 bars; Bach's fermata and dotted-halves sit
-  at the double bars).
+- **Breath** - the long-note arrivals offer natural release points (Wiedemann's
+  dotted-quarters at 8, 20, 28; Bach's fermata and dotted-halves at the double
+  bars). These are examples, not an exhaustive breathing map: recovery can
+  come at a phrase ending or between long notes without a notated rest.
 - **Pivot** - the music changes figure or register out of it (Wiedemann b20: the long
   low tonic is simultaneously a phrase floor AND the launchpad of the arpeggio flight).
 
-Never park a long note mid-phrase as mere rest. If a spot exists only so the player can
-breathe, the piece will sound like it stopped; make the breathing spot an arrival or a
-springboard and nobody notices the physiology.
+These combined jobs explain the studied arrivals; they are not requirements
+for every long note. A held tone may simply sustain the line. Preserve its
+written value when a performer can breathe at its release; do not insert a
+fixed gap to represent inhalation. See the primary
+[breathing guidance](melody_primacy.md#breathing-and-notated-silence).
 
 ## 4. The skeleton IS the melody (one-voice harmony)
 
@@ -105,7 +108,8 @@ breathing phrases; not the reverse.
 3. Fill toward the skeleton with chord-and-neighbor motion; bend every run onto a target.
 4. Plan the subversions as consonant surprises of placement/direction; ration the
    dissonant ones to one per section, each resolving immediately.
-5. Put every long note where reward, breath, and pivot coincide.
+5. Consider whether a long-note arrival can combine reward, release and pivot;
+   do not force all three jobs onto every sustained note.
 6. Let phrases elide across the square form.
 
 The theory catalogue describes WHAT results; this list is the order a person decides

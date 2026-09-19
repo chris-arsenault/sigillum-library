@@ -165,6 +165,25 @@ commissioned driver while arranging its partners, and give the texture a
 harmonic, rhythmic or color direction of its own. Sparse notation is not proof
 of clarity, and added attacks are not proof of development.
 
+A genre-derived orchestral piece needs a compositional relationship between
+its borrowed vocabulary and its commissioned forces. The September17 Boreal
+Pocket feedback rejected an extended funk backing with strings decorating it.
+Eight section names, new melodic contours and extra fills had preserved the
+same instrumental hierarchy. Follow what a subject changes: who takes it,
+whether its rhythm expands or fragments, which harmony it demands or resists,
+and what the return retains from the intervening music. A contrasting chorale
+that has no consequence for the return can still leave an A/B/A-prime scheme.
+This is a contextual development question, not a prohibition on grooves or ABA.
+
+Reference instrumentation is not automatically the intended roster. The same
+user supplied electric-bass and drum-kit MIDI because those were convenient
+writing tools; the commission remained a funk bassoon piece with orchestral
+partners. Read the roster and functional assignments before adapting a sample.
+Transfer its rhythm, intervals and articulation into the intended protagonist's
+range. Renaming a continuous electric-bass line as contrabass does not restore
+the intended sparse anchor function, and deleting a kit does not automatically
+compose the pitched answers that must carry its rhythmic relationships.
+
 - Which axis is the movement's identity, and where does it carry through?
 - Which axis changes at each mid-level boundary?
 - Which sections elaborate density, and which sections elaborate exposure,

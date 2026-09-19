@@ -26,6 +26,9 @@ all parts. Local dynamics win at the same offset and persist through following
 notes and rests. Marks on tie continuations also affect the timeline. Accents,
 marcato and `sfz` affect the attack without becoming persistent dynamic levels;
 `fp` uses an f attack and p as the following level.
+The event-local `ghost` mark reduces modeled amplitude by 12 dB without changing
+the dynamic timeline. MIDI applies the same amplitude factor to that event's
+velocity; this is an approximate expressive control, not calibrated acoustic SPL.
 
 Control and inline hairpins interpolate to explicit dynamic marks inside their
 span. Without a target, a complete hairpin moves six model dB. The endpoint
@@ -41,6 +44,18 @@ invent a curve. Supply explicit tempo targets when the model needs those changes
 Beat grouping uses the active bar's meter and beat pattern, not the opening meter.
 
 ## Model limits
+
+Unpitched parts (the `percussion` family or a declared `percussion_map`) do
+not contribute source-label pitches to spectrum, masking, roughness, implied
+harmony, harmony checking or exposed-clash reports. Those reports disclose
+the excluded parts. Their absence is not evidence that drums cannot mask
+the pitched ensemble: drum spectra and their masking are not modeled.
+Pitched percussion remains part of the spectral and harmonic calculations.
+
+Beat salience retains unpitched attack times and relative levels. Binding
+retains their concurrent attacks and rhythmic grid, but never treats a drum
+label as a pitched call. Ringing retains drum attacks and uses the existing
+generic percussion decay envelope; it does not distinguish kit devices.
 
 The fixed instrument spectra and dynamic-to-dB table are approximations, not
 calibrated SPL. The model does not simulate room acoustics, a sample library,

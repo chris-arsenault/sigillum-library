@@ -19,6 +19,41 @@ module Partitura
         display_step: "F",
         display_octave: 4
       }.freeze,
+      electric_snare: {
+        name: "Electric Snare",
+        abbreviation: "Sn.",
+        midi_note: 40,
+        display_step: "C",
+        display_octave: 5
+      }.freeze,
+      closed_hi_hat: {
+        name: "Closed Hi-Hat",
+        abbreviation: "H.H.",
+        midi_note: 42,
+        display_step: "G",
+        display_octave: 5
+      }.freeze,
+      low_tom: {
+        name: "Low Tom",
+        abbreviation: "L. Tom",
+        midi_note: 45,
+        display_step: "A",
+        display_octave: 4
+      }.freeze,
+      high_tom: {
+        name: "High Tom",
+        abbreviation: "H. Tom",
+        midi_note: 50,
+        display_step: "E",
+        display_octave: 5
+      }.freeze,
+      ride: {
+        name: "Ride Cymbal",
+        abbreviation: "Ride",
+        midi_note: 51,
+        display_step: "F",
+        display_octave: 5
+      }.freeze,
       suspended_cymbal: {
         name: "Suspended Cymbal",
         abbreviation: "Sus. Cym.",

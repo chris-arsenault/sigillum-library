@@ -26,7 +26,7 @@ module Partitura
         def split_bar_segment(segment, bar_segment_index, bar_segment_count, rest:)
           measure_rest = measure_rest_segment?(segment, rest)
           prior = Rational(0)
-          duration_splits(segment.fetch(:duration), measure_rest: measure_rest).map do |split_duration|
+          notated_segment_splits(segment, measure_rest: measure_rest).map do |split_duration|
             local_offset = segment.fetch(:local_offset) + prior
             prior += split_duration
             segment.merge(
@@ -37,6 +37,44 @@ module Partitura
               bar_segment_count: bar_segment_count
             )
           end
+        end
+
+        # A swung long note may begin or finish inside a triplet cell. Keep
+        # those fragments in triplet notation until the next quarter boundary;
+        # binary greedy splitting can otherwise strand a tuplet beside a
+        # straight value (for example 5/6 becoming 3/4 + 1/12).
+        def notated_segment_splits(segment, measure_rest:)
+          start = segment.fetch(:local_offset)
+          finish = start + segment.fetch(:duration)
+          unless @data["swing_realized"] && !measure_rest &&
+                 [start, finish].any? { |value| (value.denominator % 3).zero? }
+            return duration_splits(segment.fetch(:duration), measure_rest: measure_rest)
+          end
+
+          boundaries = [start, finish]
+          boundaries << Rational(start.ceil) if (start.denominator % 3).zero? && start.ceil < finish
+          boundaries << Rational(finish.floor) if (finish.denominator % 3).zero? && finish.floor > start
+          boundaries.uniq.sort.each_cons(2).flat_map do |left, right|
+            if [left, right].any? { |value| (value.denominator % 3).zero? }
+              triplet_value_splits(right - left)
+            else
+              duration_splits(right - left, measure_rest: false)
+            end
+          end
+        end
+
+        def triplet_value_splits(duration)
+          values = Values::NOTE_TYPE_DURATIONS.keys.map { |value| value * Rational(2, 3) }.sort.reverse
+          remaining = duration
+          result = []
+          while remaining.positive?
+            value = values.find { |candidate| candidate <= remaining }
+            raise Error, "swing duration #{duration} is below supported notation resolution" unless value
+
+            result << value
+            remaining -= value
+          end
+          result
         end
 
         def measure_rest_segment?(segment, rest)
@@ -132,6 +170,12 @@ module Partitura
           ]
           out = []
           while remaining.positive?
+            # Preserve an exactly writable triplet remainder. Greedy binary
+            # subtraction otherwise turns 1/3 into 1/4 + 1/16 + 1/48.
+            if duration_type_exact?(remaining)
+              out << remaining
+              break
+            end
             value = values.find { |candidate| candidate <= remaining } || remaining
             out << value
             remaining -= value
