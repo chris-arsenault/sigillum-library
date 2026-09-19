@@ -245,6 +245,13 @@ to satisfy that model. Describe model limits explicitly. Preserve dissonances
 whose preparation, resolution or formal job is clear; silence is not an error
 because a binding scanner cannot find a simultaneous call.
 
+Numeric MusicXML/MIDI parity does not establish usable notation. Mixed-duration
+tuplets need coherent duration types, ratios and group boundaries; chord members
+must not duplicate structural beam instructions. Read an independent notation
+import when possible and compare note preservation by part and bar. If the user's
+import shows rests where the XML contains pitches, investigate notation semantics
+before rewriting the composition to compensate. State which consumer was tested.
+
 Completion records describe the current source and export. If a pass is reverted,
 mark its verdict as historical; never reuse its completed status as evidence for
 the restored score. A score-and-MIDI reading is useful evidence, but it is not
@@ -343,8 +350,123 @@ activity without making every existing line faster. Compare those events with
 the surrounding level and register. A broad swell in every part is one option,
 not the default interpretation of development.
 
+Separate sustained level from local attack weight. Alternating p/mf/f on every
+hi-hat, bass or vocal attack makes an accent pattern into a forest of dynamics.
+Use a phrase level and hairpins for its trajectory, accents/marcato/tenuto for
+local emphasis, and standard parenthesized ghost notes for deliberately light
+attacks. Playback attenuation for a ghost must not change the following note's
+dynamic. Abrupt level changes and isolated sforzandi remain available when they
+are the musical event; this is not a ban on expressive dynamics.
+
 Reserve added voices for an audible purpose—emphasis, doubling, chord completion
 or a distinct solo thought—and give them silence elsewhere. Preserve a user's
 chosen full-choir passage when the restraint applies to its continuation.
 Check exact dynamic/hairpin offsets after export; shifted endpoints can change
 which gesture receives the emphasis even when all note pitches match.
+
+## 18. A kit layer is one cell; "no stencils" does not apply to it the same way
+
+Boreal Pocket seed, 2026-09-18. Told to write sixteen bars with every detail
+attended to and nothing stamped, I wrote the drums the way I wrote the
+pitched parts: each bar placed against that bar's free sixteenths, ghosts
+moved around, a roaming field-drum layer. The composer heard it as off:
+"percussion (especially emulating a kit) should be more self similar bar over
+bar."
+
+The distinction is between two species of repetition. A pitched
+accompaniment stamped across bars without regard to the line above it is a
+stencil: it ignores the music. A groove cell in the percussion is the music:
+its identity is that it does not change, and the ear reads every departure
+from it (a pushed One, a fill) as an event precisely because the cell is
+otherwise constant. Varying the kit per bar destroys the events by making
+everything an event.
+
+How to write a kit-function layer, whether on real drums or on pitched
+instruments imitating drum functions:
+
+- Choose the cell once per section: kick placements, backbeat placements,
+  timekeeper subdivision and its fixed accent positions. Write it out in
+  every bar in full (no helpers), identical.
+- Name the departures in advance and keep them few: pushed downbeats where
+  the kick lands a sixteenth early and the downbeat is not restruck; one
+  fill per period at the phrase end; a choke or a held cymbal at a punch.
+- Include the timekeeping voice. A bass drum and a backbeat drum without a
+  steady subdivision above them are not a groove floor; the steady voice is
+  what lets the pitched parts syncopate against something. Omitting it to
+  avoid "a full kit" misreads the request: the objection is to a trap set's
+  sound, not to the timekeeping function. Ride or suspended cymbal with
+  sticks supplies it in an orchestral setting.
+- Do not give the percussion roaming ghosts. Ghost notes belong to the bass
+  line, where they are pitch-and-air; on a drum layer they read as an
+  unstable pattern.
+
+Boundary or gradient (section 10): the composer's statement is a boundary
+for kit-function layers. Bar-to-bar variation remains a gradient for melodic
+and harmonic layers, where sections 3 and 16 still apply.
+
+## 19. In a groove texture, name the singer, the backup and the field
+
+Boreal Pocket exemplar, 2026-09-19. The composer's hand revision of the
+seed assigned roles I had not: the horn is the sung vocal line and its
+stabs drive the piece; the chant is the backup singers, ornamental, playing
+off the horn by leading its landings with a pickup or doubling them; the
+violin chank is a field control whose attack placement (offbeat eighths,
+on-beat eighths, sixteenth pairs) changes the character of a passage, and
+which in places deliberately overlaps the horn and chant to drive a rhythm
+home.
+
+Corrections to my reading of the same score, so they are not re-learned as
+rules: the exact repeat of the block was expedient, not a form model; the
+cello loop ignoring the harmony was quick editing; the modal harmony was
+for speed and is not a ban on leading tones or jazz harmony.
+
+How to apply:
+
+- Before writing a groove section, name which layer sings, which layer
+  backs the singer, which layer keeps the field, and which layers are the
+  floor. Write the singer's stabs first; they are the events the other
+  layers point at.
+- The backup layer uses the singer's own gesture family (pickup, landing,
+  leave) in quarters and eighths, entering before or with the singer's
+  landings. Keep sixteenths rare in voices the playback cannot articulate.
+- Plan the chank as a field across the section: which bars are offbeat,
+  which flip on-beat, where sixteenths appear, and where it locks with the
+  singer. Shared attacks between the field and the singer are a device;
+  the earlier rule that chopping parts never share a sixteenth is retired.
+- Coordination is composed per event, not enforced by a slot table.
+
+## 20. A style change is not a groove change
+
+Boreal Pocket kernel, 2026-09-19. Asked for a 32-bar kernel "including one
+major change of style", I wrote a B section that kept every role, every
+technique, the tempo and the dynamic plan, and changed the rhythm (four on
+the floor) and the bassoon's register. The composer: "four on the four or
+swing is not a style change, and both of them should be in the final piece.
+... you need to change the instrument parts. you need to change the style
+of music it evokes. you need to play with dynamics and tempo. you seem to
+have forgotten all of the lessons of the previous two completed pieces."
+
+The lessons were on disk. Conatus rule 8: change at least three of owner,
+pulse-keeper, bass job, key and drum behaviour at each seam; its form map
+also changes tempo at most seams and technique (pizz to arco, lattice to
+pillars) and dynamic plan. Anamnesis changes the melody owner, the motion
+layer and what is withdrawn at every seam, and interruptions contrast by
+articulation and subdivision. A groove variant changes none of these.
+
+How to apply, before calling any section a style change:
+
+- Name the music it evokes in one phrase, and make it a different phrase
+  from the neighbouring section's (pocket / processional hymn / aria /
+  hocket / fanfare). If the phrase is the same genre with a different beat,
+  it is a variant, not a change.
+- Change the melody owner and the pulse-keeper, and withdraw at least one
+  layer for several bars.
+- Change technique in the parts that stay: pizzicato to arco, staccato to
+  slurred, chank to sustained chords, tremolo, mutes.
+- Change the tempo, or write a real dynamic plan (a swell, a subito, a
+  fermata), or both. Fixed per-layer levels are a groove's plan, not a
+  section's.
+- Change the harmonic rhythm or the mode's colour (an inversion pedal, a
+  Neapolitan, a new accidental spent as an event).
+- Keep the rejected variants: four on the floor and swing are devices for
+  other sections of the same piece, not the section contrast.
