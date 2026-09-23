@@ -470,3 +470,47 @@ How to apply, before calling any section a style change:
   Neapolitan, a new accidental spent as an event).
 - Keep the rejected variants: four on the floor and swing are devices for
   other sections of the same piece, not the section contrast.
+
+## 21. Contrast must not spend the identity
+
+Boreal Pocket, 2026-09-22. After §20 I wrote contrasting sections that
+changed everything, and each one lost the funk: a processional hymn, an
+octave ground under a sixteenth engine, a cantabile soul ballad. The
+composer: the piece "doesn't maintain a strong orchestral funk identity
+while still providing different sections." §20 told me what a contrast must
+change. I read it as permission to change all of it, including what made
+the piece itself.
+
+The mechanism: I kept the identity in one section's arrangement (the pocket
+in A) instead of in materials that can travel. So every contrast had to
+leave the identity behind. The repair is to name, before designing any
+form, the few things that must be audible in every section, and to state
+them as relationships that survive a change of owner, tempo and texture:
+
+- a motif that can become a bass line, a solo, a fugue subject, a stop-time
+  fill or a tutti unison (the bassoon hook);
+- a metric relationship (a weighted One against lighter sixteenths; a
+  backbeat), whoever plays it;
+- a role relationship (singer and backup), whichever parts hold it;
+- a harmonic idiom (moving extended chords).
+
+Then vary everything else at each seam, as §20 asks. When I design a new
+section, I check two things. Does it evoke a different music? And can a
+listener dropped into its middle still tell which piece it belongs to? A
+section that fails the second test is a different piece, however well it
+contrasts.
+
+Transformations that kept the identity while the style changed in Boreal
+Pocket: the hook's rhythm as a unison break at section seams
+(`dsl:orch.tutti/OT9_STOP_AND_PROCLAIM`); the hook as a fugue subject, so
+the "orchestral" section is made of the funk material
+(`dsl:fugue/FG1_EXPOSITION`, `FG3_STRETTO`); the hook raised into the tenor
+as the bassoon's swung solo; the hook as the answer in a broken call with
+the chant (`dsl:callresponse/X2_BROKEN_CALL`); the backbeat moved from cello
+answers to claps, to a tom cell, to a violin chop. The return took one
+element from each section instead of repeating the first period.
+
+Boundary or gradient (§10): this is a gradient that corrects my bias
+towards buying contrast with the identity. The list above held for this
+piece. It is not a quota, and a piece may deliberately leave its identity
+for one episode if that departure is the event.

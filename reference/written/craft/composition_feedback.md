@@ -108,6 +108,20 @@ more syncopation or removing the pulse to make the work seem orchestral would
 repeat the failure. This is a correction to the rejected scheme, not a ban on
 free rhythm or a claim that the next delivery has passed listening review.
 
+## September 22: contrast that spends the identity
+
+The composer called Boreal Pocket's 32-bar kernel mediocre. It "doesn't
+maintain a strong orchestral funk identity while still providing different
+sections." Every contrasting section had removed the hook, the metric
+weighting, the backbeat and the singer/backup relationship together.
+[Ensemble §21](ensemble_binding_and_grid.md#21-contrast-must-not-spend-the-identity)
+now asks for those elements to be named as portable relationships before
+form design, so they can be transformed in every section while §20's
+contrast axes change. The 96-bar recomposition
+(`sigillum-explorations/explorations/boreal_pocket/docs/39_ninety_six_bars.md`)
+is a candidate realization awaiting listening judgment, not evidence that
+the lesson works.
+
 ## Executable examples already available
 
 These source files were read when mapping the feedback; their musical notes
