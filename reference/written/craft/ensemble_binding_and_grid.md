@@ -511,6 +511,39 @@ answers to claps, to a tom cell, to a violin chop. The return took one
 element from each section instead of repeating the first period.
 
 Boundary or gradient (§10): this is a gradient that corrects my bias
-towards buying contrast with the identity. The list above held for this
+towards buying contrast with the identity.
+
+## 22. Compose the joints: bridges, key ladders, a tune that travels
+
+Boreal Pocket refinement, 2026-09-23. The composer accepted the section plan.
+They said some sections "sound as if there should be a transition between
+them - overlap, flowing voices" (but not 32/33, where a unison break and
+silence are the event). They wanted key signature changes that walk up by
+whole steps and resolve, unlike the other finished pieces, and more returns
+of the horn's bars 4–9. I had designed each section as its own arrangement,
+so nothing was composed at the joints between sections.
+
+How to apply:
+
+- At every seam, decide whether it is a cut or a bridge. A cut is right when
+  the break itself is the event: a unison stop, a silence, or a subito. A
+  tempo change with no carried material is not a cut; it is a missing
+  bridge. The bridges I used were a tempo ramp (accel./rit.) into the new
+  tempo, a voice held across the barline while the others change, and a
+  run or pickup that leads by step into the next section's first note.
+- Treat key motion as a composed ladder, not just a new key per section: a
+  passage written a whole step higher partway through, and again, and then
+  a resolution. That resolution does not have to come by a fifth. A
+  deceptive V to bVI up a semitone lands home without one. Pivot on a
+  shared bass note where possible.
+- Once the composer names a phrase as strong, give it a travelling life:
+  return its halves separately (a pickup and landing; a hold and falling
+  dyads) in other sections, and state it complete at structural joints,
+  especially retransitions and the final bars.
+
+Boundary or gradient: the composer's key preference (whole-step walks, not
+circle-of-fifths motion, varied from piece to piece) is a stated taste for
+this album and a boundary for it. The bridge/cut decision and the motif
+travel are gradients. The list above held for this
 piece. It is not a quota, and a piece may deliberately leave its identity
 for one episode if that departure is the event.
