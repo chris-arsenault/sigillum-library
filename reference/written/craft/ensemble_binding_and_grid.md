@@ -511,7 +511,9 @@ answers to claps, to a tom cell, to a violin chop. The return took one
 element from each section instead of repeating the first period.
 
 Boundary or gradient (§10): this is a gradient that corrects my bias
-towards buying contrast with the identity.
+towards buying contrast with the identity. The list above held for this
+piece. It is not a quota, and a piece may deliberately leave its identity
+for one episode if that departure is the event.
 
 ## 22. Compose the joints: bridges, key ladders, a tune that travels
 
@@ -544,6 +546,37 @@ How to apply:
 Boundary or gradient: the composer's key preference (whole-step walks, not
 circle-of-fifths motion, varied from piece to piece) is a stated taste for
 this album and a boundary for it. The bridge/cut decision and the motif
-travel are gradients. The list above held for this
-piece. It is not a quota, and a piece may deliberately leave its identity
-for one episode if that departure is the event.
+travel are gradients.
+
+## 23. Give sung roles only to what a choir sample can sing; give swing a floor
+
+Boreal Pocket, 2026-09-24. The composer preferred the piece with the chant
+muted, though that left holes. I had given one sampled low-voice choir five
+jobs: backup answers, claps, a lead, riff hits and final callbacks, mostly as
+single syllables on quarters and eighths. The composer's model for a choir in
+this piece is the declamation of *Liberi Fatali*: short phrases, then a rest
+the orchestra answers.
+
+How to apply:
+
+- List what the voice part does in each section before writing it. Keep the
+  choir where declamation is the point: a few syllables per phrase, repeated
+  notes and fourths or fifths, and a held, accented last syllable (open
+  fifths and octaves carry it). Give answers, pickups and hits to an
+  instrument. In Boreal Pocket a trombone in the chant's register did this,
+  which made a brass section with the horn.
+- A backbeat carried only by a vocal "clap" disappears when the voice goes.
+  Give it to an instrument that holds a steady cell.
+
+The same pass fixed the swing section. The composer could hear its ideas
+only when playing it on piano, where they supplied the beat themselves. Every
+layer syncopated and nothing marked the quarter note: the contrabass sounded
+on 14 of 64 beats, and there were no drums. Swung sixteenths need a floor:
+a bass on every quarter, a ride in the swing pattern, a clean backbeat, and
+fewer ghost notes in the parts that syncopate. Check it by counting
+attacks per beat, not by reading a rhythm chart.
+
+Boundary or gradient: the composer's limits on the choir (one or two
+sections, declamatory) are boundaries for this piece. The quarter-note floor
+under swung subdivisions is a gradient that corrects my habit of letting
+every layer syncopate.
