@@ -18,7 +18,7 @@ production_piece "Technique Card OPC3_CLIMAX_STACK - OPC3_CLIMAX_STACK" do
     part :trombone, "Trombone", music21: "Trombone", family: :brass, description: "Trombone"
     part :violin_i, "Violin I", music21: "Violin", family: :string, description: "Violin"
     part :violoncello, "Violoncello", music21: "Violoncello", family: :string, description: "Violoncello"
-    part :timpani, "Timpani", music21: "Timpani", family: :percussion, description: "Timpani"
+    part :timpani, "Timpani", music21: "Timpani", family: :pitched_percussion, description: "Timpani"
     part :cymbals, "Cymbals", music21: "Percussion", family: :other, description: "Percussion"
     part :bass_drum, "Bass Drum", music21: "Percussion", family: :other, description: "Percussion"
     part :tam_tam, "Tam-tam", music21: "Percussion", family: :other, description: "Percussion"

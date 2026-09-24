@@ -23,7 +23,7 @@ production_piece "Technique Card OPC7_CHOIR_MODES - OPC7_CHOIR_MODES" do
     part :violin, "Violin", music21: "Violin", family: :string, description: "Violin"
     part :viola, "Viola", music21: "Viola", family: :string, description: "Viola"
     part :violoncello, "Violoncello", music21: "Violoncello", family: :string, description: "Violoncello"
-    part :timpani, "Timpani", music21: "Timpani", family: :percussion, description: "Timpani"
+    part :timpani, "Timpani", music21: "Timpani", family: :pitched_percussion, description: "Timpani"
   end
 
   section :card, "OPC7_CHOIR_MODES", bars: 1..8, type: :technique_card do

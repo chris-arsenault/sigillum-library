@@ -21,7 +21,7 @@ production_piece "Technique Card OD7_MELODY_RELIEF - OD7_MELODY_RELIEF" do
     part :bassoon, "Bassoon", music21: "Bassoon", family: :woodwind, description: "Bassoon"
     part :horn, "Horn", music21: "Horn", family: :brass, description: "Horn"
     part :trumpet, "Trumpet", music21: "Trumpet", family: :brass, description: "Trumpet"
-    part :timpani, "Timpani", music21: "Timpani", family: :percussion, description: "Timpani"
+    part :timpani, "Timpani", music21: "Timpani", family: :pitched_percussion, description: "Timpani"
     part :violin_i, "Violin I", music21: "Violin", family: :string, description: "Violin"
     part :violin_ii, "Violin II", music21: "Violin", family: :string, description: "Violin"
     part :viola, "Viola", music21: "Viola", family: :string, description: "Viola"

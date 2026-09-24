@@ -16,7 +16,7 @@ production_piece "Technique Card OC4_ADDED_COLOR - OC4_ADDED_COLOR" do
 
   roster do
     part :flute, "Flute", music21: "Flute", family: :woodwind, description: "Flute"
-    part :glockenspiel, "Glockenspiel", music21: "Glockenspiel", family: :percussion, description: "Glockenspiel"
+    part :glockenspiel, "Glockenspiel", music21: "Glockenspiel", family: :pitched_percussion, description: "Glockenspiel"
     part :celesta, "Celesta", music21: "Celesta", family: :keyboard, description: "Celesta"
     part :harp, "Harp", music21: "Harp", family: :plucked, description: "Harp"
     part :violin_i, "Violin I", music21: "Violin", family: :string, description: "Violin"

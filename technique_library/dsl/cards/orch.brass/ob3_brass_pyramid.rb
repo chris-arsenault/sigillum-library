@@ -25,7 +25,7 @@ production_piece "Technique Card OB3_BRASS_PYRAMID - OB3_BRASS_PYRAMID" do
     part :trombone_2, "Trombone 2", music21: "Trombone", family: :brass, description: "Trombone"
     part :trombone_3, "Trombone 3", music21: "Trombone", family: :brass, description: "Trombone"
     part :tuba, "Tuba", music21: "Tuba", family: :brass, description: "Tuba"
-    part :timpani, "Timpani", music21: "Timpani", family: :percussion, description: "Timpani"
+    part :timpani, "Timpani", music21: "Timpani", family: :pitched_percussion, description: "Timpani"
   end
 
   section :card, "OB3_BRASS_PYRAMID", bars: 1..8, type: :technique_card do

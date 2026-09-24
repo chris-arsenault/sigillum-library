@@ -67,6 +67,43 @@ module Partitura
         "Violin" => 41,
         "Violoncello" => 43
       }.freeze
+      # MusicXML standard instrument-sound ids, keyed by music21 instrument name.
+      # Notation programs map imported parts to instruments from these. Unlisted
+      # instruments export without one and are identified by name.
+      INSTRUMENT_SOUNDS = {
+        "Alto" => "voice.alto",
+        "Baritone" => "voice.baritone",
+        "Bass" => "voice.bass",
+        "BassClarinet" => "wind.reed.clarinet.bass",
+        "BassTrombone" => "brass.trombone.bass",
+        "Bassoon" => "wind.reed.bassoon",
+        "Celesta" => "keyboard.celesta",
+        "Clarinet" => "wind.reed.clarinet",
+        "Contrabass" => "strings.contrabass",
+        "Contrabassoon" => "wind.reed.contrabassoon",
+        "ElectricBass" => "pluck.bass.electric",
+        "EnglishHorn" => "wind.reed.english-horn",
+        "Flute" => "wind.flutes.flute",
+        "Glockenspiel" => "pitched-percussion.glockenspiel",
+        "Harp" => "pluck.harp",
+        "Horn" => "brass.french-horn",
+        "Marimba" => "pitched-percussion.marimba",
+        "Oboe" => "wind.reed.oboe",
+        "Piano" => "keyboard.piano",
+        "Piccolo" => "wind.flutes.flute.piccolo",
+        "Soprano" => "voice.soprano",
+        "Tenor" => "voice.tenor",
+        "Timpani" => "drum.timpani",
+        "Trombone" => "brass.trombone",
+        "Trumpet" => "brass.trumpet",
+        "TubularBells" => "pitched-percussion.tubular-bells",
+        "Tuba" => "brass.tuba",
+        "Vibraphone" => "pitched-percussion.vibraphone",
+        "Viola" => "strings.viola",
+        "Violin" => "strings.violin",
+        "Violoncello" => "strings.cello",
+        "Xylophone" => "pitched-percussion.xylophone"
+      }.freeze
 
       ALTO_CLEF_INSTRUMENTS = %w[
         Viola

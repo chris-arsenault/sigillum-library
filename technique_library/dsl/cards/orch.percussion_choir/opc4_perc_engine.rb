@@ -17,7 +17,7 @@ production_piece "Technique Card OPC4_PERC_ENGINE - OPC4_PERC_ENGINE" do
   roster do
     part :snare, "Snare", music21: "Percussion", family: :other, description: "Percussion"
     part :bass_drum, "Bass Drum", music21: "Percussion", family: :other, description: "Percussion"
-    part :timpani, "Timpani", music21: "Timpani", family: :percussion, description: "Timpani"
+    part :timpani, "Timpani", music21: "Timpani", family: :pitched_percussion, description: "Timpani"
     part :horn, "Horn", music21: "Horn", family: :brass, description: "Horn"
     part :trumpet, "Trumpet", music21: "Trumpet", family: :brass, description: "Trumpet"
     part :violoncello, "Violoncello", music21: "Violoncello", family: :string, description: "Violoncello"

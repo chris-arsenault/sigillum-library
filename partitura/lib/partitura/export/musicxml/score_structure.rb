@@ -54,7 +54,8 @@ module Partitura
               xml,
               instrument_xml_id(index),
               part_name_for(part),
-              instrument_abbreviation_for(part, abbreviation_for(part))
+              instrument_abbreviation_for(part, abbreviation_for(part)),
+              instrument_sound_for(part)
             )
             return
           end
@@ -64,16 +65,24 @@ module Partitura
               xml,
               percussion_instrument_xml_id(index, entry_index),
               entry.fetch("name"),
-              entry.fetch("abbreviation")
+              entry.fetch("abbreviation"),
+              entry["sound"]
             )
           end
         end
 
-        def render_score_instrument(xml, id, name, abbreviation)
+        def render_score_instrument(xml, id, name, abbreviation, sound)
           xml.open("score-instrument", "id" => id)
           xml.element("instrument-name", name)
           xml.element("instrument-abbreviation", abbreviation)
+          xml.element("instrument-sound", sound) if sound
           xml.close("score-instrument")
+        end
+
+        def instrument_sound_for(part)
+          return nil if part.fetch("render_kind") == "notes"
+
+          INSTRUMENT_SOUNDS[part["music21_instrument"]]
         end
 
         def render_midi_instruments(xml, part, index, instrument_id)

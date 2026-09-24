@@ -25,7 +25,7 @@ production_piece "Technique Card OPC8_CHOIR_ENTRY - OPC8_CHOIR_ENTRY" do
     part :violin, "Violin", music21: "Violin", family: :string, description: "Violin"
     part :violoncello, "Violoncello", music21: "Violoncello", family: :string, description: "Violoncello"
     part :contrabass, "Contrabass", music21: "Contrabass", family: :string, description: "Contrabass"
-    part :timpani, "Timpani", music21: "Timpani", family: :percussion, description: "Timpani"
+    part :timpani, "Timpani", music21: "Timpani", family: :pitched_percussion, description: "Timpani"
   end
 
   section :card, "OPC8_CHOIR_ENTRY", bars: 1..8, type: :technique_card do

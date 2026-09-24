@@ -24,7 +24,7 @@ production_piece "Technique Card OC2_BELL_HALO - OC2_BELL_HALO" do
     part :violoncello, "Violoncello", music21: "Violoncello", family: :string, description: "Violoncello"
     part :harp, "Harp", music21: "Harp", family: :plucked, description: "Harp"
     part :celesta, "Celesta", music21: "Celesta", family: :keyboard, description: "Celesta"
-    part :glockenspiel, "Glockenspiel", music21: "Glockenspiel", family: :percussion, description: "Glockenspiel"
+    part :glockenspiel, "Glockenspiel", music21: "Glockenspiel", family: :pitched_percussion, description: "Glockenspiel"
     part :contrabass, "Contrabass", music21: "Contrabass", family: :string, description: "Contrabass"
   end
 

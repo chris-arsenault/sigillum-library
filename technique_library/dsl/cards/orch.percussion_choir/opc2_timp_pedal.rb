@@ -14,7 +14,7 @@ production_piece "Technique Card OPC2_TIMP_PEDAL - OPC2_TIMP_PEDAL" do
 #   root, horns hold V->I, all cut after the arrival
 
   roster do
-    part :timpani, "Timpani", music21: "Timpani", family: :percussion, description: "Timpani"
+    part :timpani, "Timpani", music21: "Timpani", family: :pitched_percussion, description: "Timpani"
     part :horn, "Horn", music21: "Horn", family: :brass, description: "Horn"
     part :violoncello, "Violoncello", music21: "Violoncello", family: :string, description: "Violoncello"
     part :contrabass, "Contrabass", music21: "Contrabass", family: :string, description: "Contrabass"

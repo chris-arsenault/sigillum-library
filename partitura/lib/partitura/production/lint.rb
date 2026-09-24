@@ -17,8 +17,16 @@ module Partitura
       DEFAULTS = {
         phrase_length: { enabled: true, warn: 8, error: 24 },
         surface_nudges: { enabled: true },
-        anacrusis_overlaps: { enabled: true }
+        anacrusis_overlaps: { enabled: true },
+        pitched_percussion_family: { enabled: true }
       }.freeze
+
+      # Instruments that sound definite pitches. Declared with family :percussion they
+      # are analysed and exported as unpitched drums (channel 10, no pitch).
+      PITCHED_PERCUSSION_INSTRUMENTS = %w[
+        Celesta Crotales Glockenspiel Marimba SteelDrum Timpani TubularBells
+        Vibraphone Xylophone
+      ].freeze
 
       NUDGE_MIN_NOTES = 8
       NUDGE_MIN_PITCH_CLASSES = 4
@@ -35,7 +43,25 @@ module Partitura
         lints.concat(phrase_length_lints(piece, phrases, config.fetch(:phrase_length)))
         lints.concat(surface_nudge_lints(phrases)) if config.fetch(:surface_nudges).fetch(:enabled)
         lints.concat(anacrusis_overlap_lints(piece)) if config.fetch(:anacrusis_overlaps).fetch(:enabled)
+        if config.fetch(:pitched_percussion_family).fetch(:enabled)
+          lints.concat(pitched_percussion_family_lints(piece))
+        end
         lints
+      end
+
+      def pitched_percussion_family_lints(piece)
+        piece.parts.each_value.filter_map do |part|
+          next unless part.family.to_s == "percussion" && part.percussion_map.empty?
+          next unless PITCHED_PERCUSSION_INSTRUMENTS.include?(part.music21_instrument.to_s)
+
+          {
+            rule: "pitched_percussion_family", level: "warn", part: part.id.to_s,
+            message: "#{part.name} (#{part.music21_instrument}) is declared family: :percussion, " \
+                     "so it is analysed and exported as an unpitched drum on channel 10. " \
+                     "Declare family: :pitched_percussion to keep its pitches.",
+            help_topic: "container"
+          }
+        end
       end
 
       def diagnostics(lints)

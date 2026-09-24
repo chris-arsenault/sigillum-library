@@ -27,7 +27,7 @@ production_piece "Technique Card OG8_SWALLOWING_BG - OG8_SWALLOWING_BG" do
     part :trombone, "Trombone", music21: "Trombone", family: :brass, description: "Trombone"
     part :violoncello, "Violoncello", music21: "Violoncello", family: :string, description: "Violoncello"
     part :contrabass, "Contrabass", music21: "Contrabass", family: :string, description: "Contrabass"
-    part :timpani, "Timpani", music21: "Timpani", family: :percussion, description: "Timpani"
+    part :timpani, "Timpani", music21: "Timpani", family: :pitched_percussion, description: "Timpani"
     part :cymbals, "Cymbals", music21: "Cymbals", family: :percussion, description: "Cymbals"
   end
 

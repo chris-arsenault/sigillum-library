@@ -306,8 +306,6 @@ module Partitura
         end
 
         def part_name_for(part)
-          return "Crash Cymbals" if part["family"].to_s == "percussion" && part.fetch("name") == "Cymbals"
-
           part.fetch("name")
         end
 

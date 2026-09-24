@@ -11,7 +11,7 @@ production_piece "Technique Card D2_ANTIPHONAL_COMPRESSION - D2_ANTIPHONAL_COMPR
   roster do
     part :winds, "Winds", music21: "Flute", family: :woodwind, description: "Flute"
     part :brass, "Brass", music21: "Horn", family: :brass, description: "Horn"
-    part :timpani, "Timpani", music21: "Timpani", family: :percussion, description: "Timpani"
+    part :timpani, "Timpani", music21: "Timpani", family: :pitched_percussion, description: "Timpani"
   end
 
   section :card, "D2_ANTIPHONAL_COMPRESSION", bars: 1..8, type: :technique_card do

@@ -22,7 +22,7 @@ production_piece "Technique Card OT2_FULL_TUTTI - OT2_FULL_TUTTI" do
     part :trumpet, "Trumpet", music21: "Trumpet", family: :brass, description: "Trumpet"
     part :trombone, "Trombone", music21: "Trombone", family: :brass, description: "Trombone"
     part :tuba, "Tuba", music21: "Tuba", family: :brass, description: "Tuba"
-    part :timpani, "Timpani", music21: "Timpani", family: :percussion, description: "Timpani"
+    part :timpani, "Timpani", music21: "Timpani", family: :pitched_percussion, description: "Timpani"
     part :violin_i, "Violin I", music21: "Violin", family: :string, description: "Violin"
     part :violin_ii, "Violin II", music21: "Violin", family: :string, description: "Violin"
     part :viola, "Viola", music21: "Viola", family: :string, description: "Viola"

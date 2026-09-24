@@ -24,7 +24,7 @@ production_piece "Technique Card OPC6_UNPITCHED_STINGER - OPC6_UNPITCHED_STINGER
     part :horn, "Horn", music21: "Horn", family: :brass, description: "Horn"
     part :violin, "Violin", music21: "Violin", family: :string, description: "Violin"
     part :violoncello, "Violoncello", music21: "Violoncello", family: :string, description: "Violoncello"
-    part :timpani, "Timpani", music21: "Timpani", family: :percussion, description: "Timpani"
+    part :timpani, "Timpani", music21: "Timpani", family: :pitched_percussion, description: "Timpani"
   end
 
   section :card, "OPC6_UNPITCHED_STINGER", bars: 1..7, type: :technique_card do

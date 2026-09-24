@@ -13,7 +13,7 @@ production_piece "Technique Card O6_STRATA_LATTICE - O6_STRATA_LATTICE" do
     part :violin_ii, "Violin II", music21: "Violin", family: :string, description: "Violin"
     part :horns, "Horns", music21: "Horn", family: :brass, description: "Horn"
     part :violoncello, "Violoncello", music21: "Violoncello", family: :string, description: "Violoncello"
-    part :timpani, "Timpani", music21: "Timpani", family: :percussion, description: "Timpani"
+    part :timpani, "Timpani", music21: "Timpani", family: :pitched_percussion, description: "Timpani"
   end
 
   section :card, "O6_STRATA_LATTICE", bars: 1..8, type: :technique_card do

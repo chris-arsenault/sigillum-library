@@ -21,7 +21,7 @@ production_piece "Technique Card OPC5_COLOR_SPARKLE - OPC5_COLOR_SPARKLE" do
     part :violin, "Violin", music21: "Violin", family: :string, description: "Violin"
     part :viola, "Viola", music21: "Viola", family: :string, description: "Viola"
     part :violoncello, "Violoncello", music21: "Violoncello", family: :string, description: "Violoncello"
-    part :glockenspiel, "Glockenspiel", music21: "Glockenspiel", family: :percussion, description: "Glockenspiel"
+    part :glockenspiel, "Glockenspiel", music21: "Glockenspiel", family: :pitched_percussion, description: "Glockenspiel"
     part :celesta, "Celesta", music21: "Celesta", family: :keyboard, description: "Celesta"
     part :triangle, "Triangle", music21: "Triangle", family: :percussion, description: "Triangle"
     part :harp, "Harp", music21: "Harp", family: :plucked, description: "Harp"

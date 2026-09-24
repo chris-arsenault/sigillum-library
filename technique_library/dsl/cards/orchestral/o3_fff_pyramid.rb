@@ -15,7 +15,7 @@ production_piece "Technique Card O3_FFF_PYRAMID - O3_FFF_PYRAMID" do
     part :horns, "Horns", music21: "Horn", family: :brass, description: "Horn"
     part :trombones, "Trombones", music21: "Trombone", family: :brass, description: "Trombone"
     part :violoncello, "Violoncello", music21: "Violoncello", family: :string, description: "Violoncello"
-    part :timpani, "Timpani", music21: "Timpani", family: :percussion, description: "Timpani"
+    part :timpani, "Timpani", music21: "Timpani", family: :pitched_percussion, description: "Timpani"
     part :cymbal, "Cymbal", music21: "Percussion", family: :other, description: "Percussion"
   end
 

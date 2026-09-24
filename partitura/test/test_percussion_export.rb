@@ -30,6 +30,14 @@ class PercussionExportTest < Minitest::Test
     assert_equal %w[I1-1 I1-2 I1-3], (notes.map { |note| instrument_id(note) })
   end
 
+  def test_musicxml_names_each_device_with_a_standard_instrument_sound
+    document = render_document(mapped_percussion_piece)
+    score_part = REXML::XPath.first(document, "/score-partwise/part-list/score-part")
+
+    assert_equal %w[drum.snare-drum drum.bass-drum metal.cymbal.suspended],
+      REXML::XPath.match(score_part, "score-instrument/instrument-sound").map(&:text)
+  end
+
   def test_musicxml_rejects_undeclared_source_pitch
     piece = mapped_percussion_piece(event_text: "C2:1 E2:3")
 

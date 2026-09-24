@@ -24,7 +24,7 @@ production_piece "Technique Card OG6_TREMOLO_BED - OG6_TREMOLO_BED" do
     part :viola, "Viola", music21: "Viola", family: :string, description: "Viola"
     part :violoncello, "Violoncello", music21: "Violoncello", family: :string, description: "Violoncello"
     part :contrabass, "Contrabass", music21: "Contrabass", family: :string, description: "Contrabass"
-    part :timpani, "Timpani", music21: "Timpani", family: :percussion, description: "Timpani"
+    part :timpani, "Timpani", music21: "Timpani", family: :pitched_percussion, description: "Timpani"
   end
 
   section :card, "OG6_TREMOLO_BED", bars: 1..6, type: :technique_card do
