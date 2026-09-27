@@ -580,3 +580,76 @@ Boundary or gradient: the composer's limits on the choir (one or two
 sections, declamatory) are boundaries for this piece. The quarter-note floor
 under swung subdivisions is a gradient that corrects my habit of letting
 every layer syncopate.
+
+## 24. A second low voice needs a job of its own in every section
+
+Boreal Pocket, 2026-09-26. The composer liked the trombone's sound and found
+it underused. It mostly doubled the horn. It rarely called and answered. It
+never drove with the bass or held a slow note that built tension. I had
+defined it in every section relative to the horn: an answer in the horn's
+gaps, the horn's rhythm a sixth lower, or a unison break. 137 of its 213
+attacks landed with the horn. It held long notes only in 2 of 97 bars, and
+it sat out the ritual, the fugue and the shout.
+
+How to apply:
+
+- Before writing a low brass or low string line, name what it is defined
+  against in each span. Against the bass: octaves with the kick or the
+  four, or a walk. Against the harmony: guide-tone holds, or a pedal that
+  swells. Against the lead: hold under its call, move or rest under the
+  answer. Against itself: a counterline, the tailgate slide. Change the job
+  at seams, not per bar.
+- Where the lead moves, the second voice holds. Where the lead holds, it may
+  move. Under a busy bass hook, write holds (a different value class) or
+  octave doubling, never eighths in the hook's own octave.
+- Doubling the lead is a contrast resource for concerted moments: stabs,
+  shout choruses, stop time, breaks. It is not the default job.
+- Measure the line against the bass and the harmony, not only the lead.
+  Count held notes and shared onsets with the bass. A count of shared onsets
+  with the lead cannot tell concerted hits from shadowing.
+
+Boundary or gradient: keeping the section punches the composer liked was a
+boundary. The job-per-span rule is a gradient that corrects my habit of
+building a new voice as the old lead's shadow.
+
+## 25. A form is a story when every section has a cause and a consequence
+
+Boreal Pocket, 2026-09-26. The composer heard every section working (the
+swing, the xylophone and the chant each good on their own, every part with a
+decent anacrusis) and still heard no story: the contrasting styles "don't
+really belong. there isn't a reason for them to be there." I had designed the
+form as a tour. My own verdict at the time said the pocket travels through a
+dance floor, a ritual, the street and an argument, then comes home. A tour's
+stops are independent. They could come in any order, and nothing one does
+changes the next. Contrast between sections (§20) was in place. Causality
+was missing.
+
+How to apply:
+
+- Before placing sections, write the journey in a few sentences in which
+  each section happens because of the previous one. Then for each section,
+  name its cause (what in the music before asks for it) and its consequence
+  (what later music uses because it happened). A section with neither is a
+  stop on a tour.
+- One setup and its payoff carry more story than many callbacks. Boreal
+  Pocket's fix reordered existing music around one gesture: the push at
+  bar 20 (accelerando, a run upward, the next key anticipated) is cut off by
+  the ritual; the same push at 68 lands in the ballroom. The celebration
+  became the answer to a denial instead of an early peak.
+- A melody heard first as a quiet dream and then in full reads as a
+  promise. The same melody heard in full and then quietly reads only as a
+  memory. Order decides which one it is.
+- Place the brightest music where it releases the most accumulated tension,
+  usually late. Several same-sized peaks read as no destination.
+- Local key ladders can be chained into one long climb when their sections
+  become adjacent: B-flat, C, D, then D, E, F#.
+- Reordering is macro work. Keep the notes, re-seam only the joints whose
+  neighbours changed, and prove it: compare old timed events remapped to the
+  new bar order against the new ones, and account for every differing cell.
+- Interleaving styles in short blocks (a prog-style cut-up) is a device, not
+  a story. Use it when the story is a collision, and not where it would
+  fragment phrases the composer approved.
+
+Boundary or gradient: the composer's approval of the notes and phrases was a
+boundary (reorganize, don't recompose). The cause-and-consequence test is a
+gradient that corrects my habit of building forms as catalogues of contrasts.

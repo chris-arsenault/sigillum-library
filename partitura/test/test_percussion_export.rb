@@ -18,14 +18,15 @@ class PercussionExportTest < Minitest::Test
 
     assert_equal 1, REXML::XPath.match(document, "/score-partwise/part-list/score-part").length
     assert_equal 1, REXML::XPath.match(document, "/score-partwise/part").length
-    assert_equal ["Field Drum", "Concert Bass Drum", "Suspended Cymbal"],
+    assert_equal ["Field Drum", "Bass Drum", "Suspended Cymbal"],
       REXML::XPath.match(score_part, "score-instrument/instrument-name").map(&:text)
-    assert_equal %w[10 10 10], REXML::XPath.match(score_part, "midi-instrument/midi-channel").map(&:text)
-    assert_equal %w[39 37 50], REXML::XPath.match(score_part, "midi-instrument/midi-unpitched").map(&:text)
+    assert_equal %w[10 10], REXML::XPath.match(score_part, "midi-instrument/midi-channel").map(&:text)
+    assert_equal %w[39 50], REXML::XPath.match(score_part, "midi-instrument/midi-unpitched").map(&:text)
     assert_empty REXML::XPath.match(score_part, "midi-instrument/midi-program")
+    assert_empty REXML::XPath.match(document, "//staff-details")
     assert_equal 3, notes.length
     assert_empty REXML::XPath.match(document, "/score-partwise/part/measure/note/pitch")
-    assert_equal %w[C F A], (notes.map { |note| text_at(note, "unpitched/display-step") })
+    assert_equal %w[C E A], (notes.map { |note| text_at(note, "unpitched/display-step") })
     assert_equal %w[5 4 5], (notes.map { |note| text_at(note, "unpitched/display-octave") })
     assert_equal %w[I1-1 I1-2 I1-3], (notes.map { |note| instrument_id(note) })
   end
@@ -93,11 +94,11 @@ class PercussionExportTest < Minitest::Test
     assert_includes midi, [0x94, 43, 72].pack("C*")
 
     assert_equal ["percussion", nil], clef_signature(document, 7)
-    assert_equal %w[10 10 10 10 10 10], REXML::XPath.match(kit, "midi-instrument/midi-channel").map(&:text)
-    assert_equal %w[37 41 43 46 51 52], REXML::XPath.match(kit, "midi-instrument/midi-unpitched").map(&:text)
+    assert_equal %w[10 10 10 10 10], REXML::XPath.match(kit, "midi-instrument/midi-channel").map(&:text)
+    assert_equal %w[41 43 46 51 52], REXML::XPath.match(kit, "midi-instrument/midi-unpitched").map(&:text)
     assert_empty REXML::XPath.match(document, "/score-partwise/part[7]/measure/note/pitch")
     assert_equal 9, kit_notes.length
-    assert_equal %w[F G C G C A E F G], kit_notes.map { |note| text_at(note, "unpitched/display-step") }
+    assert_equal %w[E G C G C A E F G], kit_notes.map { |note| text_at(note, "unpitched/display-step") }
     assert_equal %w[4 5 5 5 5 4 5 5 5], kit_notes.map { |note| text_at(note, "unpitched/display-octave") }
     assert_equal %w[I7-1 I7-3], kit_notes.first(2).map { |note| instrument_id(note) }
     refute_nil REXML::XPath.first(kit_notes[1], "chord")

@@ -6,7 +6,12 @@ module Partitura
 
     # `sound` is the MusicXML standard instrument-sound id. Notation programs choose
     # the imported instrument from it; without it Dorico falls back to a generic kit
-    # piece (usually a tom). The ids match what Dorico itself exports.
+    # piece (usually a tom). The ids match what Dorico exports.
+    #
+    # Optional keys copy Dorico's own export where it differs from ours:
+    # `musicxml_midi: false` writes no <midi-instrument> (a channel-10 kick key made
+    # Dorico import the concert bass drum as a drum set), and `staff_lines` sets the
+    # staff when the device has its part to itself. The MIDI file still uses `midi_note`.
     DEVICES = {
       field_drum: {
         name: "Field Drum",
@@ -17,12 +22,14 @@ module Partitura
         sound: "drum.snare-drum"
       }.freeze,
       concert_bass_drum: {
-        name: "Concert Bass Drum",
+        name: "Bass Drum",
         abbreviation: "B. Dr.",
         midi_note: 36,
-        display_step: "F",
+        display_step: "E",
         display_octave: 4,
-        sound: "drum.bass-drum"
+        sound: "drum.bass-drum",
+        musicxml_midi: false,
+        staff_lines: 1
       }.freeze,
       electric_snare: {
         name: "Electric Snare",
@@ -105,7 +112,9 @@ module Partitura
           midi_note: device.fetch(:midi_note),
           display_step: device.fetch(:display_step),
           display_octave: device.fetch(:display_octave),
-          sound: device.fetch(:sound)
+          sound: device.fetch(:sound),
+          musicxml_midi: device.fetch(:musicxml_midi, true),
+          staff_lines: device[:staff_lines]
         }
       end
     end

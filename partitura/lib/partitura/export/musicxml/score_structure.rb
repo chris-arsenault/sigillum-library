@@ -93,6 +93,8 @@ module Partitura
           end
 
           entries.each_with_index do |entry, entry_index|
+            next if entry["musicxml_midi"] == false
+
             render_midi_instrument(
               xml,
               percussion_instrument_xml_id(index, entry_index),
@@ -242,8 +244,23 @@ module Partitura
             sign, line = clef_for_part_at_bar(part, bar)
             render_clef(xml, sign, line)
           end
+          render_staff_lines(xml, part) if initial_bar
           render_transpose(xml, part) if initial_bar
           xml.close("attributes")
+        end
+
+        # A single-device percussion part takes that device's staff (Dorico writes a
+        # one-line staff for a lone bass drum); kits keep five lines.
+        def render_staff_lines(xml, part)
+          entries = percussion_map_entries(part)
+          return unless entries.length == 1
+
+          lines = entries.first["staff_lines"]
+          return unless lines
+
+          xml.open("staff-details")
+          xml.element("staff-lines", lines.to_s)
+          xml.close("staff-details")
         end
 
         def render_transpose(xml, part)

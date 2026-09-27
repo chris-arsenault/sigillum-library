@@ -22,6 +22,28 @@ class InstrumentSoundsTest < Minitest::Test
     assert_equal %w[drum.bass-drum drum.tom-tom metal.cymbal.ride metal.cymbal.suspended], sounds
   end
 
+  # Dorico's own export of a lone bass drum: one-line staff, note on E4, no
+  # <midi-instrument>. Our channel-10 kick key made Dorico import it as a drum set.
+  def test_lone_bass_drum_matches_dorico_form
+    document = render_document(single_device_parts_piece)
+    bass_drum = REXML::XPath.first(document, "/score-partwise/part-list/score-part[1]")
+    tom = REXML::XPath.first(document, "/score-partwise/part-list/score-part[2]")
+    first_note = REXML::XPath.first(document, "/score-partwise/part[1]/measure/note")
+
+    assert_equal "Bass Drum", text_at(bass_drum, "score-instrument/instrument-name")
+    assert_empty REXML::XPath.match(bass_drum, "midi-instrument")
+    assert_equal "1", text_at(document, "/score-partwise/part[1]/measure/attributes/staff-details/staff-lines")
+    assert_equal %w[E 4], [text_at(first_note, "unpitched/display-step"), text_at(first_note, "unpitched/display-octave")]
+    assert_equal "46", text_at(tom, "midi-instrument/midi-unpitched")
+    assert_empty REXML::XPath.match(document, "/score-partwise/part[2]/measure/attributes/staff-details")
+  end
+
+  def test_lone_bass_drum_still_sounds_in_midi
+    midi = Partitura::Export::MIDI.render(single_device_parts_piece)
+
+    assert_includes midi, [0x99, 36, 72].pack("C*")
+  end
+
   def test_pitched_parts_carry_instrument_sounds_and_stay_pitched
     document = render_document(pitched_sound_piece(xylophone_family: :pitched_percussion))
     sounds = REXML::XPath.match(document, "//score-part/score-instrument/instrument-sound").map(&:text)
