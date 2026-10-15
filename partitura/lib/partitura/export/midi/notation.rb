@@ -63,7 +63,9 @@ module Partitura
         end
 
         def needs_notes_part?
-          Array(@data["controls"]).any? { |control| control["kind"] == "text" }
+          Array(@data["controls"]).any? do |control|
+            control["kind"] == "text" && control.dig("target", "type") == "all"
+          end
         end
       end
     end

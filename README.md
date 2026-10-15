@@ -13,6 +13,13 @@ to treat a large wiki as working memory. See
 
 ## Start Here (LLM agents)
 
+For conversational composition, connect the client to `partitura/bin/partitura mcp
+--root /path/to/workspace`. Start with `composer_start`, then read and revise musical
+content through the tools. Partitura owns Ruby construction, timing, persistence and
+exports. See [composer setup and contracts](docs/architecture/partitura/13_composer_application.md).
+
+For library development and existing source workflows:
+
 Run `partitura/bin/partitura` bare for the verb map, then run
 `partitura/bin/partitura help index`. Follow the focused topic whose `use_when`
 matches the current decision and load its Markdown references only when its short
@@ -23,6 +30,7 @@ Useful entry points:
 
 ```bash
 partitura/bin/partitura help llm_design
+partitura/bin/partitura help composer
 partitura/bin/partitura help production
 partitura/bin/partitura help roster
 partitura/bin/partitura commands view --json

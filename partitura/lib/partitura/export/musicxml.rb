@@ -63,6 +63,7 @@ module Partitura
         "Trumpet" => 57,
         "Trombone" => 58,
         "Tuba" => 59,
+        "TubularBells" => 15,
         "Viola" => 42,
         "Violin" => 41,
         "Violoncello" => 43

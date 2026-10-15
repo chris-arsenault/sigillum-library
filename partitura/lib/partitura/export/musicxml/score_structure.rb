@@ -53,9 +53,10 @@ module Partitura
             render_score_instrument(
               xml,
               instrument_xml_id(index),
-              part_name_for(part),
+              instrument_name_for(part),
               instrument_abbreviation_for(part, abbreviation_for(part)),
-              instrument_sound_for(part)
+              instrument_sound_for(part),
+              ensemble: part["ensemble"]
             )
             return
           end
@@ -66,17 +67,27 @@ module Partitura
               percussion_instrument_xml_id(index, entry_index),
               entry.fetch("name"),
               entry.fetch("abbreviation"),
-              entry["sound"]
+              entry["sound"],
+              ensemble: part["ensemble"]
             )
           end
         end
 
-        def render_score_instrument(xml, id, name, abbreviation, sound)
+        def render_score_instrument(xml, id, name, abbreviation, sound, ensemble: nil)
           xml.open("score-instrument", "id" => id)
           xml.element("instrument-name", name)
           xml.element("instrument-abbreviation", abbreviation)
           xml.element("instrument-sound", sound) if sound
+          render_ensemble(xml, ensemble)
           xml.close("score-instrument")
+        end
+
+        def render_ensemble(xml, ensemble)
+          case ensemble
+          when true then xml.empty("ensemble")
+          when false then xml.empty("solo")
+          when Integer then xml.element("ensemble", ensemble.to_s)
+          end
         end
 
         def instrument_sound_for(part)

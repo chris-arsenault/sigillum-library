@@ -9,6 +9,12 @@ The agent should rely on executable discovery, typed source, focused projections
 persisted state instead of holding a raw documentation wiki or the full score in context.
 See `LLM_CONTEXT_ARCHITECTURE.md` for the general design.
 
+Conversational composition uses the composer application's musical tools and its
+client-facing guide; see `13_composer_application.md`. The application constructs
+production objects and owns its Ruby source. The rules below govern direct DSL
+authoring; they do not require an MCP composer to operate repository tools or choose
+among every DSL surface.
+
 ## Rules
 
 - The source must expose musical relationships, not just final notes.

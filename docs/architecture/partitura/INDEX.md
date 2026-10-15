@@ -25,6 +25,7 @@ directory by default.
 
 | Task | First command | Deep reference |
 |---|---|---|
+| Compose conversationally without repository editing | `partitura help composer` | `13_composer_application.md` |
 | Inspect exact command arguments or side effects | `partitura commands COMMAND --json` | `08_cli_and_guided_runs.md` |
 | Discover current runtime values | `partitura catalog` | `03_jit_docs_api.md` |
 | Find a current example by status | `partitura help examples` | `04_examples_manifest.md` |
@@ -70,6 +71,9 @@ repository root, run them as `partitura/bin/partitura ...`.
 - `10_score_observation.md` - content-addressed external MusicXML/MXL facts.
 - `11_annotation_observation.md` - versioned bindings from supported annotations to a
   score observation.
+- `12_perceptual_analysis.md` - sounding perceptual projections and their limits.
+- `13_composer_application.md` - musical authoring service, stdio MCP, source ownership
+  and client setup.
 
 ## Production Surface
 

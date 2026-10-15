@@ -81,6 +81,13 @@ module Partitura
       }.freeze
     }.freeze
 
+    # Extend the selected lone-bass-drum import form to these standalone devices.
+    # A multi-device staff keeps its kit positions and MIDI metadata.
+    STANDALONE_DEVICES = %i[field_drum suspended_cymbal].freeze
+    STANDALONE_NOTATION = {
+      musicxml_midi: false, staff_lines: 1, display_step: "E", display_octave: 4
+    }.freeze
+
     module_function
 
     def normalize_map(value)
@@ -104,6 +111,9 @@ module Partitura
     def export_map(mapping)
       mapping.map do |source_pitch, device_id|
         device = DEVICES.fetch(device_id)
+        if mapping.length == 1 && STANDALONE_DEVICES.include?(device_id)
+          device = device.merge(STANDALONE_NOTATION)
+        end
         {
           source_pitch: source_pitch,
           device: device_id.to_s,

@@ -11,6 +11,12 @@ structural mistakes, and preserves exact state across context changes. It does n
 musical taste, replace judgment, or teach facts that are absent from its documentation,
 examples, and runtime.
 
+The [composer application](13_composer_application.md) extends this pattern to writing:
+a conversational agent reads and submits musical content through MCP, while Partitura
+constructs the production objects and handles timing, validation, persistence and export.
+Its client guide concerns musical work rather than Ruby authoring. Existing direct DSL
+and guided CLI workflows remain available to source consumers and library developers.
+
 ## Why A Markdown Wiki Alone Is Not Enough
 
 Markdown remains useful for explanations, examples, craft knowledge, and design rationale.

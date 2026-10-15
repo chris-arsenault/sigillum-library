@@ -30,6 +30,9 @@ module Partitura
     require_relative "cli_graph_commands"
 
     COMMANDS = {
+      "mcp" => command(category: :compose, summary: "Serve musical authoring tools over stdio MCP.",
+        usage: "mcp [--root WORKSPACE]", effect: :write, output: :mcp_messages, help_topic: :composer,
+        options: [{ flag: "--root", type: "directory", default: "project root" }]),
       "commands" => command(
         category: :discover, summary: "Describe all CLI commands or one command as typed data.",
         usage: "commands [COMMAND] [--json]", effect: :read,

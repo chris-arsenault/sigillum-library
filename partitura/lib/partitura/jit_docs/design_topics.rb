@@ -10,6 +10,7 @@ module Partitura
           "Use `commands COMMAND --json` for exact arguments and side effects; use `catalog` for current " \
           "runtime values.",
           "Use `llm_design` to understand the inference-time capability and context architecture.",
+          "Use `composer` for conversational musical authoring through MCP without writing Ruby.",
           "Use the production surface for new DSL source; surface_lab is exploratory only.",
           "Standardize the container; choose the local surface by musical job.",
           "Use `guided` for stage-at-a-time procedures and `composition_workflow` for external proposals.",
@@ -17,10 +18,23 @@ module Partitura
           "Use `documentation_index` only when you need the expanded Markdown catalogue."
         ],
         example: "partitura/bin/partitura help production",
-        next_topics: %i[llm_design production decision roster cards examples guided composition_graph
+        next_topics: %i[llm_design composer production decision roster cards examples guided composition_graph
                         composition_workflow evaluation score_observation annotation_observation projections
                         export build hand_edit_import documentation_index],
         docs: []
+      },
+      composer: {
+        use_when: "Connect a conversational composer to musical authoring tools without repository editing.",
+        rules: [
+          "Launch `mcp --root WORKSPACE` from a client supporting local stdio MCP.",
+          "Start with composer_start; read actual music with music_read and submit explicit notes with music_revise.",
+          "Partitura owns source construction, timing, validation and atomic saving; existing note notation remains.",
+          "Use composer_help and composer_reference for focused musical guidance and references.",
+          "Use music_inspect and music_export for sounding evidence and audition; they do not prove musical quality."
+        ],
+        example: "partitura/bin/partitura mcp --root /path/to/consumer-workspace",
+        next_topics: %i[llm_design projections export],
+        docs: ["docs/architecture/partitura/13_composer_application.md"]
       },
       documentation_index: {
         use_when: "Browse the complete Partitura documentation map after focused JIT routing is insufficient.",

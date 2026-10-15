@@ -227,8 +227,10 @@ unrequested score revision or export over the user's hand corrections.
 
 A systemic revision traverses every affected passage with its whole ensemble.
 Preserving an approved opening does not freeze provisional continuations or
-later lead skeletons. Retain recognizable heads and directional events, then
-develop their consequences. A small edit count, a larger rhythm-class count,
+later lead skeletons. Retain working phrases, including their rests, attacks,
+bowing, ornaments and directional events, then develop their consequences.
+Keeping only a thematic head while replacing its rhythmic sentence and ensemble
+relationships does not preserve the music's identity. A small edit count, a larger rhythm-class count,
 or fewer warning flags cannot establish musical improvement.
 
 After drafting, identify the dimension that held attention and reread the others
@@ -363,6 +365,20 @@ or a distinct solo thought—and give them silence elsewhere. Preserve a user's
 chosen full-choir passage when the restraint applies to its continuation.
 Check exact dynamic/hairpin offsets after export; shifted endpoints can change
 which gesture receives the emphasis even when all note pitches match.
+
+When a melody changes instrument, shape the outgoing release, incoming pickup
+and continuation as one phrase. Read both lines against the active accompaniment;
+equal printed dynamics do not guarantee equal presence across registers and
+instrument families. Let supporting parts yield through the transfer, then
+recover their weight when they become the answer. Preserve the independent
+counterline's own arrival rather than lowering it indiscriminately.
+
+Read inline dynamics and scoped controls together. A later explicit mark can
+reset or reverse a broad hairpin; shorten the span or place the intended endpoint
+at the actual phrase turn. Check notation separately from playback: a MIDI
+export that changes only note-on velocity cannot realize a swell on an already
+sounding tied note. Keep the expressive notation for the performer and report
+that playback limit without changing the musical rhythm to accommodate it.
 
 ## 18. A kit layer is one cell; "no stencils" does not apply to it the same way
 
@@ -653,3 +669,41 @@ How to apply:
 Boundary or gradient: the composer's approval of the notes and phrases was a
 boundary (reorganize, don't recompose). The cause-and-consequence test is a
 gradient that corrects my habit of building forms as catalogues of contrasts.
+
+## 26. Correct continuity without flattening orchestral drama
+
+Axiom Interrupt, 2026-10-13. After a repair reduced metric disruption, the
+composer heard an overcorrection: changes should remain, "just not every other
+bar." The music also relied too often on massed attacks, with insufficient
+quiet string motion, harmonic counterpoint and phrases begun by horns and
+completed by strings. The requested slower, ominous middle needed room in a
+longer form before the individual passages were rewritten.
+
+Compose stable dramatic states rather than prohibiting change. A meter or
+tonal centre should establish its character across connected phrases; a new
+state can then change the listener's footing for a reason. A darker scene can
+use a lower tempo, minor harmony and locally directed diminished chords while
+retaining agile runs and attacks. An incessant sequence of new signatures and
+an entire piece locked to one pulse can both erase the intended dramatic scale.
+
+Give quiet figuration a harmonic and contrapuntal job. Broken chords can move
+between inner voices; a held suspension or cello counterline can cross a fast
+violin gesture. A horn's unfinished phrase can reach a shared seam pitch before
+a string voice carries its consequence. Do not translate this into an arpeggio
+in every bar, compulsory antiphony, or fewer simultaneous players as a proxy for
+better orchestration. Reserve collective force where the phrase earns it.
+
+The FFVI Final Symphony reviews were useful here for thematic transformation,
+overlap and changed returns. They do not supply an unpublished score to copy.
+The directional lesson is to shape the journey before adding surface effects;
+neither a six-minute duration nor a particular section/meter count is a rule.
+
+The subsequent listening rejection found the enlarged form somewhat better but
+the individual sections substantially worse: the revision had discarded the
+earlier clipped articulation, pauses and rhythmic character. A new form is a
+place to develop existing phrases, not permission to replace them with continuous
+chord-following lines. Compare each retained and developed passage against its
+actual predecessor before moving on. Quiet figuration can occupy selected gaps;
+silence that defines a gesture must remain silence. Return to the working score
+when identity has been spent, rather than decorating the replacement with more
+marks. No numerical articulation or rest quota follows from this correction.

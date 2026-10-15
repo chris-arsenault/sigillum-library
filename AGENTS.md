@@ -2,6 +2,9 @@
 
 ## Start Here
 
+- Conversational composer interface: `partitura/bin/partitura help composer` describes
+  MCP setup and the musical tools. Its own composer guide is delivered to the client;
+  application-owned scores do not require agents to write Ruby.
 - One CLI for everything: run `partitura/bin/partitura` bare for the verb map, then
   `partitura/bin/partitura help index`. Follow the focused topic whose `use_when`
   matches the current decision, and load only its named docs when the short response

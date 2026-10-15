@@ -71,7 +71,8 @@ module Partitura
         percussion_map: export_percussion_map(part),
         notation_group: part.notation_group&.to_s,
         notation_staff: part.notation_staff&.to_s,
-        abbreviation: part.abbreviation
+        abbreviation: part.abbreviation,
+        ensemble: part.ensemble
       }.compact
     end
 

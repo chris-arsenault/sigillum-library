@@ -62,6 +62,18 @@ production_piece "Title" do
 end
 ```
 
+## Instrument identity
+
+The roster's display name labels the staff; `music21:` identifies the instrument.
+MusicXML exports the standard instrument name independently of labels such as
+"Violin I" or "Violoncellos", retaining the instrument's sound ID and MIDI program.
+Declare `ensemble: true` for an orchestral section of unspecified size,
+`ensemble: 2` for a known two-player group, or `ensemble: false` for a single player.
+Omitting the field leaves player type unspecified. MusicXML writes `<ensemble/>`,
+`<ensemble>2</ensemble>` or `<solo/>` respectively. This metadata does not alter
+notes or MIDI playback. A shared staff still identifies one instrument type;
+distinct tenor and bass trombone identities need separately assigned music.
+
 ## Required Concepts
 
 - `piece`: movement/passage-level context.

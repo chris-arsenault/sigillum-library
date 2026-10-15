@@ -38,6 +38,10 @@ module Partitura
       context.define_singleton_method(:piece) do |title, **options, &block|
         Production.piece(title, **options, &block)
       end
+      context.define_singleton_method(:composer_piece) do |text|
+        require_relative "composer"
+        Partitura::Composer.load_declaration(text)
+      end
       context.instance_eval(File.read(path), path.to_s)
     end
 

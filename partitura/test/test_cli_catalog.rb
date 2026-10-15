@@ -14,7 +14,7 @@ class CLICatalogTest < Minitest::Test
   COMMANDS = %w[
     abandon annotation-observation back benchmark-preference benchmark-review
     benchmark-score build cards catalog commands commit compile connections evaluate export help
-    import-musicxml lint log next observe path preference protocol review runs score-observation
+    import-musicxml lint log mcp next observe path preference protocol review runs score-observation
     show start status step verify-musicxml-import view
   ].freeze
 
@@ -26,7 +26,7 @@ class CLICatalogTest < Minitest::Test
     assert_equal COMMANDS, commands.map { |command| command.fetch(:name) }.sort
     commands.each do |command|
       focused = Partitura::Catalog.data("commands", command.fetch(:name)).fetch(:command)
-      assert_includes %w[read write_outputs write_run_state write_candidate_outputs
+      assert_includes %w[read write write_outputs write_run_state write_candidate_outputs
                          mutate_source_and_trajectory write_review_bundle append_preference],
                       focused.fetch(:effect)
       assert_kind_of Array, focused.fetch(:arguments)

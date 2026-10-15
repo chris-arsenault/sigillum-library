@@ -123,6 +123,18 @@ R10d Does the listener receive enough material to recognize its returns? An
 R10e Judge range and continuity at both clause and paragraph scale, for the actual
      performer and form; the example's proportions are not fixed limits.
 
+October14 Axiom listening correction: a foreground assembled from short heads,
+tails and changes of instrument can remain one motif with counterpoints even
+when its source calls the fragments different themes. Give a requested sustained
+melody enough irreducible continuation to establish a whole statement: an opening
+the listener learns, a contrasting continuation, a consequential return and an
+ending or directed interruption. Instrumental handoffs may carry that thought;
+the handoff itself does not supply the missing continuation. Keep a successful
+background while developing the foreground. Leaps, held notes and quick turns
+need phrase roles; replacing scalar tails with arbitrary chord skips or merely
+lengthening the notes reproduces the same failure. The user's minimum sixteen
+bars belongs to this commission, not to every future theme.
+
 ## Breathing and notated silence
 
 Compose the phrase first. Singers and wind players can take a little time from

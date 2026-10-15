@@ -7,6 +7,32 @@ a collection of universal musical rules.
 
 ## How feedback enters the library
 
+October 14, Axiom Interrupt: the longer v3 form was somewhat improved, but its
+sections lost v2's identity through wholesale replacement, continuous motion
+and removed articulations/rests. The requested v4 starts from v2's actual music
+and develops it inside the larger dramatic structure. [Ensemble §§12/26](ensemble_binding_and_grid.md)
+now require preservation and comparison of complete rhythmic and orchestral
+relationships, not only thematic heads. New material and local revisions remain
+authorized where they develop those relationships; fixed retention quotas are
+not a substitute for that judgment.
+
+The subsequent v4 listening correction accepts the background and texture but
+hears one strong motif, some counterpoint and no substantial sustained melody.
+The next request asks for at least sixteen bars forming one entire statement,
+with internal recall, intervals, rhythmic variation, held notes and quick turns.
+[Melody architecture](melody_primacy.md#8-melody-architecture-r10--the-clause-model-from-reign-of-the-simmered-solo-vn-95-118)
+now distinguishes a complete foreground statement from a chain of thematic heads
+and instrumental handoffs. Sixteen bars is this request's minimum, not a universal
+melody rule. Preserve the accepted texture while developing the foreground.
+
+October 15, Axiom Interrupt: dynamics need to expose the melody and blend lines
+that pass between instruments. [Ensemble §17](ensemble_binding_and_grid.md#17-dynamics-and-reserved-forces-compose-the-buildup)
+now treats the outgoing release, pickup and continuation as one phrase, with
+accompaniment yielding around the transfer. Review actual inline marks and
+scoped hairpins together, and distinguish exported notation from MIDI's ability
+to express held notes. This correction preserves the existing musical material;
+it does not authorize replacing melodies or reducing all counterpoint to a pad.
+
 Read the user's actual correction and the material it concerns. Record the
 failed relationship, the useful alternative and its scope. Distinguish an
 active boundary (such as an approved ending) from a directional correction
@@ -189,3 +215,15 @@ lesson is a change to generation and review practice, not a fixed affect label
 for that pitch or a request to revise the score. The user's reported edit and
 listening judgment are the evidence; this record does not claim an imported
 revision or an audio comparison.
+
+## October 13: orchestral continuity needs dramatic scale
+
+Axiom Interrupt's common-pulse revision overcorrected metric disruption. The
+composer requested sustained key/meter changes, a longer journey with a slower
+ominous minor/diminished middle, quiet string runs/arpeggios/stabs, harmonic
+counterpoint and phrases handed from horns to strings. [Ensemble §26](ensemble_binding_and_grid.md#26-correct-continuity-without-flattening-orchestral-drama)
+owns this correction and qualifies the earlier pulse/continuity recipes:
+continuity does not mean one meter throughout, and orchestration does not mean
+adding figuration over unchanged heavy support. These are directional lessons,
+not bans on tutti, stable pulse or repetition. FFVI Final Symphony reviews supply
+narrative/orchestral relationships, not unpublished notation or quoted melodies.

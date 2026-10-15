@@ -126,10 +126,10 @@ module Partitura
 
     class Part
       attr_reader :id, :name, :music21_instrument, :family, :range, :description, :percussion_map,
-                  :notation_group, :notation_staff, :abbreviation
+                  :notation_group, :notation_staff, :abbreviation, :ensemble
 
       def initialize(id:, name:, music21_instrument:, family: nil, range: nil, description: nil,
-                     percussion_map: nil, notation_group: nil, notation_staff: nil, abbreviation: nil)
+                     percussion_map: nil, notation_group: nil, notation_staff: nil, abbreviation: nil, ensemble: nil)
         @id = id.to_sym
         @name = name
         @music21_instrument = music21_instrument.to_s
@@ -140,6 +140,16 @@ module Partitura
         @notation_group = notation_group&.to_sym
         @notation_staff = notation_staff
         @abbreviation = abbreviation
+        @ensemble = validate_ensemble(ensemble)
+      end
+
+      private
+
+      def validate_ensemble(value)
+        return value if value.nil? || value == true || value == false || (value.is_a?(Integer) && value.positive?)
+
+        raise ArgumentError, "ensemble must be true (unspecified section size), false (single player), " \
+                             "or a positive integer"
       end
     end
 

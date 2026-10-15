@@ -33,7 +33,8 @@ class InstrumentSoundsTest < Minitest::Test
     assert_equal "Bass Drum", text_at(bass_drum, "score-instrument/instrument-name")
     assert_empty REXML::XPath.match(bass_drum, "midi-instrument")
     assert_equal "1", text_at(document, "/score-partwise/part[1]/measure/attributes/staff-details/staff-lines")
-    assert_equal %w[E 4], [text_at(first_note, "unpitched/display-step"), text_at(first_note, "unpitched/display-octave")]
+    assert_equal %w[E 4],
+      [text_at(first_note, "unpitched/display-step"), text_at(first_note, "unpitched/display-octave")]
     assert_equal "46", text_at(tom, "midi-instrument/midi-unpitched")
     assert_empty REXML::XPath.match(document, "/score-partwise/part[2]/measure/attributes/staff-details")
   end
@@ -42,6 +43,30 @@ class InstrumentSoundsTest < Minitest::Test
     midi = Partitura::Export::MIDI.render(single_device_parts_piece)
 
     assert_includes midi, [0x99, 36, 72].pack("C*")
+  end
+
+  def test_standalone_field_drum_and_cymbal_use_the_selected_non_kit_form
+    document = render_document(standalone_field_and_cymbal_piece)
+    score_parts = REXML::XPath.match(document, "/score-partwise/part-list/score-part")
+    parts = REXML::XPath.match(document, "/score-partwise/part")
+
+    assert_equal ["Field Drum", "Suspended Cymbal"], (score_parts.map { |part| text_at(part, "part-name") })
+    assert_equal %w[drum.snare-drum metal.cymbal.suspended],
+      (score_parts.map { |part| text_at(part, "score-instrument/instrument-sound") })
+    score_parts.each { |part| assert_empty REXML::XPath.match(part, "midi-instrument") }
+    parts.each do |part|
+      assert_equal "1", text_at(part, "measure/attributes/staff-details/staff-lines")
+      assert_equal "percussion", text_at(part, "measure/attributes/clef/sign")
+      note = REXML::XPath.first(part, "measure/note[unpitched]")
+      assert_equal %w[E 4], [text_at(note, "unpitched/display-step"), text_at(note, "unpitched/display-octave")]
+    end
+  end
+
+  def test_standalone_notation_keeps_midi_device_playback
+    midi = Partitura::Export::MIDI.render(standalone_field_and_cymbal_piece)
+
+    assert_includes midi, [0x99, 38, 72].pack("C*")
+    assert_includes midi, [0x99, 49, 72].pack("C*")
   end
 
   def test_pitched_parts_carry_instrument_sounds_and_stay_pitched
@@ -59,7 +84,7 @@ class InstrumentSoundsTest < Minitest::Test
     piece = pitched_sound_piece(xylophone_family: :percussion)
     lints = Partitura::Production::Lint.run(piece).select { |l| l[:rule] == "pitched_percussion_family" }
 
-    assert_equal ["xylophone"], lints.map { |l| l[:part] }
+    assert_equal ["xylophone"], (lints.map { |l| l[:part] })
   end
 
   def test_lint_is_quiet_for_pitched_percussion
@@ -69,7 +94,62 @@ class InstrumentSoundsTest < Minitest::Test
     assert_empty lints
   end
 
+  def test_tubular_bells_keep_their_pitched_identity_and_playback_program
+    piece = tubular_bells_piece
+    document = render_document(piece)
+    score_part = REXML::XPath.first(document, "/score-partwise/part-list/score-part")
+    attributes = "/score-partwise/part/measure/attributes"
+
+    assert_equal "Tubular Bells", text_at(score_part, "score-instrument/instrument-name")
+    assert_equal "pitched-percussion.tubular-bells", text_at(score_part, "score-instrument/instrument-sound")
+    assert_equal "15", text_at(score_part, "midi-instrument/midi-program")
+    refute_equal "10", text_at(score_part, "midi-instrument/midi-channel")
+    assert_equal "G", text_at(document, "#{attributes}/clef/sign")
+    assert_empty REXML::XPath.match(document, "//unpitched | //midi-unpitched")
+
+    midi = Partitura::Export::MIDI.render(piece)
+    assert_includes midi, [0xC0, 14].pack("C*")
+    assert_includes midi, [0x90, 66, 72].pack("C*")
+  end
+
   private
+
+  def tubular_bells_piece
+    Partitura::Production.piece("Pitched Bells") do
+      meter "4/4"
+      key "C"
+      roster do
+        part :bells, "Tubular Bells", music21: "TubularBells", family: :pitched_percussion
+      end
+      section :opening, "Opening", bars: 1..1 do
+        span bars: 1..1 do
+          phrase(:toll, surface: :absolute) { events "F#4:2 r:2" }
+          placement :toll, part: :bells, at: "bar 1 beat 1", role: :color
+        end
+      end
+    end
+  end
+
+  def standalone_field_and_cymbal_piece
+    Partitura::Production.piece("Standalone Percussion") do
+      meter "4/4"
+      key "C"
+      roster do
+        part :field, "Field Drum", music21: "Percussion", family: :percussion,
+          percussion_map: { "C2" => :field_drum }
+        part :cymbal, "Suspended Cymbal", music21: "Percussion", family: :percussion,
+          percussion_map: { "C#3" => :suspended_cymbal }
+      end
+      section :opening, "Opening", bars: 1..1 do
+        span bars: 1..1 do
+          phrase(:field_note, surface: :absolute) { events "C2:4" }
+          phrase(:cymbal_note, surface: :absolute) { events "C#3:4" }
+          placement :field_note, part: :field, at: "bar 1 beat 1", role: :rhythm
+          placement :cymbal_note, part: :cymbal, at: "bar 1 beat 1", role: :rhythm
+        end
+      end
+    end
+  end
 
   def single_device_parts_piece
     Partitura::Production.piece("Single Device Parts") do

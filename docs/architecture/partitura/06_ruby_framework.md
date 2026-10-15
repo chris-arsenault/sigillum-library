@@ -31,6 +31,18 @@ partitura/bin/partitura build path/to/registry.rb movement_id
 The compatibility shims `production_export` and `partitura_build` still exec these
 commands. New callers should use the consolidated CLI.
 
+## Standalone percussion import
+
+When field drum, concert bass drum or suspended cymbal has a part to itself,
+MusicXML uses a one-line percussion staff with notes at E4 and omits the
+`midi-instrument` mapping. The instrument name and standard sound ID identify
+the standalone instrument. This follows the September 26 bass-drum import
+experiment's selected Dorico form; field drum and cymbal use the same format.
+Keep standalone part names specific, such as "Suspended Cymbal" rather than
+"Cymbals". Their MIDI-file tracks still use the authored device mappings.
+Multi-device field-drum/cymbal parts retain their kit positions and MusicXML
+MIDI mappings. The pre-existing bass-drum mapping omission is unchanged.
+
 ## Project-Root Contract
 
 Path helpers support consumer repositories. Generated paths resolve from the current

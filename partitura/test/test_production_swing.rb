@@ -176,8 +176,8 @@ class ProductionSwingTest < Minitest::Test
       Dir.mktmpdir do |directory|
         path = File.join(directory, "score.musicxml")
         File.write(path, Partitura::Export::MusicXML.render(context))
-        # The fixture's snare uses display C5 but sounds MIDI38 (D2).
-        parts, = Partitura::Production::MusicXMLImport.load_parts(path, 8, { "C5" => "D2" })
+        # The standalone snare uses display E4 but sounds MIDI38 (D2).
+        parts, = Partitura::Production::MusicXMLImport.load_parts(path, 8, { "E4" => "D2" })
         merged = Partitura::Production.merge_authored_ties(context.timed_events)
         context.parts.values.each do |part|
           expected = merged.select { |event| event.part == part.id }.flat_map do |event|

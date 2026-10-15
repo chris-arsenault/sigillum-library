@@ -302,7 +302,14 @@ module Partitura
         def instrument_abbreviation_for(part, abbreviation)
           return "Pno" if part_name_for(part) == "Notes"
 
-          abbreviation.delete_suffix(".")
+          ABBREVIATIONS.fetch(instrument_name_for(part), abbreviation).delete_suffix(".")
+        end
+
+        def instrument_name_for(part)
+          instrument = part["music21_instrument"]
+          return part_name_for(part) if part.fetch("render_kind") == "notes" || !INSTRUMENT_SOUNDS.key?(instrument)
+
+          instrument.gsub(/([a-z])([A-Z])/, '\1 \2')
         end
 
         def part_name_for(part)

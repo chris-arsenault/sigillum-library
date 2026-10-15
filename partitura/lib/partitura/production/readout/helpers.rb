@@ -79,7 +79,7 @@ module Partitura
         def in_bars?(offset, bars)
           return true unless bars
 
-          bar = (offset / @piece.bar_length).floor + 1
+          bar = @piece.bar_of_reference(offset)
           bars.include?(bar)
         end
 

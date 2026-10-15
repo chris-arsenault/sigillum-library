@@ -137,7 +137,7 @@ module Partitura
       end
 
       def part(id, name, music21: nil, family: nil, range: nil, description: nil, percussion_map: nil,
-               notation_group: nil, notation_staff: nil, abbreviation: nil)
+               notation_group: nil, notation_staff: nil, abbreviation: nil, ensemble: nil)
         unless music21
           raise CompileError.new(
             code: "missing_music21_instrument",
@@ -160,7 +160,8 @@ module Partitura
           percussion_map: normalized_percussion_map,
           notation_group: notation_group,
           notation_staff: notation_staff,
-          abbreviation: abbreviation
+          abbreviation: abbreviation,
+          ensemble: ensemble
         ))
       end
 

@@ -44,6 +44,7 @@ def usage
                  log [<dir>] [--json]
                  abandon [<dir>] --reason TEXT
                  runs [<root>]
+                 mcp [--root WORKSPACE]   (composer tools over stdio)
                  observe SOURCE --trajectory FILE
                  evaluate SOURCE --trajectory FILE --proposals FILE|-
                  step SOURCE --trajectory FILE --proposals FILE [--selection FILE]
@@ -424,6 +425,14 @@ end
 
 command = ARGV.shift
 case command
+when "mcp"
+  require_partitura
+  require_relative "../lib/partitura/composer/mcp"
+  root = ENV.fetch("PARTITURA_PROJECT_ROOT", Dir.pwd)
+  OptionParser.new { |opts| opts.on("--root WORKSPACE") { |value| root = value } }.parse!
+  abort "usage: partitura mcp [--root WORKSPACE]" unless ARGV.empty?
+  Partitura::Composer::MCP.new(Partitura::Composer::Service.new(root: root)).run
+
 when nil, "-h", "--help"
   puts usage
 
