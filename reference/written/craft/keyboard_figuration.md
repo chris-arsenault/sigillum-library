@@ -53,7 +53,17 @@ from a student one.
   octave; open-position breakups (3rd displaced up an octave); broken octaves
   (murky) for storm; the same chord NEVER voiced identically in consecutive phrases.
 - INTENSITY DIAL inside one figure family: halves -> quarters -> 8ths -> triplets ->
-  16ths (orchestral_rhythm s1A) — a 20-bar section traverses the dial, it does not sit on one value.
+  16ths (orchestral_rhythm s1A) is one way to develop intensity. A deliberately
+  continuous ostinato may retain one value throughout; its crests, harmonic
+  rhythm, register, inner voices and orchestral punctuation can carry the change.
+
+For melody embedded in arpeggios, read the successive crests as a line across
+the whole phrase. Separate them from the chord body by register and articulation,
+then voice-lead the returning inner tones too. The October 15 Axiom request
+specifically asks for even string eighths, occasional horn/bell calls, a bar or
+two without those calls, and long held sonorities with inner movement. Do not
+apply the value-class or four-bar change recipes below as quotas to such a
+passage. Its regularity is the chosen surface; write its changing consequences.
 
 ## 5. Brahms inner-voice law (the orchestral mirror of s1)
 

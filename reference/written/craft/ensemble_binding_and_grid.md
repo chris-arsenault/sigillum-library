@@ -285,6 +285,25 @@ references communicate dramatic function here; they are not requests to copy
 their melodies. `dsl:dialogue/D9_REINFORCE_CONTRAST` demonstrates shared attacks
 and answers; adapt the relation rather than its exact allocation of gaps.
 
+When a reduced texture must blend back into the orchestra, compose the return
+inside the texture's latter portion. Let the bass, partial inner chords, held
+voices and selected percussion rejoin at different moments and restrained
+levels. Keep the recognizable pulse or upper line moving while harmony,
+register and common tones prepare the next scene. Carry some of that motion
+or resonance across the boundary, then let the new foreground emerge from it.
+Increasing the volume of the outgoing texture alone does not prepare the
+arrival of absent instrumental families.
+
+The October 15 Axiom correction requested this gradual return from the string
+arpeggios. A final collective hit and fermata preserved the earlier cut but
+contradicted the newly requested blend. That latest instruction superseded the
+local freeze. A deliberate cut remains useful when it is still the dramatic
+event; continuous joins are not a universal requirement. Review through the
+incoming phrase, since a flowing pickup followed by the same unprepared reset
+only moves the problem. The dialogue card above illustrates shared attacks and
+answers, not this whole orchestral return; adapt its local relationships without
+treating it as a ready-made transition.
+
 ## 15. Endings need phrase direction; approved endings need protection
 
 Read the approach, melodic destination, bass motion, harmonic tension/release,

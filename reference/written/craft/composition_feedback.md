@@ -33,6 +33,25 @@ scoped hairpins together, and distinguish exported notation from MIDI's ability
 to express held notes. This correction preserves the existing musical material;
 it does not authorize replacing melodies or reducing all counterpoint to a pad.
 
+The next Axiom addition asks for a deliberately even eighth-note string episode:
+the arpeggio crests and chord changes carry the melody, with occasional horn/bell
+calls, one or two bars without those calls, then long holds with inner movement.
+[Keyboard figuration §4](keyboard_figuration.md#4-figuration-variation-law-keyboard-and-orchestra-alike)
+now permits that continuous surface explicitly and replaces its conflicting
+requirement that every twenty-bar section change note-value classes. Review the
+implied upper line, inner voice-leading, harmony and punctuation; do not satisfy
+an old rhythmic-variety quota by disrupting the requested texture.
+
+The listening correction to that addition asks for the orchestra to return
+gradually over the episode's latter half or quarter and flow into the next
+section. [Ensemble §14](ensemble_binding_and_grid.md#14-shared-motion-and-texture-can-carry-a-passage)
+now requires preparing that return within the reduced texture: stagger forces,
+voice the harmonic approach and carry motion or held tones across the join.
+Here the old collective strike and fermata worked against the new request;
+the latest instruction supersedes that local choke freeze. Intentional cuts
+remain available elsewhere, and staged return does not mean filling every rest
+or bringing every instrument to the same dynamic.
+
 Read the user's actual correction and the material it concerns. Record the
 failed relationship, the useful alternative and its scope. Distinguish an
 active boundary (such as an approved ending) from a directional correction
