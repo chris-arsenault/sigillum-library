@@ -294,6 +294,14 @@ or resonance across the boundary, then let the new foreground emerge from it.
 Increasing the volume of the outgoing texture alone does not prepare the
 arrival of absent instrumental families.
 
+For the opposite move, from a full ensemble to exposed figuration, begin the
+new rhythmic work under the outgoing melody. Let that line resolve or pass
+into the arpeggio crests while bass, brass and winds release at different
+moments. Compare register, subdivision and tempo through the join as well as
+volume. A loud closing hit followed by quiet arpeggios remains a restart even
+when the chords connect. The October 17 Axiom correction requests this
+transformation from bar 107 into bar 111; it does not ban a deliberate cut elsewhere.
+
 The October 15 Axiom correction requested this gradual return from the string
 arpeggios. A final collective hit and fermata preserved the earlier cut but
 contradicted the newly requested blend. That latest instruction superseded the

@@ -52,6 +52,13 @@ the latest instruction supersedes that local choke freeze. Intentional cuts
 remain available elsewhere, and staged return does not mean filling every rest
 or bringing every instrument to the same dynamic.
 
+October 17, Axiom Interrupt: the end of the Wailing Chamber weakens and the
+entry to the arpeggios is abrupt; the user asks for transformation from around
+107. [Ensemble §14](ensemble_binding_and_grid.md#14-shared-motion-and-texture-can-carry-a-passage)
+now also covers the move into reduced figuration: establish its motion beneath
+the departing melody, connect its register and harmonic resolution, and stage
+the orchestral withdrawal. A softer final hit alone leaves the restart intact.
+
 Read the user's actual correction and the material it concerns. Record the
 failed relationship, the useful alternative and its scope. Distinguish an
 active boundary (such as an approved ending) from a directional correction
