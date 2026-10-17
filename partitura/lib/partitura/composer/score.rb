@@ -90,10 +90,12 @@ module Partitura
       end
 
       def required_control_fields(control)
-        ranged = %w[crescendo diminuendo accelerando ritardando].include?(control.fetch("kind"))
+        ranged = %w[crescendo diminuendo accelerando ritardando intentional_dissonance].include?(control.fetch("kind"))
         required = ranged ? %w[from to] : %w[at]
         required << "value" unless ranged || control["kind"] == "a_tempo"
-        targeted = %w[dynamic crescendo diminuendo text pedal clef harp_pedals key_signature].include?(control["kind"])
+        required << "value" if control["kind"] == "intentional_dissonance"
+        targeted = %w[dynamic crescendo diminuendo text pedal clef harp_pedals key_signature
+                      intentional_dissonance].include?(control["kind"])
         required << "for" if targeted
         required
       end

@@ -43,6 +43,17 @@ Keep standalone part names specific, such as "Suspended Cymbal" rather than
 Multi-device field-drum/cymbal parts retain their kit positions and MusicXML
 MIDI mappings. The pre-existing bass-drum mapping omission is unchanged.
 
+## Percussion roll playback
+
+The authored `{trem}` mark keeps a held note with three tremolo strokes in
+MusicXML. MIDI interprets it as 32nd-note reattacks for percussion and pitched
+percussion, including timpani. Tied segments share one roll clock; each stroke
+samples the scoped dynamic/hairpin at its own onset, and only the first stroke
+receives an authored accent or marcato. The final stroke ends at the written
+release. Device mappings and ordinary notes retain their existing behavior.
+This is a MIDI audition approximation, not a sampled unmeasured acoustic roll;
+non-percussion tremolos retain their existing held MIDI behavior.
+
 ## Project-Root Contract
 
 Path helpers support consumer repositories. Generated paths resolve from the current

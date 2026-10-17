@@ -81,6 +81,14 @@ module Partitura
         ))
       end
 
+      # Analytical intent only: keep the sounding findings and append the reason.
+      def intentional_dissonance(reason, from:, to:, **kwargs)
+        @piece.add_control(Control.new(
+          kind: :intentional_dissonance, value: reason.to_s,
+          from: from, to: to, target: required_target(kwargs)
+        ))
+      end
+
       # A harmonic label ("Dm", "Bbmaj7", "Dm/A"), distinct from `text`: renders as a
       # real MusicXML <harmony> chord symbol once, above the top staff — never a
       # per-instrument annotation, so it takes no `for:` target. Use `text` for

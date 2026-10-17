@@ -13,6 +13,7 @@ module Partitura
         "diminuendo" => ->(builder, _value, options) { builder.diminuendo(**options) },
         "pedal" => ->(builder, value, options) { builder.pedal(value, **options) },
         "text" => ->(builder, value, options) { builder.text(value, **options) },
+        "intentional_dissonance" => ->(builder, value, options) { builder.intentional_dissonance(value, **options) },
         "clef" => ->(builder, value, options) { builder.clef(value, **options) },
         "chord" => ->(builder, value, options) { builder.chord(value, **options) },
         "key" => ->(builder, value, options) { builder.key_change(value, **options) },

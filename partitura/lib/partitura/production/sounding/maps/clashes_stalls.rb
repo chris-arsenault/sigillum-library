@@ -75,7 +75,8 @@ module Partitura
         def format_clash_row(left:, right:, offset:, interval:, severity:, naked:)
           "#{clash_location(offset)} #{clash_pair(left, right)} " \
             "iv#{interval}#{clash_flags(left, right, offset, naked)} sev#{severity} | " \
-            "#{clash_context_text(left, right, offset)}"
+            "#{clash_context_text(left, right, offset)}" \
+            "#{dissonance_intent_at(offset, [left.part, right.part])}"
         end
 
         def clash_location(offset)

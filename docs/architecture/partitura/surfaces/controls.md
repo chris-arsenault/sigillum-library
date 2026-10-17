@@ -64,6 +64,27 @@ end
   (compile error `key_context_required` otherwise).
 - Controls are not phrase material. They should not hide missing notes, rhythm, or orchestration.
 
+## Intentional dissonance
+
+Declare a deliberate tension with a reason, a half-open range and the involved
+parts. This is analytical metadata; it adds no printed direction or playback event.
+
+```ruby
+control do
+  intentional_dissonance "Upper F rubs against the held E; release at the next phrase",
+    from: "bar 9 beat 1", to: "bar 11 beat 1", for: [:violin, :viola]
+end
+```
+
+In the composer application use `write_control` with `kind: intentional_dissonance`,
+`value` for the reason, and section-local `from`, `to` and `for`. Existing target
+selectors work. Both parts of an `exposed_clashes` pair must be targeted and the
+attack must fall inside the range before its row gains `INTENTIONAL`. The measured
+interval and severity remain unchanged. `harmony_check` lists overlapping scoped
+intent beside its original verdict; it does not turn a mismatch into a match.
+An empty reason, reversed range or unknown target fails validation. Read the
+actual notes before deciding whether a flagged tension serves the phrase.
+
 ## Projection Needed
 
 Use `controls` to inspect anchors, tempo events, and scoped controls. Use `compile` before export

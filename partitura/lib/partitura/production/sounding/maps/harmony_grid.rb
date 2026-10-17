@@ -27,7 +27,9 @@ module Partitura
 
           weights_by_bar = harmony_weights_by_bar(bars).to_h
           bars_to_check = (weights_by_bar.keys + chords.keys.select { |bar| in_bar_number?(bar, bars) }).uniq.sort
-          bars_to_check.each { |bar| lines << harmony_check_line(bar, chords[bar], weights_by_bar[bar]) }
+          bars_to_check.each do |bar|
+            lines << (harmony_check_line(bar, chords[bar], weights_by_bar[bar]) + dissonance_intent_in_bar(bar))
+          end
           lines.join("\n")
         end
 

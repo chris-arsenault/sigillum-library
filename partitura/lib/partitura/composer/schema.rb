@@ -53,7 +53,7 @@ module Partitura
         "id" => ID,
         "kind" => enum("dynamic", "crescendo", "diminuendo", "text", "pedal", "clef",
                        "chord", "harp_pedals", "key_signature", "swing", "key", "meter",
-                       "tempo", "accelerando", "ritardando", "a_tempo"),
+                       "tempo", "accelerando", "ritardando", "a_tempo", "intentional_dissonance"),
         "value" => TEXT, "at" => LOCATION, "from" => LOCATION, "to" => LOCATION,
         "for" => { "oneOf" => [TEXT, array(TEXT, max: 128)] },
         "beat_pattern" => array(integer(max: 64), max: 64), "exact" => { "type" => "boolean" }

@@ -37,6 +37,8 @@ module Partitura
       case control.kind
       when :dynamic, :pedal, :text, :swing
         "#{control.kind} #{control.value} at #{control.at} for #{target}"
+      when :intentional_dissonance
+        "#{control.kind} #{control.value.inspect} from #{control.from} to #{control.to} for #{target}"
       else
         "#{control.kind} from #{control.from} to #{control.to} for #{target}"
       end

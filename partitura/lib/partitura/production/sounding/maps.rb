@@ -2,6 +2,7 @@
 
 require_relative "maps/articulation_breath"
 require_relative "maps/clashes_stalls"
+require_relative "maps/dissonance_intent"
 require_relative "maps/harmony_grid"
 require_relative "maps/profiles"
 
@@ -11,6 +12,7 @@ module Partitura
       module Maps
         include ArticulationBreath
         include ClashesStalls
+        include DissonanceIntent
         include HarmonyGrid
         include Profiles
       end

@@ -55,8 +55,7 @@ module Partitura
           channel = midi_channel(part, index)
           events = part_track_header(part, channel)
           timed_events_for(part.fetch("id")).each do |event|
-            velocity = event_velocity(event, part)
-            events.concat(part_note_events(event, channel, velocity, part)) unless event["rest"]
+            events.concat(performed_note_events(event, channel, part)) unless event["rest"]
           end
           build_track(events.sort_by { |tick, bytes| part_track_sort_key(tick, bytes, channel) })
         end

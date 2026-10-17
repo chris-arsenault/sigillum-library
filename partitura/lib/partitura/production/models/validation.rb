@@ -344,8 +344,23 @@ end
         @controls.each do |control|
           validate_ranged_reference!(control)
           validate_clef_control!(control) if control.kind.to_s == "clef"
+          validate_dissonance_intent!(control) if control.kind.to_s == "intentional_dissonance"
           validate_control_target!(control, events)
         end
+      end
+
+      def validate_dissonance_intent!(control)
+        valid = !control.value.to_s.strip.empty? && !Array(control.target).empty? &&
+                control.at.nil? && control.from && control.to &&
+                offset_for_reference(control.to) > offset_for_reference(control.from)
+        return if valid
+
+        raise compile_error(
+          code: "bad_dissonance_intent",
+          message: "Intentional dissonance needs a reason and a nonempty forward range.",
+          repair_instruction: "Supply a musical reason, from:, to: and for: the involved parts.",
+          help_topic: "controls", docs: ["docs/architecture/partitura/surfaces/controls.md"]
+        )
       end
 
       def validate_clef_control!(control)
@@ -399,6 +414,13 @@ end
 
         target_selectors(target).select { |selector| parts_matching_selector(selector, events).empty? }.map(&:to_s)
       end
+
+      def control_target_parts(control, events: timed_events)
+        target_selectors(control.target).flat_map do |selector|
+          selector.to_s == "all" ? @parts.keys : parts_matching_selector(selector, events)
+        end.uniq
+      end
+      public :control_target_parts
 
       def target_selectors(target)
         target.is_a?(Array) ? target : [target]

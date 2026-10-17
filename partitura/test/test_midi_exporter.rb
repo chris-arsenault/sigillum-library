@@ -258,6 +258,73 @@ class MIDIExporterTest < Minitest::Test
     end
   end
 
+  def test_percussion_tremolo_repeats_strokes_and_releases_at_the_authored_end
+    piece = instrument_piece("Timpani", :pitched_percussion, "D2:1{p,trem} r:3")
+    notes = note_events(Partitura.production_midi(piece))
+    attacks = notes.select { |event| event[1] == 0x90 }
+    releases = notes.select { |event| event[1] == 0x80 }
+
+    assert_equal [0, 1260, 2520, 3780, 5040, 6300, 7560, 8820], attacks.map(&:first)
+    assert_equal [1260, 2520, 3780, 5040, 6300, 7560, 8820, 10_080], releases.map(&:first)
+    assert_equal [38], attacks.map { |event| event[2] }.uniq
+    assert_equal [48], attacks.map(&:last).uniq
+  end
+
+  def test_tied_percussion_roll_keeps_its_clock_across_fractional_segments
+    piece = instrument_piece("Timpani", :pitched_percussion,
+                             "r:1/3 D2:1/6{p,trem,tie(} D2:1/3{trem,tie)} r:1/6 F2:3")
+    notes = note_events(Partitura.production_midi(piece))
+
+    assert_equal [3360, 4620, 5880, 7140, 10_080], notes.select { |event| event[1] == 0x90 }.map(&:first)
+    assert_equal [4620, 5880, 7140, 8400, 40_320], notes.select { |event| event[1] == 0x80 }.map(&:first)
+  end
+
+  def test_roll_strokes_follow_hairpins_without_repeating_the_initial_accent
+    piece = instrument_piece("Timpani", :pitched_percussion, "D2:2{p,trem,accent} r:2")
+    Partitura::Production::ControlBuilder.new(piece).tap do |control|
+      control.crescendo from: "bar 1 beat 1", to: "bar 1 beat 3", for: :instrument
+      control.dynamic :mf, at: "bar 1 beat 3", for: :instrument
+    end
+    attacks = note_events(Partitura.production_midi(piece)).select { |event| event[1] == 0x90 }
+
+    assert_equal 16, attacks.size
+    assert_equal 76, attacks.first.last
+    assert_operator attacks[1].last, :<, attacks.first.last
+    assert_equal attacks.drop(1).map(&:last).sort, attacks.drop(1).map(&:last)
+    assert_operator attacks.last.last, :>, attacks[1].last
+    assert_operator attacks.last.last, :<, 76
+  end
+
+  def test_rolls_preserve_device_mapping_and_short_fractional_tail
+    piece = Partitura::Production.piece("Mapped roll") do
+      meter "4/4"
+      roster do
+        part :drum, "Field Drum", music21: "Percussion", family: :percussion,
+                                 percussion_map: { "C2" => "field_drum" }
+      end
+      section :s, "Roll", bars: 1..1 do
+        span bars: 1..1 do
+          phrase(:roll, surface: :absolute) { events "C2:1/5{pp,trem} r:19/5" }
+          placement :roll, part: :drum, at: "bar 1 beat 1", role: :pulse
+        end
+      end
+    end
+    notes = note_events(Partitura.production_midi(piece))
+
+    assert_equal [[0, 0x99, 38, 35], [1260, 0x89, 38, 0],
+                  [1260, 0x99, 38, 35], [2016, 0x89, 38, 0]], notes
+    xml = Partitura.production_musicxml(piece)
+    assert_includes xml, '<tremolo type="single">3</tremolo>'
+  end
+
+  def test_other_tremolos_and_ordinary_percussion_remain_single_events
+    flute = instrument_piece("Flute", :woodwind, "C4:4{trem}")
+    drum = instrument_piece("Timpani", :pitched_percussion, "D2:4{p}")
+
+    assert_equal 1, (note_events(Partitura.production_midi(flute)).count { |event| event[1] == 0x90 })
+    assert_equal [[0, 0x90, 38, 48], [40_320, 0x80, 38, 0]], note_events(Partitura.production_midi(drum))
+  end
+
   private
 
   def simple_piece

@@ -28,7 +28,10 @@ module Partitura
                       "role or a list). Hairpins use from, to and for. Tempo ramps use from and to. a_tempo uses at. " \
                       "Other kinds: tempo, key, meter, swing, chord. Tempo values look like 'quarter = 88'; swing is " \
                       "'off', 'eighth' or 'sixteenth'. A control's end may land on the next section's boundary, " \
-                      "but it cannot reach into another section. Internal meter changes land at beat 1.",
+                      "but it cannot reach into another section. Internal meter changes land at beat 1. " \
+                      "intentional_dissonance uses from, to, for and value (a musical reason). It annotates " \
+                      "exposed_clashes for the involved pair and harmony_check within the range; findings and " \
+                      "severity remain visible. It adds no printed direction and does not waive errors.",
         "projections" => "Inspect the relationship at issue: ensemble_grid for combined attacks and releases; " \
                          "line for continuity; verticals and harmony_check for harmony; rhythm_profile " \
                          "for rhythm; exposed_clashes for pitch collisions. Find other views in music_inspect. " \

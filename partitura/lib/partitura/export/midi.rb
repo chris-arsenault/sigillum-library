@@ -3,6 +3,7 @@
 require_relative "midi/notation"
 require_relative "midi/tracks"
 require_relative "midi/values"
+require_relative "midi/rolls"
 
 module Partitura
   module Export
@@ -61,6 +62,7 @@ module Partitura
         include Notation
         include Tracks
         include Values
+        include Rolls
 
         def initialize(piece)
           @data = deep_stringify(Production.export_data(piece, exact_timing: true))
