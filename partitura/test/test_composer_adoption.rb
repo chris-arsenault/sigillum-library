@@ -104,6 +104,16 @@ class ComposerAdoptionTest < Minitest::Test
     assert_equal "ambiguous_piece", error.code
   end
 
+  def test_untargeted_global_controls_adopt_without_a_target
+    existing(SOURCE.sub("dynamic :mf", 'swing :sixteenth, at: "bar 2 beat 1"' + "\n    dynamic :mf"))
+    preview = adopt
+    assert preview[:musical_parity]
+    adopt(preview: false, source_revision: preview.fetch(:source_revision))
+    stored, = @service.store.read("existing")
+    swing = stored.data.fetch("sections").first.fetch("controls").find { |control| control["kind"] == "swing" }
+    assert_equal({ "kind" => "swing", "value" => "sixteenth", "at" => "bar 2 beat 1/1" }, swing.except("id"))
+  end
+
   def test_unsupported_control_is_refused_without_touching_source
     source = SOURCE.sub('key "C"', 'key "C"; anchor :start, at: "bar 1 beat 1"')
     path = existing(source)

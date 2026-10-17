@@ -52,7 +52,7 @@ module Partitura
       def expressive_fields(control)
         value = { "kind" => control.kind == :chord_symbol ? "chord" : control.kind.to_s,
                   "value" => control.value&.to_s, "exact" => control.exact }.compact
-        value["for"] = target_text(control.target) unless control.kind == :chord_symbol
+        value["for"] = target_text(control.target) if Score::TARGETED_CONTROLS.include?(value["kind"])
         value
       end
 

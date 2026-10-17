@@ -6,6 +6,9 @@ require_relative "schema"
 module Partitura
   module Composer
     class Score
+      TARGETED_CONTROLS = %w[dynamic crescendo diminuendo text pedal clef harp_pedals key_signature
+                             intentional_dissonance].freeze
+
       attr_reader :data
 
       def initialize(data)
@@ -94,9 +97,7 @@ module Partitura
         required = ranged ? %w[from to] : %w[at]
         required << "value" unless ranged || control["kind"] == "a_tempo"
         required << "value" if control["kind"] == "intentional_dissonance"
-        targeted = %w[dynamic crescendo diminuendo text pedal clef harp_pedals key_signature
-                      intentional_dissonance].include?(control["kind"])
-        required << "for" if targeted
+        required << "for" if TARGETED_CONTROLS.include?(control["kind"])
         required
       end
     end
