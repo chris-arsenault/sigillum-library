@@ -734,3 +734,50 @@ actual predecessor before moving on. Quiet figuration can occupy selected gaps;
 silence that defines a gesture must remain silence. Return to the working score
 when identity has been spent, rather than decorating the replacement with more
 marks. No numerical articulation or rest quota follows from this correction.
+
+## 27. A denial needs a sound; a contrast section needs a phrase
+
+Boreal Pocket, 2026-10-17. The composer called the 20>21 transition "abrupt
+and terrible". They said the ritual after it "needs work. It's not clear what
+element of the story is being conveyed", the entry into the swing "is not
+great", and the swing section needed "clarity and intent". §25's story said
+the ritual cuts off the push. In the score nothing of the push was cut off:
+tempo, key, dynamics and orchestra all changed on one downbeat, so the
+listener heard a second piece start. The ritual was a stack of stamped layers
+with no one carrying a phrase. The swing started every layer at once, and its
+solo was the hook's head with a new tail each time. That is the motif-without-
+melody failure the Axiom work diagnosed (melody_primacy, MELODY_CRAFT_DOCTRINE
+"The whole is the unit of analysis").
+
+How to apply:
+
+- A denial is something that happens to the material being denied. Let the
+  pushed-for arrival happen and make it wrong. Boreal Pocket's push reaches
+  for B-flat and now lands on G minor, with the horn on the promised B-flat as
+  a minor third, the violin on the F its run reached for, and every voice
+  stepping in. The new section is the consequence of that arrival, and the
+  tempo changes on a held chord, where it costs nothing. A later push that
+  lands correctly then has something to pay off.
+- Give a contrasting section a job the listener already knows, ideally from a
+  real practice whose function explains both of its seams. A New Orleans
+  funeral explained the ritual (the first-line dirge), the cut into swing
+  ("cutting the body loose") and the swing itself (the second line home).
+  "The north" named a cutter, not an event.
+- A section's story is carried by a phrase, not a texture. Someone must sing
+  a period or sentence with a learnable head, a continuation with its own
+  identity, and differentiated arrivals. A hymn whose consequent sings the
+  piece's own tail at its original pitches tells the listener who is being
+  mourned.
+- Stage a release. Bring the new groove in from a few players (drums and bass
+  alone, then the soloist's pickup) and let the rest join at the repeat.
+- Before fragmenting a tune in a trade, present it whole and repeat it once,
+  recolored. Then the trade's fragments are recognizable and the continuation
+  reads as development. Doubling winds can start in unison and open to thirds
+  at the climax; a tailgate trombone counterline that recurs with variation is
+  true counterpoint. Neither is a quota.
+- An invariant can be withheld when its absence is the event. The funeral
+  drops the backbeat and the second line brings it back.
+
+Boundary or gradient: the chant and xylophone notes stayed the composer's
+(boundary). Everything else here is a gradient correcting my habit of
+writing contrast as texture and naming story jobs that the notes don't carry.
