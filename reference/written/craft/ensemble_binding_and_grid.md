@@ -276,6 +276,26 @@ continue one thought. Held or repeating instrumental texture can lead while
 the melody appears only briefly, then withdraws. Compose that texture's harmony,
 pulse, color or direction so the intervening space remains music.
 
+When a recurring broken-chord bed flattens contrast, change the backing's actual
+work for substantial portions of phrases. Broader harmonic notes, an on-beat
+pulse, or the withdrawal of a whole desk can expose melody and counterpoint.
+Moving the same short-note activity between instruments, lowering its dynamic,
+or exchanging one fill for another can preserve the unwanted composite surface.
+Let the remaining lines and harmonic tension carry their own pauses. Avoid
+refilling every last beat or imposing a fixed density quota. The October 21 Axiom
+correction preserves its dedicated arpeggio episode and fast final clash while
+requesting much broader accompaniment elsewhere; a chosen ostinato or a groove
+anchor remains valid when that relationship is still the desired identity.
+
+Treat suggested rhythms as examples unless the user explicitly requires them.
+Simplification asks what the foreground needs, not which substitute pattern can
+be distributed across the orchestra. A broader version of an existing reply,
+measured chord reiteration or fewer independent changes can keep players involved
+without another competing line. Review low brass and percussion too: holding
+the strings while leaving every small pocket underneath can preserve busyness.
+Retain useful displacement and articulation when they give the passage its
+character; do not quantize the whole accompaniment as a corrective reflex.
+
 Read the composite phrase: who reinforces a head, who takes its tail, who
 answers in a selected gap, and who sustains the harmonic field? Continuous
 independent counterlines are not required to keep every player useful. Neither

@@ -71,17 +71,29 @@ passage. Its regularity is the chosen surface; write its changing consequences.
   animated in 8ths, written as REAL counterpoint (separately stemmed thinking).
 - Accompaniment is built from invertible material: triple counterpoint — the bass
   usable as melody, its inversion as bass, the theme as accompaniment.
-- Operational: any part labeled "pad" must contain a moving tone (suspension chain,
-  neighbor figure, or exchanged voice) at least once per 2 bars — else it is FLOOR
-  and must be declared as such.
+- A sustained pad may remain still while melody and counterpoint move. Add a
+  suspension, neighbor or exchanged voice when it shapes the harmony or phrase;
+  do not require movement every two bars merely to make the backing seem composed.
 
-## 6. The union-surface law (orchestral_rhythm s2, restated as a hard rule)
+## 6. Composite continuity and intentional space
 
-Union of all layers' attacks ≈ a continuous surface rhythm (8ths or 16ths per the
-section's pulse class) in every non-void window — WHILE no single layer plays it all.
-For solo keyboard the law applies to the two hands together: melody long note =>
-the other hand (or middle voice) moves. This is the single cheapest test that
-separates composed accompaniment from token accompaniment.
+A continuous eighth- or sixteenth-note surface is one deliberate texture. When
+that motion is the musical identity, inspect the combined attacks and their
+ownership rather than asking every part to play continuously. It is not a floor
+for every passage. A held melody does not automatically require a moving backing
+voice, and every melodic pause does not require a fill. Melody, counterpoint,
+harmonic rhythm and held tension can carry a phrase over broader accompaniment
+or through its withdrawal. Read the continuation before restoring the engine.
+This qualifies the older union-surface recipe and related pulse prescriptions;
+it does not remove a groove's chosen anchor or the melody inside an explicitly
+requested arpeggio episode.
+
+Simpler accompaniment need not become empty accompaniment. Broaden an existing
+figure's values, reduce its contour or let a few chord attacks articulate its
+harmonic pace. Choose those changes against the melody and counterpoint, not
+from a prescribed replacement rhythm. Their complexity can be reason enough
+for the backing to remain simple; every desk need not demonstrate an independent
+rhythmic sentence or imitate the foreground's movement.
 
 ## 6b. THE FIGURATION TAXONOMY — the universe beyond arpeggios
 (added after the user caught batch 1 defaulting 7/8 motion layers to chord-spelling)
@@ -171,6 +183,11 @@ Rhythm is a LANGUAGE; a phrase is a SENTENCE with varied word-lengths:
   shows >= 2 value-class regions and >= 1 mid-bar gesture break. G17 gains a
   sentence check (value-class count per phrase) when cards lock.
 
+These sentence examples concern active foreground or figuration, not every
+accompanying voice. Do not apply their value-class counts, four-bar limits or
+mid-bar-break recipes as quotas beneath developed melodic lines. A stable pulse
+or held harmonic part may serve the whole phrase better than additional variety.
+
 ## 6e. THE HIGH-WATER MARK (judgment rule, NOT a hard floor — user-locked)
 
 P17/P18/P19 define the COMPLEXITY BAR for the whole work: rhythmic sentences,
@@ -182,8 +199,9 @@ standard, applied per section when composing and at review:
    (Mixed-value phrases as the normal speech, not the exception.)
 3. Is every SIMPLE passage simple ON PURPOSE? Silence, proclamation, a bare line
    declaring a theme, a held breath — all legitimate and necessary — but the
-   narrative must NAME the simplicity as a choice ("bare because the theme is
-   being declared"), or it is presumed to be the old default and recomposed.
+   simplicity must be judged in context. It can let a developed melody and
+   counterpoint remain audible; do not presume a simple supporting part needs
+   recomposition merely because it lacks its own rhythmic variety.
 4. The question at review is never "did it pass a floor" but "would a musician
    praise the CRAFT of this passage" — the machine indicators (value classes,
    gesture breaks, 0%-repetition stretches) only POINT at where to look.

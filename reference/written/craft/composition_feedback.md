@@ -59,6 +59,26 @@ now also covers the move into reduced figuration: establish its motion beneath
 the departing melody, connect its register and harmonic resolution, and stage
 the orchestral withdrawal. A softer final hit alone leaves the restart intact.
 
+October 21, Axiom Interrupt: the broken-chord accompaniment works, but its
+recurrence leaves too little contrast, including beneath slower and more
+melodically developed passages. The user requests broader quarter/half-note
+support, simple on-beat eighths and stretches carried by melody and counterpoint,
+with substantial changes across all six proposed spans. [Ensemble §14](ensemble_binding_and_grid.md#14-shared-motion-and-texture-can-carry-a-passage)
+and [keyboard figuration §§5–6](keyboard_figuration.md#6-composite-continuity-and-intentional-space)
+now distinguish musical continuity from continuous backing attacks. This qualifies
+the old instruction to fill a held melody with another moving part. Preserve the
+dedicated arpeggio episode and selected fast climaxes; broader accompaniment is a
+dramatic choice, not a replacement pattern for every section.
+
+The subsequent correction rejects a pass dominated by thinning, then rejects
+turning examples of broad values and shared attacks into explicit directions.
+The goal is simpler accompaniment beneath complex melodies and counterpoint.
+Choose its activity from the foreground and harmonic pace: broaden a surviving
+figure, simplify its contour, retain a useful pulse, sustain or withdraw where
+the phrase benefits. Inspect supporting brass and percussion as well as strings.
+Neither fewer notes nor a new uniform accompaniment scheme establishes success.
+Do not make the user enumerate suitable rhythms for each passage.
+
 Read the user's actual correction and the material it concerns. Record the
 failed relationship, the useful alternative and its scope. Distinguish an
 active boundary (such as an approved ending) from a directional correction
