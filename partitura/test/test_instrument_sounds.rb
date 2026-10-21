@@ -69,6 +69,23 @@ class InstrumentSoundsTest < Minitest::Test
     assert_includes midi, [0x99, 49, 72].pack("C*")
   end
 
+  def test_standalone_snare_and_flute_have_distinct_instrument_identities
+    piece = snare_and_flute_piece
+    document = render_document(piece)
+    score_parts = REXML::XPath.match(document, "/score-partwise/part-list/score-part")
+    snare = score_parts.first
+
+    assert_equal ["Snare Drum", "Flute"],
+      score_parts.map { |part| text_at(part, "score-instrument/instrument-name") }
+    assert_equal %w[drum.snare-drum wind.flutes.flute],
+      score_parts.map { |part| text_at(part, "score-instrument/instrument-sound") }
+    assert_empty REXML::XPath.match(snare, "midi-instrument")
+    assert_equal "1", text_at(document, "/score-partwise/part[1]/measure/attributes/staff-details/staff-lines")
+    refute_nil REXML::XPath.first(document, "/score-partwise/part[1]/measure/note/unpitched")
+    refute_nil REXML::XPath.first(document, "/score-partwise/part[2]/measure/note/pitch")
+    assert_includes Partitura::Export::MIDI.render(piece), [0x99, 38, 72].pack("C*")
+  end
+
   def test_pitched_parts_carry_instrument_sounds_and_stay_pitched
     document = render_document(pitched_sound_piece(xylophone_family: :pitched_percussion))
     sounds = REXML::XPath.match(document, "//score-part/score-instrument/instrument-sound").map(&:text)
@@ -113,6 +130,26 @@ class InstrumentSoundsTest < Minitest::Test
   end
 
   private
+
+  def snare_and_flute_piece
+    Partitura::Production.piece("Snare and Flute") do
+      meter "4/4"
+      key "C"
+      roster do
+        part :snare, "Snare Drum", music21: "SnareDrum", family: :percussion,
+          percussion_map: { "C2" => :snare_drum }
+        part :flute, "Flute", music21: "Flute", family: :woodwind
+      end
+      section :opening, "Opening", bars: 1..1 do
+        span bars: 1..1 do
+          phrase(:snare_hit, surface: :absolute) { events "C2:4" }
+          phrase(:flute_note, surface: :absolute) { events "C5:4" }
+          placement :snare_hit, part: :snare, at: "bar 1 beat 1", role: :rhythm
+          placement :flute_note, part: :flute, at: "bar 1 beat 1", role: :foreground
+        end
+      end
+    end
+  end
 
   def tubular_bells_piece
     Partitura::Production.piece("Pitched Bells") do

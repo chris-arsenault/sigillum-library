@@ -13,6 +13,14 @@ module Partitura
     # Dorico import the concert bass drum as a drum set), and `staff_lines` sets the
     # staff when the device has its part to itself. The MIDI file still uses `midi_note`.
     DEVICES = {
+      snare_drum: {
+        name: "Snare Drum",
+        abbreviation: "Sn. Dr.",
+        midi_note: 38,
+        display_step: "C",
+        display_octave: 5,
+        sound: "drum.snare-drum"
+      }.freeze,
       field_drum: {
         name: "Field Drum",
         abbreviation: "Fld. Dr.",
@@ -83,7 +91,7 @@ module Partitura
 
     # Extend the selected lone-bass-drum import form to these standalone devices.
     # A multi-device staff keeps its kit positions and MIDI metadata.
-    STANDALONE_DEVICES = %i[field_drum suspended_cymbal].freeze
+    STANDALONE_DEVICES = %i[snare_drum field_drum suspended_cymbal].freeze
     STANDALONE_NOTATION = {
       musicxml_midi: false, staff_lines: 1, display_step: "E", display_octave: 4
     }.freeze
