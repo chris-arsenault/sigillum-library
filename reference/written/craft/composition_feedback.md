@@ -79,6 +79,14 @@ the phrase benefits. Inspect supporting brass and percussion as well as strings.
 Neither fewer notes nor a new uniform accompaniment scheme establishes success.
 Do not make the user enumerate suitable rhythms for each passage.
 
+The next listening pass accepts the less busy 180–186 accompaniment but hears
+an underassertive main melody, a stumble around 164 and an abrupt 70–71 seam.
+The user explicitly permits a fermata or dying close/restart at that scene
+boundary. [Ensemble §§14/17](ensemble_binding_and_grid.md) now distinguish an
+audible ensemble breath from a mark on one desk, and a stronger melodic
+declaration from reinstating busy accompaniment. The local repair inspects the
+competing attacks at 164; it does not generalize all syncopation into a defect.
+
 Read the user's actual correction and the material it concerns. Record the
 failed relationship, the useful alternative and its scope. Distinguish an
 active boundary (such as an approved ending) from a directional correction

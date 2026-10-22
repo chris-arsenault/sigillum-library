@@ -332,6 +332,13 @@ only moves the problem. The dialogue card above illustrates shared attacks and
 answers, not this whole orchestral return; adapt its local relationships without
 treating it as a ready-made transition.
 
+For a deliberate scene break, compose the common release, the audible breath
+and the new entrance. A fermata on one desk does not create an ensemble pause
+if other parts continue through it. Check the actual playback too: a notation
+mark alone may not lengthen time or provide silence. A dying close and restart
+can give needed contrast in a piece whose other joins already blend; neither
+continuous transition nor a fermata is a universal preference.
+
 ## 15. Endings need phrase direction; approved endings need protection
 
 Read the approach, melodic destination, bass motion, harmonic tension/release,
@@ -426,6 +433,12 @@ at the actual phrase turn. Check notation separately from playback: a MIDI
 export that changes only note-on velocity cannot realize a swell on an already
 sounding tied note. Keep the expressive notation for the performer and report
 that playback limit without changing the musical rhythm to accommodate it.
+
+When reduced accompaniment exposes an underassertive melody, inspect its
+register, attack, destination and orchestral body before restoring the busy
+backing. A stronger arrival or selected octave reinforcement can make the
+existing phrase declare itself. Compose the handoff and subsequent withdrawal;
+doubling need not last for the whole section or become another independent line.
 
 ## 18. A kit layer is one cell; "no stencils" does not apply to it the same way
 
